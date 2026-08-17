@@ -293,17 +293,27 @@ export default function Home() {
       {/* NAVBAR */}
       <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-[#0d1117]/85 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3 cursor-pointer group">
-            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 border border-slate-800 p-2 shadow-inner transition duration-300 group-hover:border-slate-700">
-              <svg
-                viewBox="0 0 40 40"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-full w-full"
-              >
-                <path
-                  d="M8 8H32V13H14V18H28V23H14V28H32V33H8V8Z"
-                  fill="currentColor"
+         <div className="flex items-center gap-3 cursor-pointer group">
+  <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 border border-slate-800 p-2 shadow-inner transition duration-300 group-hover:border-slate-700">
+    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-full w-full">
+      <path 
+        d="M14 16C8 16 6 24 14 24C22 24 26 16 34 16C42 16 40 24 34 24C26 24 22 32 14 32C6 32 8 24 14 24" 
+        stroke="currentColor" 
+        strokeWidth="4" 
+        strokeLinecap="round" 
+        strokeLinejoin="round"
+        className={`transition-colors duration-500 ${is3D ? "text-cyan-400" : "text-amber-400"}`}
+      />
+      <circle cx="24" cy="24" r="2.5" fill="white" />
+    </svg>
+  </div>
+  <div className="flex flex-col">
+    <div className="flex items-center text-lg font-black tracking-tight text-white leading-none">
+      <span>ETERNA</span>
+      <span className={`ml-1 font-mono transition-colors duration-500 ${is3D ? "text-cyan-400" : "text-amber-400"}`}>LAB</span>
+    </div>
+    <span className="text-[9px] font-semibold tracking-[0.25em] text-slate-400 uppercase mt-1">Design & Garage</span>
+  </div>
                   className={`transition-colors duration-500 ${is3D ? "text-cyan-400" : "text-amber-400"}`}
                 />
                 <rect x="22" y="18" width="6" height="5" fill="#0d1117" />
