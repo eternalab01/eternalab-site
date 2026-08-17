@@ -297,7 +297,7 @@ export default function Home() {
     p6: { opt1Index: 0, opt2: "PETG (Yüksek Sıcaklık)" },
   });
 
-  // PNÖMATİK GARAJ KAPISI SES MOTORU
+  // TATLI, YUMUŞAK VE KİBAR AKUSTİK ARAYÜZ SESLERİ (Soft Organic UI Chimes)
   const playSound = (type: "warp" | "click" | "success") => {
     if (!soundEnabled || typeof window === "undefined") return;
     try {
@@ -305,52 +305,68 @@ export default function Home() {
       const now = ctx.currentTime;
 
       if (type === "warp") {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(140, now);
-        osc.frequency.exponentialRampToValueAtTime(70, now + 0.22);
-
-        gain.gain.setValueAtTime(0.08, now);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.25);
-
-      } else if (type === "click") {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(300, now);
-
-        gain.gain.setValueAtTime(0.04, now);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(now);
-        osc.stop(now + 0.04);
-
-      } else if (type === "success") {
-        [260, 390].forEach((freq, i) => {
+        // YUMUŞAK KADİFE KEPENK GEÇİŞ SESİ (Warm Soft Harmonic Chime)
+        [329.63, 440.0].forEach((freq, i) => {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
+          const filter = ctx.createBiquadFilter();
+
           osc.type = "sine";
           osc.frequency.setValueAtTime(freq, now + i * 0.05);
 
-          gain.gain.setValueAtTime(0.05, now + i * 0.05);
-          gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.05 + 0.18);
+          filter.type = "lowpass";
+          filter.frequency.setValueAtTime(600, now);
+
+          gain.gain.setValueAtTime(0.04, now + i * 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.05 + 0.25);
+
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc.start(now + i * 0.05);
+          osc.stop(now + i * 0.05 + 0.25);
+        });
+
+      } else if (type === "click") {
+        // MİNİK TATLI SU DAMLASI / DOKUNMA TIKLAMASI (Soft Bubble Click)
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(450, now);
+        osc.frequency.exponentialRampToValueAtTime(680, now + 0.035);
+
+        gain.gain.setValueAtTime(0.035, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.035);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.035);
+
+      } else if (type === "success") {
+        // NEŞELİ VE KİBAR KRİSTAL ONAY ZİLİ (Soft Sparkle Melody)
+        [523.25, 659.25, 783.99].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(freq, now + i * 0.045);
+
+          gain.gain.setValueAtTime(0.03, now + i * 0.045);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.045 + 0.2);
 
           osc.connect(gain);
           gain.connect(ctx.destination);
-          osc.start(now + i * 0.05);
-          osc.stop(now + i * 0.05 + 0.18);
+
+          osc.start(now + i * 0.045);
+          osc.stop(now + i * 0.045 + 0.2);
         });
       }
     } catch (e) {
-      // Audio context policy
+      // Audio autoplay policy
     }
   };
 
