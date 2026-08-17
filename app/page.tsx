@@ -24,7 +24,11 @@ import {
   HelpCircle,
   Cpu,
   Clock,
-  Box
+  Box,
+  CreditCard,
+  Building2,
+  Copy,
+  Check
 } from "lucide-react";
 
 type MainCategory = "3d" | "garage";
@@ -313,6 +317,20 @@ export default function Home() {
   const [isGarageDoorActive, setIsGarageDoorActive] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
+  // ÖDEME VE SİPARİŞ FORM STATE'LERİ
+  const [checkoutStep, setCheckoutStep] = useState<"cart" | "form" | "success">("cart");
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "transfer">("card");
+  const [copiedIban, setCopiedIban] = useState(false);
+  
+  const [formData, setFormData] = useState({
+    fullName: "",
+    phone: "",
+    city: "",
+    district: "",
+    address: "",
+    note: ""
+  });
+
   const [sliderPosition, setSliderPosition] = useState(50);
   const [customPlateText, setCustomPlateText] = useState("01 ETL 34");
 
@@ -488,6 +506,7 @@ export default function Home() {
         },
       ];
     });
+    setCheckoutStep("cart");
     setIsCartOpen(true);
   };
 
@@ -581,74 +600,60 @@ export default function Home() {
     { key: "towels", label: "Bez & Havlular (3 Al 2 Öde)" },
   ];
 
-  const handleWhatsAppCheckout = () => {
-    if (cart.length === 0) return;
+  // SİPARİŞİ TAMAMLAMA İŞLEMİ (SEÇENEK 1 & 2)
+  const handleFinalOrderSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     playSound("success");
-    const phone = "905555555555";
-    let message = `*📦 YENİ SİPARİŞ TALEBİ - ETERNALAB*\n`;
-    message += `───────────────────────\n\n`;
-    
-    cart.forEach((item, index) => {
-      message += `*${index + 1}. ${item.product.name}*\n`;
-      message += `   ▫️ Seçenek: ${item.selectedOpt1.name}\n`;
-      message += `   ▫️ Tip / Varyant: ${item.selectedOpt2}\n`;
-      if (item.customText) {
-        message += `   ▫️ *Özel Plaka / İsim:* ${item.customText}\n`;
-      }
-      message += `   ▫️ Adet & Fiyat: ${item.quantity} x ${item.selectedOpt1.price} ₺ = *${item.quantity * item.selectedOpt1.price} ₺*\n\n`;
-    });
 
-    message += `───────────────────────\n`;
-    message += `*💰 TOPLAM TUTAR:* ${totalAmount} ₺\n`;
-    message += `*🚚 KARGO:* ${totalAmount >= 1500 ? "ÜCRETSİZ" : "Alıcı Ödemeli (Standart Kargo)"}\n\n`;
-    
-    message += `*📍 TESLİMAT & İLETİŞİM BİLGİLERİM:*\n`;
-    message += `• Ad Soyad: \n`;
-    message += `• Telefon No: \n`;
-    message += `• Açık Adres: \n`;
-    message += `• İl / İlçe: \n`;
-    message += `• Ödeme Tercihi: (Havale / FAST / Kredi Kartı)\n\n`;
-    message += `Siparişimi onaylamak istiyorum, teşekkürler!`;
-    
-    const encoded = encodeURIComponent(message);
-    window.open(`https://wa.me/${phone}?text=${encoded}`, "_blank");
+    if (paymentMethod === "card") {
+      // 1. SEÇENEK: KREDİ KARTI / SHOPIER YÖNLENDİRMESİ
+      // Buraya kendi Shopier / PayTR mağaza linkini ekleyebilirsin:
+      const SHOPIER_URL = "https://www.shopier.com/";
+      window.open(SHOPIER_URL, "_blank");
+      setCheckoutStep("success");
+    } else {
+      // 2. SEÇENEK: HAVALE / FAST SİPARİŞİ OLUŞTURMA
+      setCheckoutStep("success");
+    }
+  };
+
+  const copyIbanToClipboard = () => {
+    navigator.clipboard.writeText("TR000000000000000000000000");
+    setCopiedIban(true);
+    playSound("click");
+    setTimeout(() => setCopiedIban(false), 3000);
   };
 
   return (
     <div className="relative min-h-screen bg-[#07090e] text-slate-100 antialiased selection:bg-slate-700 selection:text-white overflow-x-hidden pb-16 md:pb-0">
       
       {/* ========================================================================= */}
-      {/* SAĞ VE SOL AMBİYANS FOTOĞRAF KANATLARI (AMBIENT STUDIO WINGS) */}
+      {/* YAN AMBİYANS FOTOĞRAF PANELLERİ */}
       {/* ========================================================================= */}
-      
-      {/* SOL KANAT ARKA PLAN FOTOĞRAFI */}
       <div className="pointer-events-none fixed top-0 bottom-0 left-0 w-1/3 z-0 overflow-hidden hidden xl:block opacity-25 transition-opacity duration-1000">
         <img
           src={
             is3D
-              ? "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80" // 3D Lab / Atölye
-              : "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800&auto=format&fit=crop&q=80" // Lüks Spor Araç / Garaj
+              ? "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80"
+              : "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800&auto=format&fit=crop&q=80"
           }
           alt="Studio Sol Ambiyans"
           className="h-full w-full object-cover filter grayscale contrast-125 transition-all duration-700"
         />
-        {/* Sol Kenar Karartma & Merkeze Geçiş Maskesi */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#07090e]/70 to-[#07090e]" />
         <div className="absolute inset-0 bg-gradient-to-b from-[#07090e] via-transparent to-[#07090e]" />
       </div>
 
-      {/* SAĞ KANAT ARKA PLAN FOTOĞRAFI */}
       <div className="pointer-events-none fixed top-0 bottom-0 right-0 w-1/3 z-0 overflow-hidden hidden xl:block opacity-25 transition-opacity duration-1000">
         <img
           src={
             is3D
-              ? "https://images.unsplash.com/photo-1563089145-599997674d42?w=800&auto=format&fit=crop&q=80" // 3D Baskı / Lazer Geometri
-              : "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&auto=format&fit=crop&q=80" // Seramik Kaplama / Detailing
+              ? "https://images.unsplash.com/photo-1563089145-599997674d42?w=800&auto=format&fit=crop&q=80"
+              : "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&auto=format&fit=crop&q=80"
           }
           alt="Studio Sağ Ambiyans"
           className="h-full w-full object-cover filter grayscale contrast-125 transition-all duration-700"
         />
-        {/* Sağ Kenar Karartma & Merkeze Geçiş Maskesi */}
         <div className="absolute inset-0 bg-gradient-to-l from-transparent via-[#07090e]/70 to-[#07090e]" />
         <div className="absolute inset-0 bg-gradient-to-b from-[#07090e] via-transparent to-[#07090e]" />
       </div>
@@ -732,7 +737,7 @@ export default function Home() {
         </span>
       </div>
 
-      {/* AMBİYANS RADYAL IŞIĞI */}
+      {/* AMBİYANS IŞIĞI */}
       <div 
         className={`pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] ${themeClasses.ambientGlow} transition-all duration-700 ease-out`} 
       />
@@ -774,7 +779,7 @@ export default function Home() {
             </button>
 
             <button
-              onClick={() => setIsCartOpen(true)}
+              onClick={() => { setCheckoutStep("cart"); setIsCartOpen(true); }}
               className="relative flex items-center gap-2 rounded-xl border border-slate-700/80 bg-slate-800/80 px-4 py-2.5 text-sm font-bold text-slate-200 shadow-md transition-all duration-300 hover:scale-105"
             >
               <ShoppingBag className="h-4 w-4" />
@@ -1020,7 +1025,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4">
+                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
                   <span className="text-[11px] font-bold text-amber-400">ADIM 3: Kurulama & Bez</span>
                   <div className="mt-2 space-y-2">
                     <label 
@@ -1304,17 +1309,19 @@ export default function Home() {
               </div>
             </div>
             <button
-              onClick={() => setIsCartOpen(true)}
+              onClick={() => { setCheckoutStep("cart"); setIsCartOpen(true); }}
               className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-xs font-black text-slate-950 shadow-md ${themeClasses.button}`}
             >
               <ShoppingBag className="h-4 w-4" />
-              <span>Sepeti Gör & Sipariş Ver</span>
+              <span>Siparişi Tamamla ({totalAmount} ₺)</span>
             </button>
           </div>
         </div>
       )}
 
-      {/* SEPET PANELİ */}
+      {/* ========================================================================= */}
+      {/* SEPET & ÖDEME ÇEKMECESİ (SEÇENEK 1 & 2) */}
+      {/* ========================================================================= */}
       {isCartOpen && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div
@@ -1322,114 +1329,325 @@ export default function Home() {
             onClick={() => setIsCartOpen(false)}
           />
 
-          <div className="relative z-10 flex h-full w-full max-w-md flex-col justify-between border-l border-slate-800 bg-[#07090e] p-6 shadow-2xl animate-in slide-in-from-right duration-300 ease-out">
-            <div>
-              <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-                <div className="flex items-center gap-2.5">
-                  <ShoppingBag className={`h-5 w-5 transition-colors duration-300 ${is3D ? "text-cyan-400" : "text-amber-400"}`} />
-                  <h3 className="text-lg font-bold text-white">Sepetim ({totalItemCount} Ürün)</h3>
-                </div>
-                <button
-                  onClick={() => setIsCartOpen(false)}
-                  className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition cursor-pointer"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-
-              <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900/60 p-3">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Ücretsiz Kargo Hedefi:</span>
-                  <span className="font-bold text-amber-400">1.500 ₺</span>
-                </div>
-                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-800">
-                  <div 
-                    className="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500 ease-out" 
-                    style={{ width: `${Math.min(100, (totalAmount / 1500) * 100)}%` }}
-                  />
-                </div>
-                <p className="mt-1.5 text-[11px] text-slate-400">
-                  {totalAmount >= 1500 ? (
-                    <span className="font-bold text-emerald-400">🎉 Tebrikler, kargonuz ÜCRETSİZ!</span>
-                  ) : (
-                    <span>Ücretsiz kargo için sepetinize <strong>{1500 - totalAmount} ₺</strong> daha ekleyin.</span>
-                  )}
-                </p>
-              </div>
-
-              <div className="mt-4 max-h-[50vh] space-y-3 overflow-y-auto pr-1">
-                {cart.length === 0 ? (
-                  <div className="py-16 text-center text-slate-500">
-                    <ShoppingBag className="mx-auto h-12 w-12 opacity-30" />
-                    <p className="mt-3 text-sm">Sepetinizde ürün bulunmuyor.</p>
-                  </div>
-                ) : (
-                  cart.map((item) => (
-                    <div
-                      key={item.cartId}
-                      className="flex items-center justify-between rounded-xl border border-slate-800/80 bg-slate-900/80 p-3.5 shadow-sm"
-                    >
-                      <div className="flex-1 pr-3">
-                        <h4 className="text-sm font-semibold text-white">{item.product.name}</h4>
-                        <div className="mt-1 flex flex-col gap-0.5 text-[11px] text-slate-400">
-                          <span className="text-amber-400 font-medium">{item.selectedOpt1.name}</span>
-                          <span className="text-slate-400">{item.selectedOpt2}</span>
-                          {item.customText && (
-                            <span className="text-cyan-400 font-bold">Özel Plaka/İsim: {item.customText}</span>
-                          )}
-                        </div>
-                        <p className={`mt-1.5 font-mono text-xs font-bold ${is3D ? "text-cyan-400" : "text-amber-400"}`}>
-                          {item.selectedOpt1.price} ₺ x {item.quantity} = {item.selectedOpt1.price * item.quantity} ₺
-                        </p>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center rounded-lg border border-slate-700 bg-slate-800/90">
-                          <button
-                            onClick={() => updateQuantity(item.cartId, -1)}
-                            className="p-1 text-slate-400 hover:text-white cursor-pointer"
-                          >
-                            <Minus className="h-3.5 w-3.5" />
-                          </button>
-                          <span className="px-2 font-mono text-xs font-bold text-white">{item.quantity}</span>
-                          <button
-                            onClick={() => updateQuantity(item.cartId, 1)}
-                            className="p-1 text-slate-400 hover:text-white cursor-pointer"
-                          >
-                            <Plus className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-                        <button
-                          onClick={() => removeFromCart(item.cartId)}
-                          className="rounded-lg p-1.5 text-red-400 hover:bg-red-950/40 cursor-pointer"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
+          <div className="relative z-10 flex h-full w-full max-w-md flex-col justify-between border-l border-slate-800 bg-[#07090e] p-6 shadow-2xl animate-in slide-in-from-right duration-300 ease-out overflow-y-auto">
+            
+            {/* 1. ADIM: SEPET LİSTESİ */}
+            {checkoutStep === "cart" && (
+              <div className="flex flex-col justify-between h-full">
+                <div>
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                    <div className="flex items-center gap-2.5">
+                      <ShoppingBag className={`h-5 w-5 transition-colors duration-300 ${is3D ? "text-cyan-400" : "text-amber-400"}`} />
+                      <h3 className="text-lg font-bold text-white">Sepetim ({totalItemCount} Ürün)</h3>
                     </div>
-                  ))
+                    <button
+                      onClick={() => setIsCartOpen(false)}
+                      className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition cursor-pointer"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+
+                  <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900/60 p-3">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-400">Ücretsiz Kargo Hedefi:</span>
+                      <span className="font-bold text-amber-400">1.500 ₺</span>
+                    </div>
+                    <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-800">
+                      <div 
+                        className="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500 ease-out" 
+                        style={{ width: `${Math.min(100, (totalAmount / 1500) * 100)}%` }}
+                      />
+                    </div>
+                    <p className="mt-1.5 text-[11px] text-slate-400">
+                      {totalAmount >= 1500 ? (
+                        <span className="font-bold text-emerald-400">🎉 Tebrikler, kargonuz ÜCRETSİZ!</span>
+                      ) : (
+                        <span>Ücretsiz kargo için sepetinize <strong>{1500 - totalAmount} ₺</strong> daha ekleyin.</span>
+                      )}
+                    </p>
+                  </div>
+
+                  <div className="mt-4 max-h-[50vh] space-y-3 overflow-y-auto pr-1">
+                    {cart.length === 0 ? (
+                      <div className="py-16 text-center text-slate-500">
+                        <ShoppingBag className="mx-auto h-12 w-12 opacity-30" />
+                        <p className="mt-3 text-sm">Sepetinizde ürün bulunmuyor.</p>
+                      </div>
+                    ) : (
+                      cart.map((item) => (
+                        <div
+                          key={item.cartId}
+                          className="flex items-center justify-between rounded-xl border border-slate-800/80 bg-slate-900/80 p-3.5 shadow-sm"
+                        >
+                          <div className="flex-1 pr-3">
+                            <h4 className="text-sm font-semibold text-white">{item.product.name}</h4>
+                            <div className="mt-1 flex flex-col gap-0.5 text-[11px] text-slate-400">
+                              <span className="text-amber-400 font-medium">{item.selectedOpt1.name}</span>
+                              <span className="text-slate-400">{item.selectedOpt2}</span>
+                              {item.customText && (
+                                <span className="text-cyan-400 font-bold">Özel Plaka/İsim: {item.customText}</span>
+                              )}
+                            </div>
+                            <p className={`mt-1.5 font-mono text-xs font-bold ${is3D ? "text-cyan-400" : "text-amber-400"}`}>
+                              {item.selectedOpt1.price} ₺ x {item.quantity} = {item.selectedOpt1.price * item.quantity} ₺
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center rounded-lg border border-slate-700 bg-slate-800/90">
+                              <button
+                                onClick={() => updateQuantity(item.cartId, -1)}
+                                className="p-1 text-slate-400 hover:text-white cursor-pointer"
+                              >
+                                <Minus className="h-3.5 w-3.5" />
+                              </button>
+                              <span className="px-2 font-mono text-xs font-bold text-white">{item.quantity}</span>
+                              <button
+                                onClick={() => updateQuantity(item.cartId, 1)}
+                                className="p-1 text-slate-400 hover:text-white cursor-pointer"
+                              >
+                                <Plus className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                            <button
+                              onClick={() => removeFromCart(item.cartId)}
+                              className="rounded-lg p-1.5 text-red-400 hover:bg-red-950/40 cursor-pointer"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                {cart.length > 0 && (
+                  <div className="border-t border-slate-800 pt-4">
+                    <div className="flex items-center justify-between font-mono text-base font-bold text-white">
+                      <span>Toplam Tutar:</span>
+                      <span className={`text-2xl transition-colors duration-300 ${is3D ? "text-cyan-400" : "text-amber-400"}`}>{totalAmount} ₺</span>
+                    </div>
+                    <button
+                      onClick={() => { playSound("click"); setCheckoutStep("form"); }}
+                      className={`mt-4 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black transition-all duration-200 active:scale-95 cursor-pointer ${themeClasses.button}`}
+                    >
+                      <span>Siparişi Tamamla & Ödemeye Geç</span>
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
                 )}
               </div>
-            </div>
+            )}
 
-            {cart.length > 0 && (
-              <div className="border-t border-slate-800 pt-4">
-                <div className="flex items-center justify-between font-mono text-base font-bold text-white">
-                  <span>Toplam Tutar:</span>
-                  <span className={`text-2xl transition-colors duration-300 ${is3D ? "text-cyan-400" : "text-amber-400"}`}>{totalAmount} ₺</span>
+            {/* 2. ADIM: TESLİMAT & ÖDEME TERCİHİ FORMU */}
+            {checkoutStep === "form" && (
+              <div className="flex flex-col justify-between h-full">
+                <div>
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => setCheckoutStep("cart")}
+                        className="text-xs text-slate-400 hover:text-white underline cursor-pointer"
+                      >
+                        ← Sepete Dön
+                      </button>
+                      <h3 className="text-base font-bold text-white">Teslimat & Ödeme</h3>
+                    </div>
+                    <button
+                      onClick={() => setIsCartOpen(false)}
+                      className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition cursor-pointer"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+
+                  {/* Ödeme Yöntemi Seçici */}
+                  <div className="mt-4">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Ödeme Yöntemi Seçin:</span>
+                    <div className="mt-2 grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => { playSound("click"); setPaymentMethod("card"); }}
+                        className={`flex flex-col items-center justify-center rounded-xl border p-3 text-xs transition cursor-pointer ${
+                          paymentMethod === "card"
+                            ? "border-emerald-400 bg-emerald-500/20 text-white font-bold"
+                            : "border-slate-800 bg-slate-900/60 text-slate-400"
+                        }`}
+                      >
+                        <CreditCard className="h-5 w-5 mb-1 text-emerald-400" />
+                        <span>Kredi Kartı / Banka Kartı</span>
+                        <span className="text-[9px] text-slate-400 font-normal">Güvenli 3D Pay</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => { playSound("click"); setPaymentMethod("transfer"); }}
+                        className={`flex flex-col items-center justify-center rounded-xl border p-3 text-xs transition cursor-pointer ${
+                          paymentMethod === "transfer"
+                            ? "border-amber-400 bg-amber-500/20 text-white font-bold"
+                            : "border-slate-800 bg-slate-900/60 text-slate-400"
+                        }`}
+                      >
+                        <Building2 className="h-5 w-5 mb-1 text-amber-400" />
+                        <span>Havale / FAST</span>
+                        <span className="text-[9px] text-slate-400 font-normal">Anında İndirimli</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Teslimat Bilgi Girişi */}
+                  <form id="checkout-form" onSubmit={handleFinalOrderSubmit} className="mt-4 space-y-3">
+                    <div>
+                      <label className="text-[11px] font-semibold text-slate-400">Ad Soyad *</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.fullName}
+                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                        placeholder="Örn: Serkan Terler"
+                        className="mt-1 w-full rounded-xl border border-slate-800 bg-slate-900/90 p-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-slate-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-semibold text-slate-400">Telefon Numarası *</label>
+                      <input
+                        type="tel"
+                        required
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        placeholder="05XX XXX XX XX"
+                        className="mt-1 w-full rounded-xl border border-slate-800 bg-slate-900/90 p-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-slate-400"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[11px] font-semibold text-slate-400">İl *</label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.city}
+                          onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                          placeholder="Örn: Adana"
+                          className="mt-1 w-full rounded-xl border border-slate-800 bg-slate-900/90 p-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-slate-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[11px] font-semibold text-slate-400">İlçe *</label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.district}
+                          onChange={(e) => setFormData({ ...formData, district: e.target.value })}
+                          placeholder="Örn: Seyhan"
+                          className="mt-1 w-full rounded-xl border border-slate-800 bg-slate-900/90 p-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-slate-400"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-semibold text-slate-400">Açık Adres (Mahalle, Cadde, No) *</label>
+                      <textarea
+                        required
+                        rows={2}
+                        value={formData.address}
+                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                        placeholder="Kargo teslimatı için detaylı adresinizi giriniz..."
+                        className="mt-1 w-full rounded-xl border border-slate-800 bg-slate-900/90 p-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-slate-400"
+                      />
+                    </div>
+                  </form>
                 </div>
-                <button
-                  onClick={handleWhatsAppCheckout}
-                  className={`mt-4 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black transition-all duration-200 active:scale-95 cursor-pointer ${themeClasses.button}`}
-                >
-                  <span>Siparişi WhatsApp ile Tamamla</span>
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-                <p className="mt-2 text-center text-[11px] text-slate-500">
-                  Sipariş listeniz ve teslimat taslağınız otomatik iletilecektir.
-                </p>
+
+                <div className="border-t border-slate-800 pt-4 mt-4">
+                  <div className="flex items-center justify-between font-mono text-sm font-bold text-white mb-3">
+                    <span>Ödenecek Tutar:</span>
+                    <span className="text-xl text-amber-400">{totalAmount} ₺</span>
+                  </div>
+                  
+                  <button
+                    type="submit"
+                    form="checkout-form"
+                    className={`flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black transition-all duration-200 active:scale-95 cursor-pointer ${
+                      paymentMethod === "card"
+                        ? "bg-gradient-to-r from-emerald-400 to-teal-500 text-slate-950 shadow-md shadow-emerald-500/20"
+                        : themeClasses.button
+                    }`}
+                  >
+                    {paymentMethod === "card" ? (
+                      <>
+                        <CreditCard className="h-4 w-4" />
+                        <span>Kart ile Güvenli Ödemeye Geç ({totalAmount} ₺)</span>
+                      </>
+                    ) : (
+                      <>
+                        <Building2 className="h-4 w-4" />
+                        <span>Siparişi Onayla & IBAN Bilgisi Al</span>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             )}
+
+            {/* 3. ADIM: SİPARİŞ TAMAMLANDI / IBAN GÖSTERİMİ */}
+            {checkoutStep === "success" && (
+              <div className="flex flex-col justify-between h-full py-4 text-center">
+                <div>
+                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
+                    <CheckCircle className="h-8 w-8" />
+                  </div>
+                  <h3 className="mt-4 text-xl font-bold text-white">Siparişiniz Alındı!</h3>
+                  <p className="mt-1 text-xs text-slate-400">
+                    Sipariş Numaranız: <span className="font-mono font-bold text-amber-400">#ETL-{Math.floor(100000 + Math.random() * 900000)}</span>
+                  </p>
+
+                  {paymentMethod === "transfer" ? (
+                    <div className="mt-6 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-left">
+                      <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider block mb-2">
+                        🏦 Havale / FAST Bilgileri:
+                      </span>
+                      <div className="space-y-1.5 text-xs text-slate-300">
+                        <p><strong>Alıcı:</strong> EternaLab San. Tic.</p>
+                        <p><strong>Banka:</strong> Ziraat Bankası / Garanti BBVA</p>
+                        <div className="mt-2 flex items-center justify-between rounded-xl bg-slate-950/80 p-2.5 border border-slate-800">
+                          <span className="font-mono text-xs text-amber-300">TR00 0000 0000 0000 0000 0000 00</span>
+                          <button
+                            onClick={copyIbanToClipboard}
+                            className="flex items-center gap-1 text-[11px] bg-slate-800 hover:bg-slate-700 text-white px-2 py-1 rounded-lg transition cursor-pointer"
+                          >
+                            {copiedIban ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
+                            <span>{copiedIban ? "Kopyalandı" : "Kopyala"}</span>
+                          </button>
+                        </div>
+                        <p className="text-[10px] text-slate-400 mt-2">
+                          * Açıklama kısmına <strong>{formData.fullName || "Adınızı"}</strong> yazmanız yeterlidir.
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-xs text-slate-300">
+                      Ödeme ekranı açıldı. Ödemeniz onaylandığında kargonuz hazırlanıp SMS ile takip numarası iletilecektir.
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => {
+                    setCart([]);
+                    setIsCartOpen(false);
+                    setCheckoutStep("cart");
+                  }}
+                  className="mt-6 w-full rounded-xl bg-slate-800 hover:bg-slate-700 py-3 text-xs font-bold text-white transition cursor-pointer"
+                >
+                  Alışverişe Devam Et
+                </button>
+              </div>
+            )}
+
           </div>
         </div>
       )}
