@@ -274,7 +274,7 @@ export default function Home() {
   const [activeSubTabGarage, setActiveSubTabGarage] = useState<SubCategoryGarage>("all");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isCurtainActive, setIsCurtainActive] = useState(false);
+  const [isGarageDoorActive, setIsGarageDoorActive] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
   const [sliderPosition, setSliderPosition] = useState(50);
@@ -297,7 +297,7 @@ export default function Home() {
     p6: { opt1Index: 0, opt2: "PETG (Yüksek Sıcaklık)" },
   });
 
-  // KİBAR VE SESSİZ AKUSTİK DOKUNUŞ SESLERİ
+  // PNÖMATİK GARAJ KAPISI SES MOTORU
   const playSound = (type: "warp" | "click" | "success") => {
     if (!soundEnabled || typeof window === "undefined") return;
     try {
@@ -305,25 +305,26 @@ export default function Home() {
       const now = ctx.currentTime;
 
       if (type === "warp") {
+        // Tok sarmal kepenk ve pnömatik basınç sesi
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = "sine";
-        osc.frequency.setValueAtTime(190, now);
-        osc.frequency.exponentialRampToValueAtTime(260, now + 0.18);
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.exponentialRampToValueAtTime(70, now + 0.22);
 
-        gain.gain.setValueAtTime(0.06, now);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
 
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.start(now);
-        osc.stop(now + 0.2);
+        osc.stop(now + 0.25);
 
       } else if (type === "click") {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = "sine";
-        osc.frequency.setValueAtTime(320, now);
+        osc.frequency.setValueAtTime(300, now);
 
         gain.gain.setValueAtTime(0.04, now);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
@@ -334,13 +335,13 @@ export default function Home() {
         osc.stop(now + 0.04);
 
       } else if (type === "success") {
-        [280, 420].forEach((freq, i) => {
+        [260, 390].forEach((freq, i) => {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.type = "sine";
           osc.frequency.setValueAtTime(freq, now + i * 0.05);
 
-          gain.gain.setValueAtTime(0.04, now + i * 0.05);
+          gain.gain.setValueAtTime(0.05, now + i * 0.05);
           gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.05 + 0.18);
 
           osc.connect(gain);
@@ -354,21 +355,23 @@ export default function Home() {
     }
   };
 
-  // TÜM EKRAN IŞIK PERDESİ GEÇİŞ TETİKLEYİCİSİ
+  // GARAJ KAPISI GEÇİŞ TETİKLEYİCİSİ
   const handleTabChange = (newTab: MainCategory) => {
-    if (newTab === activeTab || isCurtainActive) return;
+    if (newTab === activeTab || isGarageDoorActive) return;
     playSound("warp");
-    setIsCurtainActive(true);
+    setIsGarageDoorActive(true);
 
+    // 1. Kapı aşağı iner, kategori arkada değişir
     setTimeout(() => {
       setActiveTab(newTab);
       if (newTab === "3d") setActiveSubTab3D("all");
       else setActiveSubTabGarage("all");
       
+      // 2. Kapı yukarı doğru toplanır
       setTimeout(() => {
-        setIsCurtainActive(false);
-      }, 180);
-    }, 160);
+        setIsGarageDoorActive(false);
+      }, 160);
+    }, 220);
   };
 
   const handleVariantChange = (productId: string, type: "opt1Index" | "opt2", value: any) => {
@@ -483,9 +486,7 @@ export default function Home() {
     ambientGlow: is3D
       ? "from-cyan-500/20 via-blue-600/10 to-transparent"
       : "from-amber-500/20 via-orange-600/10 to-transparent",
-    curtainColor: is3D
-      ? "from-cyan-500/25 via-blue-600/15 to-transparent border-cyan-400/40"
-      : "from-amber-500/25 via-orange-600/15 to-transparent border-amber-400/40"
+    doorSlat: is3D ? "border-cyan-500/20" : "border-amber-500/20"
   };
 
   const subCategories3D: { key: SubCategory3D; label: string }[] = [
@@ -527,15 +528,45 @@ export default function Home() {
   return (
     <div className="relative min-h-screen bg-[#07090e] text-slate-100 antialiased selection:bg-slate-700 selection:text-white overflow-x-hidden">
       
-      {/* 1. TÜM EKRANI KAPLAYAN SİNEMATİK IŞIK PERDESİ (FULL SCREEN FLOOD CURTAIN) */}
+      {/* ========================================================================= */}
+      {/* GÖZ ALICI ENDÜSTRİYEL GARAJ SARMAL KAPISI (ROLL-UP GARAGE SHUTTER) */}
+      {/* ========================================================================= */}
       <div 
-        className={`pointer-events-none fixed inset-0 z-50 transition-all duration-300 ease-out flex flex-col justify-end bg-gradient-to-b ${themeClasses.curtainColor} backdrop-blur-[3px] border-b ${
-          isCurtainActive 
-            ? "opacity-100 translate-y-0" 
-            : "opacity-0 -translate-y-full"
+        className={`pointer-events-none fixed inset-0 z-50 flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.32,0,0.67,0)] ${
+          isGarageDoorActive ? "translate-y-0" : "-translate-y-full"
         }`}
       >
-        <div className={`w-full h-1 ${is3D ? "bg-cyan-400 shadow-[0_0_20px_#22d3ee]" : "bg-amber-400 shadow-[0_0_20px_#f59e0b]"}`} />
+        {/* Sarmal Çelik Paneller (10 Kademeli Panel İllüzyonu) */}
+        <div className="flex-1 w-full bg-[#0a0d14] flex flex-col justify-between shadow-2xl border-b border-slate-700/80">
+          {[...Array(9)].map((_, i) => (
+            <div 
+              key={i} 
+              className={`w-full flex-1 border-b border-t border-black/60 bg-gradient-to-b from-[#161c28] via-[#0e131d] to-[#07090e] flex items-center justify-between px-8 ${themeClasses.doorSlat}`}
+            >
+              <div className="flex items-center gap-4 opacity-30">
+                <div className="h-1.5 w-1.5 rounded-full bg-slate-400" />
+                <div className="h-1.5 w-12 rounded-full bg-slate-700" />
+              </div>
+              <div className="flex items-center gap-4 opacity-30">
+                <div className="h-1.5 w-12 rounded-full bg-slate-700" />
+                <div className="h-1.5 w-1.5 rounded-full bg-slate-400" />
+              </div>
+            </div>
+          ))}
+          
+          {/* Garaj Kapısı Alt Ağır Kauçuk Fitil & Neon Lazer Çizgisi */}
+          <div className="w-full bg-[#050608] py-2.5 px-8 flex items-center justify-between border-t-2 border-slate-700">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono font-black uppercase tracking-widest text-slate-400">
+                ETERNA SHUTTER SYSTEM //
+              </span>
+              <span className={`text-[10px] font-mono font-bold ${is3D ? "text-cyan-400" : "text-amber-400"}`}>
+                {is3D ? "3D_LAB_ACTIVE" : "GARAGE_PRO_ACTIVE"}
+              </span>
+            </div>
+            <div className={`h-1.5 w-24 rounded-full ${is3D ? "bg-cyan-400 shadow-[0_0_15px_#22d3ee]" : "bg-amber-400 shadow-[0_0_15px_#f59e0b]"}`} />
+          </div>
+        </div>
       </div>
 
       {/* ÜST DUYURU BARI */}
@@ -610,10 +641,10 @@ export default function Home() {
         </div>
       </header>
 
-      {/* 2. TÜM SAYFAYI KAPLAYAN SENKRONİZE GÖVDE (FULL PAGE STAGE) */}
+      {/* GÖVDE (KAPI AÇILIRKEN HİDROLİK SÜZÜLME) */}
       <div className={`transition-all duration-300 ease-out transform-gpu ${
-        isCurtainActive 
-          ? "opacity-30 translate-y-3 scale-[0.99] filter blur-[1px]" 
+        isGarageDoorActive 
+          ? "opacity-40 translate-y-4 scale-[0.99] filter blur-[1px]" 
           : "opacity-100 translate-y-0 scale-100 filter blur-0"
       }`}>
         
