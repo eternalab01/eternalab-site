@@ -600,7 +600,6 @@ export default function Home() {
     { key: "towels", label: "Bez & Havlular (3 Al 2 Öde)" },
   ];
 
-  // SİPARİŞİ TAMAMLAMA İŞLEMİ (SEÇENEK 1 & 2)
   const handleFinalOrderSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     playSound("success");
@@ -625,33 +624,36 @@ export default function Home() {
     <div className="relative min-h-screen bg-[#07090e] text-slate-100 antialiased selection:bg-slate-700 selection:text-white overflow-x-hidden pb-16 md:pb-0">
       
       {/* ========================================================================= */}
-      {/* YAN AMBİYANS FOTOĞRAF PANELLERİ */}
+      {/* YENİ VE DAHA KARİZMATİK YAN AMBİYANS FOTOĞRAF PANELLERİ */}
       {/* ========================================================================= */}
-      <div className="pointer-events-none fixed top-0 bottom-0 left-0 w-1/3 z-0 overflow-hidden hidden xl:block opacity-25 transition-opacity duration-1000">
+      
+      {/* SOL KANAT: DETAYLI YÜZEY & YANSIMA */}
+      <div className="pointer-events-none fixed top-0 bottom-0 left-0 w-[30%] z-0 overflow-hidden hidden xl:block opacity-20 transition-opacity duration-1000">
         <img
           src={
             is3D
-              ? "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80"
-              : "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800&auto=format&fit=crop&q=80"
+              ? "https://images.unsplash.com/photo-1631556097152-c39479cbfe9f?w=900&auto=format&fit=crop&q=80" // 3D Ekstrüzyon & Nozzle Isı Yansıması
+              : "https://images.unsplash.com/photo-1550355291-bbee04a92027?w=900&auto=format&fit=crop&q=80" // Karanlık Stüdyoda Kaporta Işık Çizgisi
           }
           alt="Studio Sol Ambiyans"
-          className="h-full w-full object-cover filter grayscale contrast-125 transition-all duration-700"
+          className="h-full w-full object-cover filter grayscale contrast-150 transition-all duration-700 scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#07090e]/70 to-[#07090e]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#07090e]/80 to-[#07090e]" />
         <div className="absolute inset-0 bg-gradient-to-b from-[#07090e] via-transparent to-[#07090e]" />
       </div>
 
-      <div className="pointer-events-none fixed top-0 bottom-0 right-0 w-1/3 z-0 overflow-hidden hidden xl:block opacity-25 transition-opacity duration-1000">
+      {/* SAĞ KANAT: HASSAS MEKANİK & PERFORMANS DOKUSU */}
+      <div className="pointer-events-none fixed top-0 bottom-0 right-0 w-[30%] z-0 overflow-hidden hidden xl:block opacity-20 transition-opacity duration-1000">
         <img
           src={
             is3D
-              ? "https://images.unsplash.com/photo-1563089145-599997674d42?w=800&auto=format&fit=crop&q=80"
-              : "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&auto=format&fit=crop&q=80"
+              ? "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=900&auto=format&fit=crop&q=80" // Fütüristik Polimer & Geometrik Katman
+              : "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=900&auto=format&fit=crop&q=80" // Karbon Fiber & Performans Fren Kaliperi
           }
           alt="Studio Sağ Ambiyans"
-          className="h-full w-full object-cover filter grayscale contrast-125 transition-all duration-700"
+          className="h-full w-full object-cover filter grayscale contrast-150 transition-all duration-700 scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-l from-transparent via-[#07090e]/70 to-[#07090e]" />
+        <div className="absolute inset-0 bg-gradient-to-l from-transparent via-[#07090e]/80 to-[#07090e]" />
         <div className="absolute inset-0 bg-gradient-to-b from-[#07090e] via-transparent to-[#07090e]" />
       </div>
 
@@ -1316,9 +1318,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* SEPET & ÖDEME ÇEKMECESİ (SEÇENEK 1 & 2) */}
-      {/* ========================================================================= */}
+      {/* SEPET & ÖDEME ÇEKMECESİ */}
       {isCartOpen && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div
@@ -1494,7 +1494,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* Teslimat Bilgi Girişi (GENEL PLACEHOLDER'LAR) */}
+                  {/* Teslimat Bilgi Girişi */}
                   <form id="checkout-form" onSubmit={handleFinalOrderSubmit} className="mt-4 space-y-3">
                     <div>
                       <label className="text-[11px] font-semibold text-slate-400">Ad Soyad *</label>
