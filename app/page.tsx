@@ -305,7 +305,6 @@ export default function Home() {
       const now = ctx.currentTime;
 
       if (type === "warp") {
-        // Tok sarmal kepenk ve pnömatik basınç sesi
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = "sine";
@@ -361,13 +360,11 @@ export default function Home() {
     playSound("warp");
     setIsGarageDoorActive(true);
 
-    // 1. Kapı aşağı iner, kategori arkada değişir
     setTimeout(() => {
       setActiveTab(newTab);
       if (newTab === "3d") setActiveSubTab3D("all");
       else setActiveSubTabGarage("all");
       
-      // 2. Kapı yukarı doğru toplanır
       setTimeout(() => {
         setIsGarageDoorActive(false);
       }, 160);
@@ -486,7 +483,7 @@ export default function Home() {
     ambientGlow: is3D
       ? "from-cyan-500/20 via-blue-600/10 to-transparent"
       : "from-amber-500/20 via-orange-600/10 to-transparent",
-    doorSlat: is3D ? "border-cyan-500/20" : "border-amber-500/20"
+    doorSlat: is3D ? "border-cyan-500/15" : "border-amber-500/15"
   };
 
   const subCategories3D: { key: SubCategory3D; label: string }[] = [
@@ -529,39 +526,73 @@ export default function Home() {
     <div className="relative min-h-screen bg-[#07090e] text-slate-100 antialiased selection:bg-slate-700 selection:text-white overflow-x-hidden">
       
       {/* ========================================================================= */}
-      {/* GÖZ ALICI ENDÜSTRİYEL GARAJ SARMAL KAPISI (ROLL-UP GARAGE SHUTTER) */}
+      {/* GARAJ SARMAL KAPISI (PARLAK NEON "ETERNALAB" MERKEZİ DAMGALI) */}
       {/* ========================================================================= */}
       <div 
         className={`pointer-events-none fixed inset-0 z-50 flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.32,0,0.67,0)] ${
           isGarageDoorActive ? "translate-y-0" : "-translate-y-full"
         }`}
       >
-        {/* Sarmal Çelik Paneller (10 Kademeli Panel İllüzyonu) */}
-        <div className="flex-1 w-full bg-[#0a0d14] flex flex-col justify-between shadow-2xl border-b border-slate-700/80">
+        {/* Sarmal Çelik Paneller */}
+        <div className="relative flex-1 w-full bg-[#0a0d14] flex flex-col justify-between shadow-2xl border-b border-slate-700/80 overflow-hidden">
+          
+          {/* ÇELİK PANELLER */}
           {[...Array(9)].map((_, i) => (
             <div 
               key={i} 
-              className={`w-full flex-1 border-b border-t border-black/60 bg-gradient-to-b from-[#161c28] via-[#0e131d] to-[#07090e] flex items-center justify-between px-8 ${themeClasses.doorSlat}`}
+              className={`w-full flex-1 border-b border-t border-black/70 bg-gradient-to-b from-[#151b27] via-[#0d121c] to-[#07090e] flex items-center justify-between px-8 ${themeClasses.doorSlat}`}
             >
-              <div className="flex items-center gap-4 opacity-30">
+              <div className="flex items-center gap-4 opacity-25">
                 <div className="h-1.5 w-1.5 rounded-full bg-slate-400" />
                 <div className="h-1.5 w-12 rounded-full bg-slate-700" />
               </div>
-              <div className="flex items-center gap-4 opacity-30">
+              <div className="flex items-center gap-4 opacity-25">
                 <div className="h-1.5 w-12 rounded-full bg-slate-700" />
                 <div className="h-1.5 w-1.5 rounded-full bg-slate-400" />
               </div>
             </div>
           ))}
+
+          {/* MERKEZİ DEV PARLAK "ETERNALAB" LOGO & AMBİYANS IŞIĞI */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none">
+            
+            {/* Arkadaki Odak Parlaması */}
+            <div className={`absolute h-48 w-96 rounded-full blur-3xl opacity-30 transition-colors duration-500 ${
+              is3D ? "bg-cyan-500" : "bg-amber-500"
+            }`} />
+
+            {/* Ön Yüz Parlak Logo Başlığı */}
+            <div className="relative flex items-center tracking-tighter text-4xl sm:text-6xl md:text-7xl font-black drop-shadow-[0_0_25px_rgba(0,0,0,0.9)]">
+              <span className="text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]">
+                ETERNA
+              </span>
+              <span className={`ml-2 transition-colors duration-500 ${
+                is3D 
+                  ? "text-cyan-400 drop-shadow-[0_0_35px_#22d3ee]" 
+                  : "text-amber-400 drop-shadow-[0_0_35px_#f59e0b]"
+              }`}>
+                LAB
+              </span>
+            </div>
+
+            {/* Alt Teknik Damga */}
+            <div className="relative mt-2 flex items-center gap-2">
+              <div className={`h-1 w-6 rounded-full ${is3D ? "bg-cyan-400" : "bg-amber-400"}`} />
+              <span className="text-[10px] sm:text-xs font-mono font-black tracking-[0.3em] uppercase text-slate-300 drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]">
+                {is3D ? "PRECISION 3D MATRIX" : "PRO DETAILING GARAGE"}
+              </span>
+              <div className={`h-1 w-6 rounded-full ${is3D ? "bg-cyan-400" : "bg-amber-400"}`} />
+            </div>
+          </div>
           
-          {/* Garaj Kapısı Alt Ağır Kauçuk Fitil & Neon Lazer Çizgisi */}
-          <div className="w-full bg-[#050608] py-2.5 px-8 flex items-center justify-between border-t-2 border-slate-700">
+          {/* Garaj Kapısı Alt Ağır Kauçuk Fitil & Neon Kılavuz */}
+          <div className="relative z-10 w-full bg-[#050608] py-2.5 px-8 flex items-center justify-between border-t-2 border-slate-700">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-mono font-black uppercase tracking-widest text-slate-400">
-                ETERNA SHUTTER SYSTEM //
+                ETERNA SHUTTER //
               </span>
               <span className={`text-[10px] font-mono font-bold ${is3D ? "text-cyan-400" : "text-amber-400"}`}>
-                {is3D ? "3D_LAB_ACTIVE" : "GARAGE_PRO_ACTIVE"}
+                {is3D ? "3D_LAB_ONLINE" : "GARAGE_PRO_ONLINE"}
               </span>
             </div>
             <div className={`h-1.5 w-24 rounded-full ${is3D ? "bg-cyan-400 shadow-[0_0_15px_#22d3ee]" : "bg-amber-400 shadow-[0_0_15px_#f59e0b]"}`} />
@@ -641,7 +672,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* GÖVDE (KAPI AÇILIRKEN HİDROLİK SÜZÜLME) */}
+      {/* GÖVDE */}
       <div className={`transition-all duration-300 ease-out transform-gpu ${
         isGarageDoorActive 
           ? "opacity-40 translate-y-4 scale-[0.99] filter blur-[1px]" 
