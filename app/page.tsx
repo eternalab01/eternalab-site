@@ -1,306 +1,466 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { ShoppingCart, Car, Box, ShieldCheck, Zap, Sparkles, Check } from 'lucide-react';
+import React, { useState } from "react";
+import { 
+  ShoppingBag, 
+  Trash2, 
+  Plus, 
+  Minus, 
+  X, 
+  ShieldCheck, 
+  Truck, 
+  Sparkles, 
+  Wrench, 
+  Layers 
+} from "lucide-react";
 
-export default function HomePage() {
-  const [mode, setMode] = useState<'garage' | 'lab'>('garage');
-  const [cart, setCart] = useState<{ id: number; name: string; price: number }[]>([]);
+// --- ÜRÜN VERİLERİ ---
+interface Product {
+  id: string;
+  name: string;
+  category: "3d" | "garage";
+  price: number;
+  description: string;
+  image: string;
+  colors: string[];
+  materials: string[];
+}
+
+const PRODUCTS: Product[] = [
+  // 3D Tasarım & Aksesuar
+  {
+    id: "p1",
+    name: "Özel Tasarım Logo Anahtarlık",
+    category: "3d",
+    price: 180,
+    description: "Kişiselleştirilebilir, yüksek mukavemetli çift renkli anahtarlık.",
+    image: "https://images.unsplash.com/photo-1614036417651-efe5912149d8?w=600&auto=format&fit=crop&q=80",
+    colors: ["Mat Siyah", "Kırmızı", "Beyaz", "Gri"],
+    materials: ["Standart PLA", "Dayanıklı PETG"],
+  },
+  {
+    id: "p2",
+    name: "Araç İçi Bardaklık / Telefon Tutucu Modülü",
+    category: "3d",
+    price: 340,
+    description: "Araç içi trimlere tam oturan, ısıya ve darbelere dayanıklı özel üretim tutucu.",
+    image: "https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?w=600&auto=format&fit=crop&q=80",
+    colors: ["Mat Siyah", "Karbon Görünüm"],
+    materials: ["PETG (Yüksek Isı Dayanımlı)", "Karbon Katkılı"],
+  },
+  {
+    id: "p3",
+    name: "Masaüstü Filament & Kablo Düzenleyici",
+    category: "3d",
+    price: 220,
+    description: "Çalışma masası ve atölye için modüler, geçmeli kablo kılavuzu.",
+    image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&auto=format&fit=crop&q=80",
+    colors: ["Mat Siyah", "Gri", "Beyaz"],
+    materials: ["Standart PLA", "Dayanıklı PETG"],
+  },
+
+  // Garage Lab & Detailing
+  {
+    id: "p4",
+    name: "Polisaj Makinesi Duvar Askı Aparatı",
+    category: "garage",
+    price: 450,
+    description: "Tüm rotary ve orbital polisaj makinelerine uyumlu, güçlendirilmiş duvar montaj askısı.",
+    image: "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=600&auto=format&fit=crop&q=80",
+    colors: ["Mat Siyah", "Kırmızı", "Asker Yeşili"],
+    materials: ["Güçlendirilmiş PETG (Garaj Tipi)", "Karbon Katkılı"],
+  },
+  {
+    id: "p5",
+    name: "Sprey Şişe & Kimyasal Duvar Tutucu Seti",
+    category: "garage",
+    price: 380,
+    description: "500ml ve 1000ml detaylandırma sprey şişelerini düzenleyen 3'lü modül.",
+    image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=600&auto=format&fit=crop&q=80",
+    colors: ["Mat Siyah", "Kırmızı", "Gri"],
+    materials: ["Güçlendirilmiş PETG (Kimyasala Dayanıklı)"],
+  },
+  {
+    id: "p6",
+    name: "Basınçlı Yıkama Nozul & Tabanca Askısı",
+    category: "garage",
+    price: 290,
+    description: "Hızlı bağlantı nozulları ve tetikli yıkama tabancaları için kompakt garaj tutucusu.",
+    image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=600&auto=format&fit=crop&q=80",
+    colors: ["Mat Siyah", "Kırmızı"],
+    materials: ["PETG (Yüksek Mukavemet)"],
+  },
+];
+
+interface CartItem {
+  cartId: string;
+  product: Product;
+  selectedColor: string;
+  selectedMaterial: string;
+  quantity: number;
+}
+
+export default function Home() {
+  const [activeTab, setActiveTab] = useState<"3d" | "garage">("3d");
+  const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  const garageProducts = [
-    {
-      id: 1,
-      name: 'Duvar Tipi Detailing Sprey Askılığı',
-      price: 249,
-      tag: '3D Üretim / PETG',
-      desc: '500ml ve 1L şişeler için dayanıklı modüler garaj askılığı.',
-      badge: 'Bestseller'
-    },
-    {
-      id: 2,
-      name: 'Lastik Altı Hortum Kaydırma Takozu (4 Adet)',
-      price: 389,
-      tag: '3D Üretim / Darbeye Dayanıklı',
-      desc: 'Yıkama hortumunun lastik altına sıkışmasını engelleyen kilit tasarım.',
-      badge: 'Garage Essential'
-    },
-    {
-      id: 3,
-      name: 'Seramik Takviyeli Hızlı Cila Spreyi (500 ml)',
-      price: 320,
-      tag: 'Boya Koruma & Parlaklık',
-      desc: 'Derin ıslak görünüm ve 3 aya kadar hidrofobik su itici koruma.',
-      badge: 'Premium Kimyasal'
-    },
-    {
-      id: 4,
-      name: 'Manyetik Kurulama Havlusu (1200 GSM)',
-      price: 290,
-      tag: 'Mikrofiber Bez',
-      desc: 'Çizik bırakmayan çift taraflı bükümlü fiber yapısı.',
-      badge: 'Çizik Önleyici'
-    }
-  ];
+  // Seçili ürün varyasyon state'leri
+  const [selectedVariants, setSelectedVariants] = useState<Record<string, { color: string; material: string }>>({
+    p1: { color: "Mat Siyah", material: "Standart PLA" },
+    p2: { color: "Mat Siyah", material: "PETG (Yüksek Isı Dayanımlı)" },
+    p3: { color: "Mat Siyah", material: "Standart PLA" },
+    p4: { color: "Mat Siyah", material: "Güçlendirilmiş PETG (Garaj Tipi)" },
+    p5: { color: "Mat Siyah", material: "Güçlendirilmiş PETG (Kimyasala Dayanıklı)" },
+    p6: { color: "Mat Siyah", material: "PETG (Yüksek Mukavemet)" },
+  });
 
-  const labProducts = [
-    {
-      id: 101,
-      name: 'Nürburgring Nordschleife 3D Pist Dekoru',
-      price: 420,
-      tag: 'Duvar Dekoru / Stand Dahil',
-      desc: 'Yüksek çözünürlüklü yarış pisti silüeti ve masaüstü ayaklığı.',
-      badge: 'Masaüstü / Duvar'
-    },
-    {
-      id: 102,
-      name: 'Modüler Masaüstü Kumanda & Kulaklık Standı',
-      price: 310,
-      tag: 'Workspace Setup',
-      desc: 'Kablo kanallı ve şık mat yüzeyli kulaklık düzenleyici.',
-      badge: 'Minimalist'
-    },
-    {
-      id: 103,
-      name: 'Araç Kasa Kodu Özel Tasarım Anahtarlık',
-      price: 149,
-      tag: 'Kişiye Özel / Çok Renkli',
-      desc: 'Hassas katman detayı ve yüksek dayanımlı alaşım halka.',
-      badge: 'Kişiselleştirilebilir'
-    },
-    {
-      id: 104,
-      name: 'Filament Rulo Düzenleyici & Nem Önleyici Kutu Standı',
-      price: 260,
-      tag: '3D Maker Tool',
-      desc: 'Rulmanlı pürüzsüz besleme mekanizmalı makara yuvası.',
-      badge: 'Maker Özel'
-    }
-  ];
+  const handleVariantChange = (productId: string, type: "color" | "material", value: string) => {
+    setSelectedVariants((prev) => ({
+      ...prev,
+      [productId]: {
+        ...prev[productId],
+        [type]: value,
+      },
+    }));
+  };
 
-  const addToCart = (product: { id: number; name: string; price: number }) => {
-    setCart((prev) => [...prev, product]);
+  // Sepete Ekleme
+  const addToCart = (product: Product) => {
+    const variant = selectedVariants[product.id] || {
+      color: product.colors[0],
+      material: product.materials[0],
+    };
+    const cartId = `${product.id}-${variant.color}-${variant.material}`;
+
+    setCart((prevCart) => {
+      const existing = prevCart.find((item) => item.cartId === cartId);
+      if (existing) {
+        return prevCart.map((item) =>
+          item.cartId === cartId ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      }
+      return [
+        ...prevCart,
+        {
+          cartId,
+          product,
+          selectedColor: variant.color,
+          selectedMaterial: variant.material,
+          quantity: 1,
+        },
+      ];
+    });
     setIsCartOpen(true);
   };
 
-  const currentProducts = mode === 'garage' ? garageProducts : labProducts;
-  const isGarage = mode === 'garage';
+  // Adet Güncelleme
+  const updateQuantity = (cartId: string, change: number) => {
+    setCart((prevCart) =>
+      prevCart
+        .map((item) => {
+          if (item.cartId === cartId) {
+            const newQty = item.quantity + change;
+            return newQty > 0 ? { ...item, quantity: newQty } : null;
+          }
+          return item;
+        })
+        .filter(Boolean) as CartItem[]
+    );
+  };
+
+  // Sepetten Çıkarma
+  const removeFromCart = (cartId: string) => {
+    setCart((prevCart) => prevCart.filter((item) => item.cartId !== cartId));
+  };
+
+  // Toplam Hesaplamaları
+  const totalAmount = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
+  const totalItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+
+  const filteredProducts = PRODUCTS.filter((p) => p.category === activeTab);
 
   return (
-    <div
-      className={`min-h-screen transition-colors duration-500 text-slate-100 ${
-        isGarage ? 'bg-neutral-950' : 'bg-slate-950'
-      }`}
-    >
-      {/* Üst Bar */}
-      <header className="border-b border-neutral-800/80 sticky top-0 z-40 backdrop-blur-md bg-opacity-80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div
-              className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-xl transition-all shadow-lg ${
-                isGarage
-                  ? 'bg-red-600 shadow-red-900/40 text-white'
-                  : 'bg-emerald-500 shadow-emerald-900/40 text-neutral-950'
-              }`}
-            >
-              E
-            </div>
-            <div>
-              <span className="font-extrabold text-xl tracking-wider">
-                ETERNA<span className={isGarage ? 'text-red-500' : 'text-emerald-400'}>LAB</span>
-              </span>
-              <p className="text-[10px] uppercase tracking-widest text-neutral-400">
-                {isGarage ? 'Garage & Detailing Division' : '3D Studio & Maker Division'}
-              </p>
-            </div>
+    <div className="min-h-screen bg-black text-white selection:bg-neutral-800 selection:text-white">
+      {/* --- NAVBAR --- */}
+      <header className="sticky top-0 z-40 border-b border-neutral-900 bg-black/80 backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-3">
+            <span className="h-4 w-4 rounded-full bg-white animate-pulse" />
+            <h1 className="text-xl font-bold tracking-wider uppercase">EternaLab</h1>
           </div>
 
-          {/* Mod Değiştirici (Toggle) */}
-          <div className="bg-neutral-900 p-1.5 rounded-full border border-neutral-800 flex items-center shadow-inner">
-            <button
-              onClick={() => setMode('garage')}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 ${
-                isGarage
-                  ? 'bg-red-600 text-white shadow-md shadow-red-900/50'
-                  : 'text-neutral-400 hover:text-white'
-              }`}
-            >
-              <Car className="w-4 h-4" />
-              <span>GARAGE</span>
-            </button>
-            <button
-              onClick={() => setMode('lab')}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 ${
-                !isGarage
-                  ? 'bg-emerald-500 text-neutral-950 shadow-md shadow-emerald-900/50 font-bold'
-                  : 'text-neutral-400 hover:text-white'
-              }`}
-            >
-              <Box className="w-4 h-4" />
-              <span>3D STUDIO</span>
-            </button>
-          </div>
-
-          {/* Sepet Butonu */}
           <button
             onClick={() => setIsCartOpen(true)}
-            className="relative p-2.5 rounded-xl bg-neutral-900 border border-neutral-800 hover:border-neutral-700 transition"
+            className="relative flex items-center gap-2 rounded-full border border-neutral-800 bg-neutral-950 px-4 py-2 text-sm font-medium transition hover:border-neutral-700"
           >
-            <ShoppingCart className="w-5 h-5 text-neutral-300" />
-            {cart.length > 0 && (
-              <span
-                className={`absolute -top-1 -right-1 w-5 h-5 text-[11px] font-bold rounded-full flex items-center justify-center ${
-                  isGarage ? 'bg-red-600 text-white' : 'bg-emerald-500 text-neutral-950 font-black'
-                }`}
-              >
-                {cart.length}
+            <ShoppingBag className="h-4 w-4" />
+            <span>Sepet</span>
+            {totalItemCount > 0 && (
+              <span className="ml-1 rounded-full bg-white px-2 py-0.5 text-xs font-bold text-black">
+                {totalItemCount}
               </span>
             )}
           </button>
         </div>
       </header>
 
-      {/* Hero Banner */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-        <div
-          className={`rounded-3xl p-8 sm:p-12 relative overflow-hidden border transition-all duration-500 ${
-            isGarage
-              ? 'bg-gradient-to-r from-neutral-900 via-neutral-900 to-red-950/40 border-red-900/30'
-              : 'bg-gradient-to-r from-neutral-900 via-slate-900 to-emerald-950/40 border-emerald-900/30'
-          }`}
-        >
-          <div className="relative z-10 max-w-2xl space-y-4">
-            <span
-              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${
-                isGarage
-                  ? 'bg-red-500/10 text-red-400 border border-red-500/20'
-                  : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-              }`}
-            >
-              <Sparkles className="w-3.5 h-3.5" />
-              {isGarage ? 'Otomotiv Detay & Bakım' : 'Hassas 3D Üretim Atölyesi'}
-            </span>
-            <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
-              {isGarage
-                ? 'Garajına Profesyonel Bakım ve Akıllı Aparatlar.'
-                : 'Masan ve Yaşam Alanın İçin Özel Üretim 3D Sanat.'}
-            </h1>
-            <p className="text-neutral-400 text-sm sm:text-base">
-              {isGarage
-                ? 'Kendi üretimimiz fonksiyonel garaj tutucuları, yüksek kaliteli kurulama havluları ve boya koruma ürünleri.'
-                : 'Yüksek mukavemetli mühendislik filamentleriyle üretilen dekor, düzenleyici ve kişiye özel koleksiyon parçaları.'}
-            </p>
-          </div>
+      {/* --- HERO & KATEGORİ SEÇİCİ --- */}
+      <section className="mx-auto max-w-7xl px-6 pt-16 pb-10 text-center">
+        <h2 className="text-4xl font-extrabold tracking-tight md:text-5xl lg:text-6xl">
+          Hassas Üretim. <span className="text-neutral-500">Kusursuz Garaj.</span>
+        </h2>
+        <p className="mx-auto mt-4 max-w-2xl text-neutral-400">
+          Yüksek mukavemetli 3D baskı parçalar ve profesyonel garaj organizasyon aparatları.
+        </p>
+
+        {/* Sekme Geçiş Butonları */}
+        <div className="mx-auto mt-10 inline-flex rounded-full border border-neutral-800 bg-neutral-950 p-1.5 shadow-2xl">
+          <button
+            onClick={() => setActiveTab("3d")}
+            className={`flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold transition-all duration-300 ${
+              activeTab === "3d"
+                ? "bg-white text-black shadow-lg scale-105"
+                : "text-neutral-400 hover:text-white"
+            }`}
+          >
+            <Layers className="h-4 w-4" />
+            3D Design & Lab
+          </button>
+          <button
+            onClick={() => setActiveTab("garage")}
+            className={`flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold transition-all duration-300 ${
+              activeTab === "garage"
+                ? "bg-white text-black shadow-lg scale-105"
+                : "text-neutral-400 hover:text-white"
+            }`}
+          >
+            <Wrench className="h-4 w-4" />
+            Garage & Detailing
+          </button>
         </div>
       </section>
 
-      {/* Ürün Vitrini */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 pb-24">
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="text-xl font-bold tracking-wide">
-            {isGarage ? 'Garaj & Detailing Vitrini' : '3D Koleksiyon & Modeller'}
-          </h2>
-          <span className="text-xs text-neutral-500 font-medium">
-            {currentProducts.length} Ürün Listeleniyor
-          </span>
-        </div>
+      {/* --- ÜRÜN VİTRİNİ (EFEKTLİ GEÇİŞ) --- */}
+      <main className="mx-auto max-w-7xl px-6 pb-24">
+        <div
+          key={activeTab}
+          className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 animate-in fade-in zoom-in-95 duration-500"
+        >
+          {filteredProducts.map((product) => {
+            const currentVariant = selectedVariants[product.id] || {
+              color: product.colors[0],
+              material: product.materials[0],
+            };
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {currentProducts.map((product) => (
-            <div
-              key={product.id}
-              className="bg-neutral-900/60 rounded-2xl p-5 border border-neutral-800/80 hover:border-neutral-700 transition flex flex-col justify-between group"
-            >
-              <div className="space-y-3">
-                <div className="w-full h-44 rounded-xl bg-neutral-950 border border-neutral-800/50 flex items-center justify-center relative overflow-hidden group-hover:scale-[1.02] transition-transform">
-                  {isGarage ? (
-                    <Car className="w-12 h-12 text-neutral-700 group-hover:text-red-500 transition-colors" />
-                  ) : (
-                    <Box className="w-12 h-12 text-neutral-700 group-hover:text-emerald-400 transition-colors" />
-                  )}
-                  <span className="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 rounded-md bg-neutral-900/90 text-neutral-300 border border-neutral-800">
-                    {product.badge}
-                  </span>
-                </div>
-
+            return (
+              <div
+                key={product.id}
+                className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-neutral-900 bg-neutral-950/60 p-5 transition duration-300 hover:border-neutral-700"
+              >
                 <div>
-                  <span className="text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">
-                    {product.tag}
-                  </span>
-                  <h3 className="font-bold text-base text-neutral-100 group-hover:text-white transition">
-                    {product.name}
-                  </h3>
-                  <p className="text-xs text-neutral-400 mt-1 line-clamp-2">{product.desc}</p>
-                </div>
-              </div>
+                  <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-neutral-900">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    />
+                  </div>
 
-              <div className="pt-5 mt-4 border-t border-neutral-800/60 flex items-center justify-between">
-                <span className="text-lg font-black text-neutral-100">{product.price} ₺</span>
+                  <div className="mt-5">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="font-semibold text-lg">{product.name}</h3>
+                      <span className="font-mono text-lg font-bold">{product.price} ₺</span>
+                    </div>
+                    <p className="mt-2 text-sm text-neutral-400 leading-relaxed">
+                      {product.description}
+                    </p>
+                  </div>
+
+                  {/* Varyasyon: Renk Seçimi */}
+                  <div className="mt-4">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                      Renk: <span className="text-neutral-300">{currentVariant.color}</span>
+                    </label>
+                    <div className="mt-1.5 flex flex-wrap gap-2">
+                      {product.colors.map((color) => (
+                        <button
+                          key={color}
+                          onClick={() => handleVariantChange(product.id, "color", color)}
+                          className={`rounded-lg border px-2.5 py-1 text-xs transition ${
+                            currentVariant.color === color
+                              ? "border-white bg-white text-black font-semibold"
+                              : "border-neutral-800 bg-neutral-900 text-neutral-400 hover:border-neutral-700"
+                          }`}
+                        >
+                          {color}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Varyasyon: Malzeme Seçimi */}
+                  <div className="mt-3">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                      Malzeme: <span className="text-neutral-300">{currentVariant.material}</span>
+                    </label>
+                    <div className="mt-1.5 flex flex-wrap gap-2">
+                      {product.materials.map((mat) => (
+                        <button
+                          key={mat}
+                          onClick={() => handleVariantChange(product.id, "material", mat)}
+                          className={`rounded-lg border px-2.5 py-1 text-xs transition ${
+                            currentVariant.material === mat
+                              ? "border-white bg-white text-black font-semibold"
+                              : "border-neutral-800 bg-neutral-900 text-neutral-400 hover:border-neutral-700"
+                          }`}
+                        >
+                          {mat}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sepete Ekle Butonu */}
                 <button
                   onClick={() => addToCart(product)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 ${
-                    isGarage
-                      ? 'bg-red-600 hover:bg-red-500 text-white shadow-md shadow-red-950'
-                      : 'bg-emerald-500 hover:bg-emerald-400 text-neutral-950 shadow-md shadow-emerald-950'
-                  }`}
+                  className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-white py-3 text-sm font-bold text-black transition hover:bg-neutral-200 active:scale-95"
                 >
-                  <span>Sepete Ekle</span>
+                  <Plus className="h-4 w-4" />
+                  Sepete Ekle
                 </button>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </main>
 
-      {/* Sepet Çekmecesi (Modal) */}
+      {/* --- SLIDE-OVER SEPET PANELİ --- */}
       {isCartOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-md bg-neutral-900 h-full p-6 flex flex-col justify-between border-l border-neutral-800 animate-in slide-in-from-right duration-300">
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm transition-opacity"
+            onClick={() => setIsCartOpen(false)}
+          />
+
+          <div className="relative z-10 flex h-full w-full max-w-md flex-col justify-between border-l border-neutral-900 bg-neutral-950 p-6 shadow-2xl animate-in slide-in-from-right duration-300">
             <div>
-              <div className="flex items-center justify-between pb-4 border-b border-neutral-800">
-                <h3 className="text-lg font-bold flex items-center gap-2">
-                  <ShoppingCart className="w-5 h-5" /> Sepetiniz ({cart.length})
-                </h3>
+              <div className="flex items-center justify-between border-b border-neutral-900 pb-4">
+                <div className="flex items-center gap-2">
+                  <ShoppingBag className="h-5 w-5" />
+                  <h3 className="text-lg font-bold">Sepetim ({totalItemCount})</h3>
+                </div>
                 <button
                   onClick={() => setIsCartOpen(false)}
-                  className="text-neutral-400 hover:text-white text-sm"
+                  className="rounded-lg p-1.5 text-neutral-400 hover:bg-neutral-900 hover:text-white"
                 >
-                  Kapat ✕
+                  <X className="h-5 w-5" />
                 </button>
               </div>
 
-              <div className="py-4 space-y-3 max-h-[65vh] overflow-y-auto">
+              {/* Sepet Ürün Listesi */}
+              <div className="mt-6 max-h-[58vh] space-y-4 overflow-y-auto pr-1">
                 {cart.length === 0 ? (
-                  <p className="text-neutral-500 text-sm text-center py-8">Sepetinizde ürün bulunmuyor.</p>
+                  <div className="py-12 text-center text-neutral-500">
+                    <ShoppingBag className="mx-auto h-12 w-12 opacity-30" />
+                    <p className="mt-3 text-sm">Sepetinizde ürün bulunmuyor.</p>
+                  </div>
                 ) : (
-                  cart.map((item, index) => (
+                  cart.map((item) => (
                     <div
-                      key={index}
-                      className="flex items-center justify-between p-3 rounded-xl bg-neutral-950 border border-neutral-800 text-sm"
+                      key={item.cartId}
+                      className="flex items-center justify-between rounded-xl border border-neutral-900 bg-neutral-900/50 p-3.5"
                     >
-                      <span className="font-medium text-neutral-200">{item.name}</span>
-                      <span className="font-bold">{item.price} ₺</span>
+                      <div className="flex-1 pr-3">
+                        <h4 className="text-sm font-semibold">{item.product.name}</h4>
+                        <div className="mt-1 flex flex-wrap gap-1 text-[11px] text-neutral-400">
+                          <span className="rounded bg-neutral-800 px-1.5 py-0.5">{item.selectedColor}</span>
+                          <span className="rounded bg-neutral-800 px-1.5 py-0.5">{item.selectedMaterial}</span>
+                        </div>
+                        <p className="mt-1.5 font-mono text-xs font-semibold text-neutral-300">
+                          {item.product.price} ₺ x {item.quantity} = {item.product.price * item.quantity} ₺
+                        </p>
+                      </div>
+
+                      {/* Adet Kontrolü ve Silme Butonları */}
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center rounded-lg border border-neutral-800 bg-neutral-950">
+                          <button
+                            onClick={() => updateQuantity(item.cartId, -1)}
+                            className="p-1 text-neutral-400 hover:text-white"
+                          >
+                            <Minus className="h-3.5 w-3.5" />
+                          </button>
+                          <span className="px-2 font-mono text-xs">{item.quantity}</span>
+                          <button
+                            onClick={() => updateQuantity(item.cartId, 1)}
+                            className="p-1 text-neutral-400 hover:text-white"
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                        <button
+                          onClick={() => removeFromCart(item.cartId)}
+                          className="rounded-lg p-1.5 text-red-400 hover:bg-red-950/40"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
                   ))
                 )}
               </div>
             </div>
 
-            <div className="pt-4 border-t border-neutral-800 space-y-3">
-              <div className="flex justify-between font-bold text-base">
-                <span>Toplam Tutar:</span>
-                <span>{cart.reduce((total, item) => total + item.price, 0)} ₺</span>
+            {/* Sepet Alt Toplam & Sipariş */}
+            {cart.length > 0 && (
+              <div className="border-t border-neutral-900 pt-4">
+                <div className="flex items-center justify-between font-mono text-lg font-bold">
+                  <span>Toplam Tutar:</span>
+                  <span>{totalAmount} ₺</span>
+                </div>
+                <button
+                  onClick={() => alert("Sipariş adımları yakında aktif edilecek!")}
+                  className="mt-4 w-full rounded-xl bg-white py-3.5 text-sm font-bold text-black transition hover:bg-neutral-200 active:scale-95"
+                >
+                  Siparişi Tamamla
+                </button>
               </div>
-              <button
-                disabled={cart.length === 0}
-                className="w-full py-3.5 rounded-xl font-bold bg-white text-neutral-950 hover:bg-neutral-200 disabled:opacity-50 transition"
-              >
-                Siparişi Tamamla & Öde (İyzico)
-              </button>
-            </div>
+            )}
           </div>
         </div>
       )}
+
+      {/* --- FOOTER & ROZETLER --- */}
+      <footer className="border-t border-neutral-900 bg-neutral-950 py-12">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-6 md:grid-cols-3">
+          <div className="flex items-center gap-3">
+            <ShieldCheck className="h-6 w-6 text-neutral-400" />
+            <div>
+              <h4 className="text-sm font-semibold">Garantili Üretim</h4>
+              <p className="text-xs text-neutral-500">Yüksek doluluk ve dayanıklı endüstriyel filamentler.</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <Truck className="h-6 w-6 text-neutral-400" />
+            <div>
+              <h4 className="text-sm font-semibold">Özenli Paketleme</h4>
+              <p className="text-xs text-neutral-500">Kırılmaya karşı korumalı hızlı teslimat.</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <Sparkles className="h-6 w-6 text-neutral-400" />
+            <div>
+              <h4 className="text-sm font-semibold">Kişiselleştirme</h4>
+              <p className="text-xs text-neutral-500">İsteğe özel renk ve araç uyumlu tasarımlar.</p>
+            </div>
+          </div>
+        </div>
+        <p className="mt-8 text-center text-xs text-neutral-600">
+          © {new Date().getFullYear()} EternaLab. Tüm hakları saklıdır.
+        </p>
+      </footer>
     </div>
   );
 }
