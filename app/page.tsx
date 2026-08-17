@@ -17,10 +17,14 @@ import {
   Flame
 } from "lucide-react";
 
+type MainCategory = "3d" | "garage";
+type SubCategory3D = "all" | "decor" | "fun" | "wall" | "auto";
+
 interface Product {
   id: string;
   name: string;
-  category: "3d" | "garage";
+  category: MainCategory;
+  subCategory?: SubCategory3D;
   price: number;
   badge?: string;
   description: string;
@@ -30,43 +34,99 @@ interface Product {
 }
 
 const PRODUCTS: Product[] = [
-  // 3D Tasarım & Aksesuar
+  // --- 3D TASARIM: DEKORASYON & MASAÜSTÜ ---
   {
     id: "p1",
-    name: "Özel Tasarım Logo Anahtarlık",
-    category: "3d",
-    badge: "Popüler",
-    price: 180,
-    description: "Kişiselleştirilebilir çift renkli, darbelere dayanıklı özel üretim logo anahtarlık.",
-    image: "https://images.unsplash.com/photo-1614036417651-efe5912149d8?w=600&auto=format&fit=crop&q=80",
-    colors: ["Mat Siyah", "Kırmızı", "Beyaz", "Gri"],
-    materials: ["Standart PLA", "Dayanıklı PETG"],
-  },
-  {
-    id: "p2",
-    name: "Araç İçi Bardaklık / Telefon Tutucu Modülü",
-    category: "3d",
-    badge: "Özel Uyum",
-    price: 340,
-    description: "Araç içi trimlere tam oturan, ısıya ve deformasyona dayanıklı özel üretim modül.",
-    image: "https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?w=600&auto=format&fit=crop&q=80",
-    colors: ["Mat Siyah", "Karbon Siyah"],
-    materials: ["PETG (Yüksek Isı)", "Karbon Katkılı"],
-  },
-  {
-    id: "p3",
     name: "Masaüstü Filament & Kablo Düzenleyici",
     category: "3d",
+    subCategory: "decor",
     price: 220,
+    badge: "Masaüstü",
     description: "Atölye ve masa düzeni için modüler, geçmeli kilitleme sistemli kablo kılavuzu.",
     image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&auto=format&fit=crop&q=80",
     colors: ["Mat Siyah", "Titanyum Gri", "Beyaz"],
     materials: ["Standart PLA", "Dayanıklı PETG"],
   },
+  {
+    id: "p2",
+    name: "Geometrik Çokgen Sukulent Saksısı",
+    category: "3d",
+    subCategory: "decor",
+    price: 160,
+    description: "İç mekan için modern geometrik tasarımlı dekoratif saksı ve kalemlik.",
+    image: "https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=600&auto=format&fit=crop&q=80",
+    colors: ["Mat Siyah", "Mermer Beyaz", "Gri"],
+    materials: ["Standart PLA"],
+  },
 
-  // Garage Lab & Detailing
+  // --- 3D TASARIM: EĞLENCE & HOBİ ---
+  {
+    id: "p3",
+    name: "Özel Tasarım Logo & Gamer Anahtarlık",
+    category: "3d",
+    subCategory: "fun",
+    price: 180,
+    badge: "Popüler",
+    description: "Kişiselleştirilebilir çift renkli, darbelere dayanıklı özel üretim anahtarlık.",
+    image: "https://images.unsplash.com/photo-1614036417651-efe5912149d8?w=600&auto=format&fit=crop&q=80",
+    colors: ["Mat Siyah", "Kırmızı", "Beyaz", "Gri"],
+    materials: ["Standart PLA", "Dayanıklı PETG"],
+  },
   {
     id: "p4",
+    name: "Artikülasyonlu Eklemli Ejderha / Figür",
+    category: "3d",
+    subCategory: "fun",
+    price: 260,
+    badge: "Hobi",
+    description: "Tam hareketli eklem yapısına sahip, esnek ve pürüzsüz yüzeyli masaüstü figürü.",
+    image: "https://images.unsplash.com/photo-1563089145-599997674d42?w=600&auto=format&fit=crop&q=80",
+    colors: ["Parlak Kırmızı", "Mat Siyah", "İpek Altın"],
+    materials: ["Standart PLA"],
+  },
+
+  // --- 3D TASARIM: DUVAR ÜRÜNLERİ ---
+  {
+    id: "p5",
+    name: "Kulaklık & Gamepad Duvar / Masa Askısı",
+    category: "3d",
+    subCategory: "wall",
+    price: 210,
+    description: "Güçlendirilmiş tırnak yapısıyla kulaklık ve oyun kollarını güvenle asan duvar aparatı.",
+    image: "https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=600&auto=format&fit=crop&q=80",
+    colors: ["Mat Siyah", "Beyaz", "Gri"],
+    materials: ["Dayanıklı PETG", "Standart PLA"],
+  },
+  {
+    id: "p6",
+    name: "Modüler Altıgen (Hexagon) Duvar Dekoru & Askı",
+    category: "3d",
+    subCategory: "wall",
+    price: 290,
+    badge: "Modüler",
+    description: "İstenildiği gibi birleştirilebilen petek tasarımlı dekoratif duvar rafı ve düzenleyici seti.",
+    image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600&auto=format&fit=crop&q=80",
+    colors: ["Mat Siyah", "Ahşap Görünüm", "Beyaz"],
+    materials: ["Dayanıklı PETG"],
+  },
+
+  // --- 3D TASARIM: ARAÇ İÇİ ---
+  {
+    id: "p7",
+    name: "Araç İçi Bardaklık / Tutucu Modülü",
+    category: "3d",
+    subCategory: "auto",
+    price: 340,
+    badge: "Özel Uyum",
+    description: "Araç içi trimlere tam oturan, yüksek kabin sıcaklığına ve deformasyona dayanıklı modül.",
+    image: "https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?w=600&auto=format&fit=crop&q=80",
+    colors: ["Mat Siyah", "Karbon Siyah"],
+    materials: ["PETG (Yüksek Isı)", "Karbon Katkılı"],
+  },
+
+  // --- GARAGE LAB & DETAILING ---
+  {
+    id: "p8",
     name: "Polisaj Makinesi Duvar Askı Aparatı",
     category: "garage",
     badge: "Ağır Hizmet",
@@ -77,7 +137,7 @@ const PRODUCTS: Product[] = [
     materials: ["Güçlendirilmiş PETG", "Karbon Katkılı"],
   },
   {
-    id: "p5",
+    id: "p9",
     name: "Sprey Şişe & Kimyasal Duvar Tutucu Seti",
     category: "garage",
     badge: "3'lü Modül",
@@ -88,7 +148,7 @@ const PRODUCTS: Product[] = [
     materials: ["Güçlendirilmiş PETG (Kimyasal Direnç)"],
   },
   {
-    id: "p6",
+    id: "p10",
     name: "Basınçlı Yıkama Nozul & Tabanca Askısı",
     category: "garage",
     price: 290,
@@ -108,17 +168,22 @@ interface CartItem {
 }
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<"3d" | "garage">("3d");
+  const [activeTab, setActiveTab] = useState<MainCategory>("3d");
+  const [activeSubTab, setActiveSubTab] = useState<SubCategory3D>("all");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   const [selectedVariants, setSelectedVariants] = useState<Record<string, { color: string; material: string }>>({
     p1: { color: "Mat Siyah", material: "Standart PLA" },
-    p2: { color: "Mat Siyah", material: "PETG (Yüksek Isı)" },
+    p2: { color: "Mat Siyah", material: "Standart PLA" },
     p3: { color: "Mat Siyah", material: "Standart PLA" },
-    p4: { color: "Mat Siyah", material: "Güçlendirilmiş PETG" },
-    p5: { color: "Mat Siyah", material: "Güçlendirilmiş PETG (Kimyasal Direnç)" },
-    p6: { color: "Mat Siyah", material: "PETG (Yüksek Mukavemet)" },
+    p4: { color: "Parlak Kırmızı", material: "Standart PLA" },
+    p5: { color: "Mat Siyah", material: "Dayanıklı PETG" },
+    p6: { color: "Mat Siyah", material: "Dayanıklı PETG" },
+    p7: { color: "Mat Siyah", material: "PETG (Yüksek Isı)" },
+    p8: { color: "Mat Siyah", material: "Güçlendirilmiş PETG" },
+    p9: { color: "Mat Siyah", material: "Güçlendirilmiş PETG (Kimyasal Direnç)" },
+    p10: { color: "Mat Siyah", material: "PETG (Yüksek Mukavemet)" },
   });
 
   const handleVariantChange = (productId: string, type: "color" | "material", value: string) => {
@@ -179,9 +244,16 @@ export default function Home() {
 
   const totalAmount = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
   const totalItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
-  const filteredProducts = PRODUCTS.filter((p) => p.category === activeTab);
 
-  // Kategoriye özel tema renkleri
+  // Filtreleme Mantığı
+  const filteredProducts = PRODUCTS.filter((p) => {
+    if (p.category !== activeTab) return false;
+    if (activeTab === "3d" && activeSubTab !== "all") {
+      return p.subCategory === activeSubTab;
+    }
+    return true;
+  });
+
   const is3D = activeTab === "3d";
   const themeClasses = {
     badge: is3D 
@@ -201,6 +273,14 @@ export default function Home() {
       ? "from-cyan-600/15 via-blue-600/5 to-transparent"
       : "from-amber-600/15 via-orange-600/5 to-transparent",
   };
+
+  const subCategories: { key: SubCategory3D; label: string }[] = [
+    { key: "all", label: "Tüm 3D Ürünleri" },
+    { key: "decor", label: "Dekorasyon & Masaüstü" },
+    { key: "fun", label: "Eğlence & Hobi" },
+    { key: "wall", label: "Duvar & Askı" },
+    { key: "auto", label: "Araç İçi Aksesuar" },
+  ];
 
   return (
     <div className="relative min-h-screen bg-[#0d1117] text-slate-100 antialiased selection:bg-slate-700 selection:text-white">
@@ -240,8 +320,8 @@ export default function Home() {
         </div>
       </header>
 
-      {/* HERO & KATEGORİ GEÇİŞİ */}
-      <section className="relative mx-auto max-w-6xl px-6 pt-12 pb-10 text-center">
+      {/* HERO & ANA KATEGORİ GEÇİŞİ */}
+      <section className="relative mx-auto max-w-6xl px-6 pt-12 pb-6 text-center">
         <div className="inline-flex items-center gap-2 rounded-full border border-slate-700/60 bg-slate-800/40 px-3.5 py-1 text-xs font-medium text-slate-300 backdrop-blur">
           <Sparkles className="h-3.5 w-3.5 text-slate-400" />
           <span>Yüksek Mukavemetli Mühendislik Filamentleri & Garaj Aksesuarları</span>
@@ -261,14 +341,17 @@ export default function Home() {
 
         <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-slate-400 sm:text-base">
           {is3D 
-            ? "Masaüstü, ofis ve araç içi için mikron hassasiyetinde özel tasarım 3D baskı çözümleri." 
+            ? "Masaüstü, dekorasyon, duvar düzenleme ve araç içi için özel tasarım 3D baskı çözümleri." 
             : "Polisaj, nozul ve kimyasal düzenleyicilerle atölyenizi ve garajınızı kusursuzlaştırın."}
         </p>
 
-        {/* İKİ RENKLİ KATEGORİ BUTONLARI */}
+        {/* ANA KATEGORİ SEÇİCİ */}
         <div className="mx-auto mt-8 inline-flex rounded-2xl border border-slate-800 bg-slate-900/90 p-1.5 shadow-2xl backdrop-blur-lg">
           <button
-            onClick={() => setActiveTab("3d")}
+            onClick={() => {
+              setActiveTab("3d");
+              setActiveSubTab("all");
+            }}
             className={`flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-semibold transition-all duration-300 ${
               is3D
                 ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 shadow-lg shadow-cyan-500/25 scale-102"
@@ -291,12 +374,31 @@ export default function Home() {
             Garage & Detailing
           </button>
         </div>
+
+        {/* 3D İÇİN ALT KATEGORİ FİLTRE ÇUBUĞU */}
+        {is3D && (
+          <div className="mx-auto mt-6 flex max-w-3xl flex-wrap items-center justify-center gap-2 animate-in fade-in zoom-in-95 duration-300">
+            {subCategories.map((sub) => (
+              <button
+                key={sub.key}
+                onClick={() => setActiveSubTab(sub.key)}
+                className={`rounded-xl border px-3.5 py-1.5 text-xs font-semibold transition-all duration-200 ${
+                  activeSubTab === sub.key
+                    ? "border-cyan-500 bg-cyan-500/15 text-cyan-300 shadow-sm"
+                    : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                }`}
+              >
+                {sub.label}
+              </button>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* ÜRÜN VİTRİNİ */}
       <main className="relative mx-auto max-w-6xl px-6 pb-24">
         <div
-          key={activeTab}
+          key={`${activeTab}-${activeSubTab}`}
           className="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3 animate-in fade-in zoom-in-95 duration-500"
         >
           {filteredProducts.map((product) => {
@@ -311,7 +413,6 @@ export default function Home() {
                 className={`group flex flex-col justify-between rounded-2xl border border-slate-800/80 bg-slate-900/60 p-5 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 ${themeClasses.cardBorder}`}
               >
                 <div>
-                  {/* Görsel ve Rozet */}
                   <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-slate-800">
                     <img
                       src={product.image}
@@ -325,7 +426,6 @@ export default function Home() {
                     )}
                   </div>
 
-                  {/* Başlık & Fiyat */}
                   <div className="mt-4">
                     <div className="flex items-start justify-between gap-2">
                       <h3 className="font-bold text-base text-white group-hover:text-slate-100">{product.name}</h3>
@@ -381,7 +481,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Sepete Ekle Butonu */}
+                {/* Sepete Ekle */}
                 <button
                   onClick={() => addToCart(product)}
                   className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold shadow-lg transition-all duration-300 active:scale-98 ${themeClasses.button}`}
@@ -418,7 +518,7 @@ export default function Home() {
                 </button>
               </div>
 
-              {/* Sepetteki Ürünler */}
+              {/* Sepet İçi Ürünler */}
               <div className="mt-4 max-h-[60vh] space-y-3 overflow-y-auto pr-1">
                 {cart.length === 0 ? (
                   <div className="py-16 text-center text-slate-500">
