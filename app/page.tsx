@@ -278,18 +278,13 @@ export default function Home() {
   const [transitionPhase, setTransitionPhase] = useState<"idle" | "out" | "in">("idle");
   const [soundEnabled, setSoundEnabled] = useState(true);
 
-  // Before & After Slider Değeri
   const [sliderPosition, setSliderPosition] = useState(50);
-
-  // Canlı Özelleştirici Metin
   const [customPlateText, setCustomPlateText] = useState("01 ETL 34");
 
-  // Bundle Builder (Kendi Paketini Oluştur) Seçimleri
   const [bundleShampoo, setBundleShampoo] = useState<string>("carnauba");
   const [bundleWheel, setBundleWheel] = useState<string>("iron");
   const [bundleTowel, setBundleTowel] = useState<string>("twisted");
 
-  // Başlangıç Seçimleri
   const [selectedVariants, setSelectedVariants] = useState<Record<string, { opt1Index: number; opt2: string }>>({
     d_master_bundle: { opt1Index: 0, opt2: "Bubble Gum (Sakız)" },
     d_iron_cleaner: { opt1Index: 2, opt2: "Tetikli Ağır Hizmet Başlık" },
@@ -303,7 +298,7 @@ export default function Home() {
     p6: { opt1Index: 0, opt2: "PETG (Yüksek Sıcaklık)" },
   });
 
-  // AĞIR, TOK VE KASVETLİ SİNEMATİK SES MOTORU (Sub-Bass Braam & Heavy Pneumatic)
+  // KİBAR, TOK VE İPEKSİ SES MOTORU (Soft Acoustic UI Tones)
   const playSound = (type: "warp" | "click" | "success") => {
     if (!soundEnabled || typeof window === "undefined") return;
     try {
@@ -311,103 +306,70 @@ export default function Home() {
       const now = ctx.currentTime;
 
       if (type === "warp") {
-        const subOsc = ctx.createOscillator();
-        const subGain = ctx.createGain();
-        subOsc.type = "sawtooth";
-        
-        subOsc.frequency.setValueAtTime(95, now);
-        subOsc.frequency.exponentialRampToValueAtTime(28, now + 0.45);
-
-        const filter = ctx.createBiquadFilter();
-        filter.type = "lowpass";
-        filter.frequency.setValueAtTime(240, now);
-        filter.frequency.exponentialRampToValueAtTime(50, now + 0.45);
-
-        subOsc.connect(filter);
-        filter.connect(subGain);
-        subGain.connect(ctx.destination);
-
-        subGain.gain.setValueAtTime(0.22, now);
-        subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
-
-        subOsc.start(now);
-        subOsc.stop(now + 0.45);
-
-        const bufferSize = Math.floor(ctx.sampleRate * 0.35);
-        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        const output = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-          output[i] = Math.random() * 2 - 1;
-        }
-
-        const whiteNoise = ctx.createBufferSource();
-        whiteNoise.buffer = noiseBuffer;
-
-        const noiseFilter = ctx.createBiquadFilter();
-        noiseFilter.type = "bandpass";
-        noiseFilter.frequency.setValueAtTime(320, now);
-        noiseFilter.frequency.exponentialRampToValueAtTime(90, now + 0.35);
-        noiseFilter.Q.setValueAtTime(2.5, now);
-
-        const noiseGain = ctx.createGain();
-        noiseGain.gain.setValueAtTime(0.12, now);
-        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-
-        whiteNoise.connect(noiseFilter);
-        noiseFilter.connect(noiseGain);
-        noiseGain.connect(ctx.destination);
-
-        whiteNoise.start(now);
-        whiteNoise.stop(now + 0.35);
-
-      } else if (type === "click") {
+        // İPEKSİ SÜZÜLME TONU (160Hz -> 220Hz Soft Velvet Sweep)
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.type = "triangle";
-        
-        osc.frequency.setValueAtTime(120, now);
-        osc.frequency.exponentialRampToValueAtTime(35, now + 0.08);
-
         const filter = ctx.createBiquadFilter();
+
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(160, now);
+        osc.frequency.exponentialRampToValueAtTime(230, now + 0.22);
+
         filter.type = "lowpass";
-        filter.frequency.setValueAtTime(400, now);
+        filter.frequency.setValueAtTime(380, now);
+
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
 
         osc.connect(filter);
         filter.connect(gain);
         gain.connect(ctx.destination);
 
-        gain.gain.setValueAtTime(0.15, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        osc.start(now);
+        osc.stop(now + 0.28);
+
+      } else if (type === "click") {
+        // KİBAR CAM / MİKRO DOKUNUŞ (Soft Muted Glass Click)
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+
+        osc.frequency.setValueAtTime(280, now);
+        osc.frequency.exponentialRampToValueAtTime(140, now + 0.05);
+
+        gain.gain.setValueAtTime(0.06, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
 
         osc.start(now);
-        osc.stop(now + 0.08);
+        osc.stop(now + 0.05);
 
       } else if (type === "success") {
-        [0, 0.09].forEach((delay, idx) => {
+        // KADİFE ONAY AKORU (Warm Soft Double Tone)
+        [240, 360].forEach((freq, i) => {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.type = "sine";
+          osc.frequency.setValueAtTime(freq, now + i * 0.06);
 
-          const startFreq = idx === 0 ? 80 : 55;
-          osc.frequency.setValueAtTime(startFreq, now + delay);
-          osc.frequency.exponentialRampToValueAtTime(25, now + delay + 0.25);
+          gain.gain.setValueAtTime(0.06, now + i * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.06 + 0.22);
 
           osc.connect(gain);
           gain.connect(ctx.destination);
 
-          gain.gain.setValueAtTime(0.2, now + delay);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.25);
-
-          osc.start(now + delay);
-          osc.stop(now + delay + 0.25);
+          osc.start(now + i * 0.06);
+          osc.stop(now + i * 0.06 + 0.22);
         });
       }
     } catch (e) {
-      // Audio not allowed yet
+      // Audio autoplay policy
     }
   };
 
-  // SİNEMATİK GEÇİŞ SİSTEMİ
+  // OPTİK DİYAFRAM & PORTAL GEÇİŞ SİSTEMİ
   const handleTabChange = (newTab: MainCategory) => {
     if (newTab === activeTab || isTransitioning) return;
     playSound("warp");
@@ -424,8 +386,8 @@ export default function Home() {
       setTimeout(() => {
         setTransitionPhase("idle");
         setIsTransitioning(false);
-      }, 400);
-    }, 220);
+      }, 350);
+    }, 180);
   };
 
   const handleVariantChange = (productId: string, type: "opt1Index" | "opt2", value: any) => {
@@ -469,7 +431,6 @@ export default function Home() {
     setIsCartOpen(true);
   };
 
-  // Bundle Sihirbazını Sepete Ekleme
   const addCustomBundleToCart = () => {
     playSound("success");
     const bundleProduct: Product = {
@@ -541,7 +502,7 @@ export default function Home() {
     ambientGlow: is3D
       ? "from-cyan-500/25 via-blue-600/10 to-transparent"
       : "from-amber-500/25 via-orange-600/10 to-transparent",
-    laserLine: is3D ? "bg-cyan-400 shadow-[0_0_40px_#22d3ee,0_0_10px_#ffffff]" : "bg-amber-400 shadow-[0_0_40px_#f59e0b,0_0_10px_#ffffff]",
+    fiberGlow: is3D ? "bg-cyan-400 shadow-[0_0_25px_#22d3ee]" : "bg-amber-400 shadow-[0_0_25px_#f59e0b]",
   };
 
   const subCategories3D: { key: SubCategory3D; label: string }[] = [
@@ -560,7 +521,6 @@ export default function Home() {
     { key: "towels", label: "Bez & Havlular (3 Al 2 Öde)" },
   ];
 
-  // WhatsApp Sipariş Yönlendirmesi
   const handleWhatsAppCheckout = () => {
     if (cart.length === 0) return;
     playSound("success");
@@ -584,11 +544,22 @@ export default function Home() {
   return (
     <div className="relative min-h-screen bg-[#07090e] text-slate-100 antialiased selection:bg-slate-700 selection:text-white overflow-x-hidden">
       
-      {/* SİBER LAZER TARAMA ÇİZGİSİ */}
+      {/* 1. İNCE FİBER-OPTİK ÜST AKIŞ ÇİZGİSİ */}
       <div 
-        className={`pointer-events-none fixed inset-x-0 h-1.5 z-50 transition-all duration-700 ease-in-out ${themeClasses.laserLine} ${
-          isTransitioning ? "top-full opacity-100 scale-x-100" : "top-0 opacity-0 scale-x-0"
+        className={`pointer-events-none fixed top-0 inset-x-0 h-1 z-50 transition-all duration-500 ease-out ${themeClasses.fiberGlow} ${
+          isTransitioning ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0"
         }`} 
+      />
+
+      {/* 2. OPTİK DİYAFRAM YAYILMASI (Radial Iris Aura) */}
+      <div 
+        className={`pointer-events-none fixed inset-0 z-30 transition-all duration-500 ease-out ${
+          isTransitioning 
+            ? is3D 
+              ? "bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.18)_0%,transparent_60%)] scale-125 opacity-100" 
+              : "bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.18)_0%,transparent_60%)] scale-125 opacity-100"
+            : "scale-75 opacity-0"
+        }`}
       />
 
       {/* ÜST DUYURU BARI */}
@@ -605,7 +576,7 @@ export default function Home() {
         </span>
       </div>
 
-      {/* DINAMIK ARKA PLAN IŞIKLARI */}
+      {/* ARKA PLAN AMBİYANS IŞIKLARI */}
       <div 
         className={`pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] ${themeClasses.ambientGlow} transition-all duration-1000 ease-in-out`} 
       />
@@ -616,14 +587,11 @@ export default function Home() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3 cursor-pointer group">
             
-            {/* 1. MODEL LOGO: TİTANYUM & YANIK BAKIR KADEMELİ NOZZLE/TÜRBİN KESİTİ */}
+            {/* 1. MODEL LOGO */}
             <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-[#08090d] border border-slate-800 p-1.5 shadow-inner transition-all duration-500 group-hover:scale-110 group-hover:border-slate-700">
               <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-full w-full">
-                {/* 1. Üst Katman - Fırçalanmış Platin */}
                 <path d="M10 9H31L26 14H7L10 9Z" fill="#f1f5f9" className="transition-all duration-300 group-hover:translate-x-0.5" />
-                {/* 2. Orta Katman - Yanık Bakır / Amber */}
                 <path d="M12 16H28L23 22H9L12 16Z" fill="#f59e0b" className="transition-all duration-300 group-hover:translate-x-1" />
-                {/* 3. Alt Katman - Derin Bakır */}
                 <path d="M15 24H24L19 31H12L15 24Z" fill="#b45309" className="transition-all duration-300 group-hover:translate-x-1.5" />
               </svg>
             </div>
@@ -642,7 +610,6 @@ export default function Home() {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Ses Açma / Kapatma */}
             <button
               onClick={() => setSoundEnabled(!soundEnabled)}
               title={soundEnabled ? "Siber sesleri kapat" : "Siber sesleri aç"}
@@ -667,12 +634,12 @@ export default function Home() {
         </div>
       </header>
 
-      {/* 3D WARP SAHNESİ */}
-      <div style={{ perspective: "1200px" }} className="relative">
-        <div className={`transition-all duration-500 ease-out transform-gpu ${
+      {/* YENİ ASİMETRİK PORTAL GEÇİŞ SAHNESİ */}
+      <div className="relative overflow-hidden">
+        <div className={`transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] transform-gpu ${
           transitionPhase === "out"
-            ? "opacity-10 scale-90 -translate-y-6 rotate-x-6 blur-md"
-            : "opacity-100 scale-100 translate-y-0 rotate-x-0 blur-0"
+            ? "opacity-20 scale-[0.97] translate-x-3 blur-[2px]"
+            : "opacity-100 scale-100 translate-x-0 blur-0"
         }`}>
           
           {/* HERO ALANI */}
@@ -984,10 +951,10 @@ export default function Home() {
                   <div
                     key={product.id}
                     style={{
-                      animationDelay: `${index * 70}ms`,
+                      animationDelay: `${index * 60}ms`,
                       animationFillMode: "both"
                     }}
-                    className={`group flex flex-col justify-between rounded-2xl border border-slate-800/80 bg-[#0d121c]/90 p-5 shadow-xl backdrop-blur-xl transition-all duration-500 hover:-translate-y-2.5 animate-in fade-in slide-in-from-bottom-8 zoom-in-90 duration-500 ease-out ${themeClasses.cardBorder}`}
+                    className={`group flex flex-col justify-between rounded-2xl border border-slate-800/80 bg-[#0d121c]/90 p-5 shadow-xl backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 animate-in fade-in slide-in-from-bottom-6 zoom-in-95 duration-500 ease-out ${themeClasses.cardBorder}`}
                   >
                     <div>
                       <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-slate-800">
@@ -1109,7 +1076,7 @@ export default function Home() {
             </div>
           </main>
 
-          {/* DETAILING & 3D REHBER */}
+          {/* REHBER */}
           <section className="mx-auto max-w-6xl px-6 pb-20">
             <div className="rounded-3xl border border-slate-800/80 bg-[#0c1018] p-8">
               <div className="flex items-center gap-2 text-amber-400 mb-4">
@@ -1159,7 +1126,6 @@ export default function Home() {
                 </button>
               </div>
 
-              {/* Kargo Baremi */}
               <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900/60 p-3">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-400">Ücretsiz Kargo Hedefi:</span>
@@ -1180,7 +1146,6 @@ export default function Home() {
                 </p>
               </div>
 
-              {/* Sepet Ürünleri */}
               <div className="mt-4 max-h-[50vh] space-y-3 overflow-y-auto pr-1">
                 {cart.length === 0 ? (
                   <div className="py-16 text-center text-slate-500">
