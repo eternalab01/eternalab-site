@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { 
   ShoppingBag, 
   Trash2, 
@@ -21,13 +21,12 @@ import {
   VolumeX,
   Sliders,
   CheckCircle,
-  HelpCircle,
-  Car
+  HelpCircle
 } from "lucide-react";
 
 type MainCategory = "3d" | "garage";
 type SubCategory3D = "all" | "decor" | "fun" | "wall" | "auto";
-type SubCategoryGarage = "all" | "bundles" | "wheel_tire" | "wash_foam" | "towels" | "interior" | "brushes";
+type SubCategoryGarage = "all" | "bundles" | "wheel_tire" | "wash_foam" | "towels";
 
 interface ProductOption {
   name: string;
@@ -281,7 +280,6 @@ export default function Home() {
 
   // Before & After Slider Değeri
   const [sliderPosition, setSliderPosition] = useState(50);
-  const isDraggingSlider = useRef(false);
 
   // Canlı Özelleştirici Metin
   const [customPlateText, setCustomPlateText] = useState("01 ETL 34");
@@ -305,41 +303,108 @@ export default function Home() {
     p6: { opt1Index: 0, opt2: "PETG (Yüksek Sıcaklık)" },
   });
 
-  // SİBER SES MOTORU (Web Audio API)
+  // AĞIR, TOK VE KASVETLİ SİNEMATİK SES MOTORU (Sub-Bass Braam & Heavy Pneumatic)
   const playSound = (type: "warp" | "click" | "success") => {
     if (!soundEnabled || typeof window === "undefined") return;
     try {
       const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-
       const now = ctx.currentTime;
+
       if (type === "warp") {
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(140, now);
-        osc.frequency.exponentialRampToValueAtTime(780, now + 0.18);
-        gain.gain.setValueAtTime(0.08, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
-        osc.start(now);
-        osc.stop(now + 0.22);
+        // 1. DÜŞÜK FREKANSLI AĞIR SUB-BASS PATLAMASI (Cinematic Sub-Drop)
+        const subOsc = ctx.createOscillator();
+        const subGain = ctx.createGain();
+        subOsc.type = "sawtooth";
+        
+        subOsc.frequency.setValueAtTime(95, now);
+        subOsc.frequency.exponentialRampToValueAtTime(28, now + 0.45);
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = "lowpass";
+        filter.frequency.setValueAtTime(240, now);
+        filter.frequency.exponentialRampToValueAtTime(50, now + 0.45);
+
+        subOsc.connect(filter);
+        filter.connect(subGain);
+        subGain.connect(ctx.destination);
+
+        subGain.gain.setValueAtTime(0.22, now);
+        subGain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+        subOsc.start(now);
+        subOsc.stop(now + 0.45);
+
+        // 2. KASVETLİ HAVA VE MEKANİK BASINÇ SESİ (Heavy Air Pressure Whoosh)
+        const bufferSize = Math.floor(ctx.sampleRate * 0.35);
+        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = Math.random() * 2 - 1;
+        }
+
+        const whiteNoise = ctx.createBufferSource();
+        whiteNoise.buffer = noiseBuffer;
+
+        const noiseFilter = ctx.createBiquadFilter();
+        noiseFilter.type = "bandpass";
+        noiseFilter.frequency.setValueAtTime(320, now);
+        noiseFilter.frequency.exponentialRampToValueAtTime(90, now + 0.35);
+        noiseFilter.Q.setValueAtTime(2.5, now);
+
+        const noiseGain = ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.12, now);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+        whiteNoise.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(ctx.destination);
+
+        whiteNoise.start(now);
+        whiteNoise.stop(now + 0.35);
+
       } else if (type === "click") {
+        // TOK, AĞIR METALİK TETİK / PİSTON TIKLAMASI (Heavy Mechanical Click)
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
         osc.type = "triangle";
-        osc.frequency.setValueAtTime(420, now);
-        gain.gain.setValueAtTime(0.05, now);
+        
+        osc.frequency.setValueAtTime(120, now);
+        osc.frequency.exponentialRampToValueAtTime(35, now + 0.08);
+
+        const filter = ctx.createBiquadFilter();
+        filter.type = "lowpass";
+        filter.frequency.setValueAtTime(400, now);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+
+        gain.gain.setValueAtTime(0.15, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
         osc.start(now);
         osc.stop(now + 0.08);
+
       } else if (type === "success") {
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(523.25, now); // C5
-        osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
-        osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
-        gain.gain.setValueAtTime(0.07, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-        osc.start(now);
-        osc.stop(now + 0.35);
+        // TOK GARAJ KİLİTLENMESİ VE DERİN ÇİFT VURUŞ (Heavy Double Clunk)
+        [0, 0.09].forEach((delay, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+
+          const startFreq = idx === 0 ? 80 : 55;
+          osc.frequency.setValueAtTime(startFreq, now + delay);
+          osc.frequency.exponentialRampToValueAtTime(25, now + delay + 0.25);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+
+          gain.gain.setValueAtTime(0.2, now + delay);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + delay + 0.25);
+
+          osc.start(now + delay);
+          osc.stop(now + delay + 0.25);
+        });
       }
     } catch (e) {
       // Audio not allowed yet
@@ -705,9 +770,7 @@ export default function Home() {
             </div>
           </section>
 
-          {/* ========================================================================= */}
-          {/* ÖZELLİK 1: CANLI ÖNCESİ / SONRASI (BEFORE / AFTER) SLIDER (DETAILING İÇİN) */}
-          {/* ========================================================================= */}
+          {/* BEFORE / AFTER SLIDER */}
           {!is3D && (
             <section className="mx-auto max-w-6xl px-6 py-8">
               <div className="overflow-hidden rounded-3xl border border-slate-800/90 bg-[#0d121c] p-6 shadow-2xl">
@@ -733,7 +796,6 @@ export default function Home() {
                     setSliderPosition((x / rect.width) * 100);
                   }}
                 >
-                  {/* Sonrası (Temiz Jant) */}
                   <img
                     src="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=1200&auto=format&fit=crop&q=80"
                     alt="Sonrası"
@@ -743,7 +805,6 @@ export default function Home() {
                     ✨ UYGULAMA SONRASI (PARLAK)
                   </span>
 
-                  {/* Öncesi (Kirli Jant - Maske) */}
                   <div
                     className="absolute inset-0 overflow-hidden"
                     style={{ width: `${sliderPosition}%` }}
@@ -759,7 +820,6 @@ export default function Home() {
                     </span>
                   </div>
 
-                  {/* Ayırıcı Çubuk & Buton */}
                   <div
                     className="absolute top-0 bottom-0 w-1 bg-amber-400 shadow-[0_0_15px_#f59e0b]"
                     style={{ left: `${sliderPosition}%` }}
@@ -773,9 +833,7 @@ export default function Home() {
             </section>
           )}
 
-          {/* ========================================================================= */}
-          {/* ÖZELLİK 2: KENDİ GARAJ PAKETİNİ YARAT (BUNDLE BUILDER - DETAILING) */}
-          {/* ========================================================================= */}
+          {/* KENDİ GARAJ PAKETİNİ YARAT (BUNDLE BUILDER) */}
           {!is3D && (
             <section className="mx-auto max-w-6xl px-6 py-4">
               <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-[#0d121c] to-[#0d121c] p-6 shadow-2xl">
@@ -802,9 +860,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* 3 Adımlı Seçici */}
                 <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-                  {/* Adım 1 */}
                   <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
                     <span className="text-[11px] font-bold text-amber-400">ADIM 1: Yıkama & Cila</span>
                     <div className="mt-2 space-y-2">
@@ -825,7 +881,6 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* Adım 2 */}
                   <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
                     <span className="text-[11px] font-bold text-amber-400">ADIM 2: Jant & Lastik</span>
                     <div className="mt-2 space-y-2">
@@ -846,7 +901,6 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* Adım 3 */}
                   <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
                     <span className="text-[11px] font-bold text-amber-400">ADIM 3: Kurulama & Bez</span>
                     <div className="mt-2 space-y-2">
@@ -871,9 +925,7 @@ export default function Home() {
             </section>
           )}
 
-          {/* ========================================================================= */}
-          {/* ÖZELLİK 3: CANLI İSİM & PLAKA ÖNİZLEME (3D CUSTOMIZER - 3D TAB İÇİN) */}
-          {/* ========================================================================= */}
+          {/* 3D CUSTOMIZER */}
           {is3D && (
             <section className="mx-auto max-w-6xl px-6 py-6">
               <div className="rounded-3xl border border-cyan-500/30 bg-gradient-to-br from-cyan-500/10 via-[#0d121c] to-[#0d121c] p-6 shadow-2xl">
@@ -904,7 +956,6 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* Canlı Simülasyon Plaka Kartı */}
                   <div className="flex items-center justify-center rounded-2xl border border-cyan-500/40 bg-slate-950 p-6 shadow-[0_0_30px_rgba(34,211,238,0.25)] min-w-[280px]">
                     <div className="flex items-center gap-3 rounded-lg border-2 border-slate-700 bg-[#0a0d14] px-5 py-3 shadow-inner">
                       <div className="flex flex-col items-center justify-center rounded bg-blue-600 px-1.5 py-0.5 text-[10px] font-black text-white">
@@ -941,7 +992,6 @@ export default function Home() {
                     className={`group flex flex-col justify-between rounded-2xl border border-slate-800/80 bg-[#0d121c]/90 p-5 shadow-xl backdrop-blur-xl transition-all duration-500 hover:-translate-y-2.5 animate-in fade-in slide-in-from-bottom-8 zoom-in-90 duration-500 ease-out ${themeClasses.cardBorder}`}
                   >
                     <div>
-                      {/* Görsel */}
                       <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-slate-800">
                         <img
                           src={product.image}
@@ -962,7 +1012,6 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {/* Değerlendirme & Başlık */}
                       <div className="mt-3.5">
                         <div className="flex items-center gap-1.5 text-xs text-amber-400">
                           <div className="flex items-center">
@@ -982,7 +1031,6 @@ export default function Home() {
                         </p>
                       </div>
 
-                      {/* Fiyat Göstergesi */}
                       <div className="mt-4 flex items-baseline gap-2 border-y border-slate-800/80 py-2.5">
                         <span className={`font-mono text-2xl font-black transition-colors duration-500 ${themeClasses.price}`}>
                           {currentOpt1.price} ₺
@@ -999,7 +1047,6 @@ export default function Home() {
                         )}
                       </div>
 
-                      {/* 1. Seçenek */}
                       <div className="mt-4">
                         <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
                           {product.options1Label}: <span className="text-slate-200 font-semibold">{currentOpt1.name}</span>
@@ -1029,7 +1076,6 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {/* 2. Seçenek */}
                       <div className="mt-3.5">
                         <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
                           {product.options2Label}: <span className="text-slate-200">{currentOpt2}</span>
@@ -1052,7 +1098,6 @@ export default function Home() {
                       </div>
                     </div>
 
-                    {/* Sepete Ekle Butonu */}
                     <button
                       onClick={() => addToCart(product)}
                       className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black transition-all duration-300 active:scale-95 cursor-pointer ${themeClasses.button}`}
@@ -1066,9 +1111,7 @@ export default function Home() {
             </div>
           </main>
 
-          {/* ========================================================================= */}
-          {/* ÖZELLİK 5: DETAILING & 3D HAP BİLGİ REHBERİ (GÜVEN & KALİTE İPUÇLARI) */}
-          {/* ========================================================================= */}
+          {/* DETAILING & 3D REHBER */}
           <section className="mx-auto max-w-6xl px-6 pb-20">
             <div className="rounded-3xl border border-slate-800/80 bg-[#0c1018] p-8">
               <div className="flex items-center gap-2 text-amber-400 mb-4">
@@ -1095,7 +1138,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* SEPET PANELİ (WHATSAPP SİPARİŞ ENTEGRASYONLU) */}
+      {/* SEPET PANELİ */}
       {isCartOpen && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div
@@ -1118,7 +1161,7 @@ export default function Home() {
                 </button>
               </div>
 
-              {/* Ücretsiz Kargo İlerleme Çubuğu */}
+              {/* Kargo Baremi */}
               <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900/60 p-3">
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-400">Ücretsiz Kargo Hedefi:</span>
@@ -1139,7 +1182,7 @@ export default function Home() {
                 </p>
               </div>
 
-              {/* Sepet İçi Ürünler */}
+              {/* Sepet Ürünleri */}
               <div className="mt-4 max-h-[50vh] space-y-3 overflow-y-auto pr-1">
                 {cart.length === 0 ? (
                   <div className="py-16 text-center text-slate-500">
@@ -1195,7 +1238,6 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Sepet Alt Toplam & Sipariş Butonu */}
             {cart.length > 0 && (
               <div className="border-t border-slate-800 pt-4">
                 <div className="flex items-center justify-between font-mono text-base font-bold text-white">
