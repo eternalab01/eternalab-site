@@ -332,7 +332,7 @@ export default function Home() {
   });
 
   const [sliderPosition, setSliderPosition] = useState(50);
-  const [customPlateText, setCustomPlateText] = useState("01 ETL 34");
+  const [customPlateText, setCustomPlateText] = useState("34 RMZ 34");
 
   const [bundleShampoo, setBundleShampoo] = useState<string>("carnauba");
   const [bundleWheel, setBundleWheel] = useState<string>("iron");
@@ -606,13 +606,10 @@ export default function Home() {
     playSound("success");
 
     if (paymentMethod === "card") {
-      // 1. SEÇENEK: KREDİ KARTI / SHOPIER YÖNLENDİRMESİ
-      // Buraya kendi Shopier / PayTR mağaza linkini ekleyebilirsin:
       const SHOPIER_URL = "https://www.shopier.com/";
       window.open(SHOPIER_URL, "_blank");
       setCheckoutStep("success");
     } else {
-      // 2. SEÇENEK: HAVALE / FAST SİPARİŞİ OLUŞTURMA
       setCheckoutStep("success");
     }
   };
@@ -1005,7 +1002,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4">
+                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
                   <span className="text-[11px] font-bold text-amber-400">ADIM 2: Jant & Lastik</span>
                   <div className="mt-2 space-y-2">
                     <label 
@@ -1065,7 +1062,7 @@ export default function Home() {
                       value={customPlateText}
                       maxLength={14}
                       onChange={(e) => setCustomPlateText(e.target.value.toUpperCase())}
-                      placeholder="Örn: 01 ETL 34"
+                      placeholder="Örn: 34 RMZ 34"
                       className="rounded-xl border border-cyan-500/40 bg-slate-900/90 px-4 py-2.5 font-mono text-sm font-bold text-cyan-300 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-400"
                     />
                     <button
@@ -1497,7 +1494,7 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* Teslimat Bilgi Girişi */}
+                  {/* Teslimat Bilgi Girişi (GENEL PLACEHOLDER'LAR) */}
                   <form id="checkout-form" onSubmit={handleFinalOrderSubmit} className="mt-4 space-y-3">
                     <div>
                       <label className="text-[11px] font-semibold text-slate-400">Ad Soyad *</label>
@@ -1506,7 +1503,7 @@ export default function Home() {
                         required
                         value={formData.fullName}
                         onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                        placeholder="Örn: Serkan Terler"
+                        placeholder="Örn: Ramiz Karaeski"
                         className="mt-1 w-full rounded-xl border border-slate-800 bg-slate-900/90 p-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-slate-400"
                       />
                     </div>
@@ -1531,7 +1528,7 @@ export default function Home() {
                           required
                           value={formData.city}
                           onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                          placeholder="Örn: Adana"
+                          placeholder="Örn: İstanbul"
                           className="mt-1 w-full rounded-xl border border-slate-800 bg-slate-900/90 p-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-slate-400"
                         />
                       </div>
@@ -1542,7 +1539,7 @@ export default function Home() {
                           required
                           value={formData.district}
                           onChange={(e) => setFormData({ ...formData, district: e.target.value })}
-                          placeholder="Örn: Seyhan"
+                          placeholder="Örn: Kadıköy"
                           className="mt-1 w-full rounded-xl border border-slate-800 bg-slate-900/90 p-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-slate-400"
                         />
                       </div>
@@ -1555,7 +1552,7 @@ export default function Home() {
                         rows={2}
                         value={formData.address}
                         onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                        placeholder="Kargo teslimatı için detaylı adresinizi giriniz..."
+                        placeholder="Kargo teslimatı için mahalle, sokak, bina ve kapı no yazınız..."
                         className="mt-1 w-full rounded-xl border border-slate-800 bg-slate-900/90 p-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-slate-400"
                       />
                     </div>
