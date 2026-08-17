@@ -297,7 +297,7 @@ export default function Home() {
     p6: { opt1Index: 0, opt2: "PETG (Yüksek Sıcaklık)" },
   });
 
-  // TATLI, YUMUŞAK VE KİBAR AKUSTİK ARAYÜZ SESLERİ (Soft Organic UI Chimes)
+  // GTA 5 iFRUIT BİLDİRİMİ & TATLI AKUSTİK ARAYÜZ SESLERİ
   const playSound = (type: "warp" | "click" | "success") => {
     if (!soundEnabled || typeof window === "undefined") return;
     try {
@@ -305,7 +305,7 @@ export default function Home() {
       const now = ctx.currentTime;
 
       if (type === "warp") {
-        // YUMUŞAK KADİFE KEPENK GEÇİŞ SESİ (Warm Soft Harmonic Chime)
+        // YUMUŞAK KADİFE KEPENK GEÇİŞ SESİ
         [329.63, 440.0].forEach((freq, i) => {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
@@ -329,7 +329,7 @@ export default function Home() {
         });
 
       } else if (type === "click") {
-        // MİNİK TATLI SU DAMLASI / DOKUNMA TIKLAMASI (Soft Bubble Click)
+        // MİNİK TATLI SU DAMLASI TIKLAMASI
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
 
@@ -347,22 +347,27 @@ export default function Home() {
         osc.stop(now + 0.035);
 
       } else if (type === "success") {
-        // NEŞELİ VE KİBAR KRİSTAL ONAY ZİLİ (Soft Sparkle Melody)
-        [523.25, 659.25, 783.99].forEach((freq, i) => {
+        // GTA 5 iFRUIT TELEFON SMS / İŞ BİLDİRİM SESİ (BİP-BİP İKONİK TON)
+        const notes = [
+          { freq: 830.61, start: 0, duration: 0.085 },       // 1. Ton (G#5)
+          { freq: 1108.73, start: 0.088, duration: 0.16 }    // 2. Yükselen İkonik Ton (C#6)
+        ];
+
+        notes.forEach(({ freq, start, duration }) => {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
 
-          osc.type = "sine";
-          osc.frequency.setValueAtTime(freq, now + i * 0.045);
+          osc.type = "triangle"; // iFruit sentetik tınısı
+          osc.frequency.setValueAtTime(freq, now + start);
 
-          gain.gain.setValueAtTime(0.03, now + i * 0.045);
-          gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.045 + 0.2);
+          gain.gain.setValueAtTime(0.07, now + start);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + start + duration);
 
           osc.connect(gain);
           gain.connect(ctx.destination);
 
-          osc.start(now + i * 0.045);
-          osc.stop(now + i * 0.045 + 0.2);
+          osc.start(now + start);
+          osc.stop(now + start + duration);
         });
       }
     } catch (e) {
