@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import { 
   ShoppingBag, 
   Trash2, 
@@ -275,7 +275,7 @@ export default function Home() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [transitionPhase, setTransitionPhase] = useState<"idle" | "out" | "in">("idle");
+  const [slideDirection, setSlideDirection] = useState<"left" | "right">("right");
   const [soundEnabled, setSoundEnabled] = useState(true);
 
   const [sliderPosition, setSliderPosition] = useState(50);
@@ -298,7 +298,7 @@ export default function Home() {
     p6: { opt1Index: 0, opt2: "PETG (Yüksek Sıcaklık)" },
   });
 
-  // KİBAR, TOK VE İPEKSİ SES MOTORU (Soft Acoustic UI Tones)
+  // KİBAR VE SESSİZ AKUSTİK DOKUNUŞ SESLERİ
   const playSound = (type: "warp" | "click" | "success") => {
     if (!soundEnabled || typeof window === "undefined") return;
     try {
@@ -306,88 +306,71 @@ export default function Home() {
       const now = ctx.currentTime;
 
       if (type === "warp") {
-        // İPEKSİ SÜZÜLME TONU (160Hz -> 220Hz Soft Velvet Sweep)
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        const filter = ctx.createBiquadFilter();
-
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(160, now);
-        osc.frequency.exponentialRampToValueAtTime(230, now + 0.22);
-
-        filter.type = "lowpass";
-        filter.frequency.setValueAtTime(380, now);
-
-        gain.gain.setValueAtTime(0.08, now);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
-
-        osc.connect(filter);
-        filter.connect(gain);
-        gain.connect(ctx.destination);
-
-        osc.start(now);
-        osc.stop(now + 0.28);
-
-      } else if (type === "click") {
-        // KİBAR CAM / MİKRO DOKUNUŞ (Soft Muted Glass Click)
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = "sine";
+        osc.frequency.setValueAtTime(180, now);
+        osc.frequency.exponentialRampToValueAtTime(240, now + 0.16);
 
-        osc.frequency.setValueAtTime(280, now);
-        osc.frequency.exponentialRampToValueAtTime(140, now + 0.05);
-
-        gain.gain.setValueAtTime(0.06, now);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
+        gain.gain.setValueAtTime(0.05, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
 
         osc.connect(gain);
         gain.connect(ctx.destination);
-
         osc.start(now);
-        osc.stop(now + 0.05);
+        osc.stop(now + 0.18);
+
+      } else if (type === "click") {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(320, now);
+
+        gain.gain.setValueAtTime(0.04, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.04);
 
       } else if (type === "success") {
-        // KADİFE ONAY AKORU (Warm Soft Double Tone)
-        [240, 360].forEach((freq, i) => {
+        [280, 420].forEach((freq, i) => {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.type = "sine";
-          osc.frequency.setValueAtTime(freq, now + i * 0.06);
+          osc.frequency.setValueAtTime(freq, now + i * 0.05);
 
-          gain.gain.setValueAtTime(0.06, now + i * 0.06);
-          gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.06 + 0.22);
+          gain.gain.setValueAtTime(0.04, now + i * 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.05 + 0.18);
 
           osc.connect(gain);
           gain.connect(ctx.destination);
-
-          osc.start(now + i * 0.06);
-          osc.stop(now + i * 0.06 + 0.22);
+          osc.start(now + i * 0.05);
+          osc.stop(now + i * 0.05 + 0.18);
         });
       }
     } catch (e) {
-      // Audio autoplay policy
+      // Audio context policy
     }
   };
 
-  // OPTİK DİYAFRAM & PORTAL GEÇİŞ SİSTEMİ
+  // DOĞAL VE PARLAK YATAY KİNETİK GEÇİŞ
   const handleTabChange = (newTab: MainCategory) => {
     if (newTab === activeTab || isTransitioning) return;
     playSound("warp");
+    setSlideDirection(newTab === "3d" ? "left" : "right");
     setIsTransitioning(true);
-    setTransitionPhase("out");
 
     setTimeout(() => {
       setActiveTab(newTab);
       if (newTab === "3d") setActiveSubTab3D("all");
       else setActiveSubTabGarage("all");
       
-      setTransitionPhase("in");
-
       setTimeout(() => {
-        setTransitionPhase("idle");
         setIsTransitioning(false);
-      }, 350);
-    }, 180);
+      }, 50);
+    }, 140);
   };
 
   const handleVariantChange = (productId: string, type: "opt1Index" | "opt2", value: any) => {
@@ -487,22 +470,21 @@ export default function Home() {
   const is3D = activeTab === "3d";
   const themeClasses = {
     badge: is3D 
-      ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30 shadow-[0_0_15px_rgba(34,211,238,0.15)]" 
-      : "bg-amber-500/10 text-amber-400 border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.15)]",
+      ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30" 
+      : "bg-amber-500/10 text-amber-400 border-amber-500/30",
     button: is3D 
-      ? "bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-slate-950 shadow-[0_0_25px_rgba(34,211,238,0.4)]" 
-      : "bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-[0_0_25px_rgba(245,158,11,0.4)]",
-    price: is3D ? "text-cyan-400 drop-shadow-[0_0_12px_rgba(34,211,238,0.4)]" : "text-amber-400 drop-shadow-[0_0_12px_rgba(245,158,11,0.4)]",
+      ? "bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-slate-950 shadow-md shadow-cyan-500/20" 
+      : "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-md shadow-amber-500/20",
+    price: is3D ? "text-cyan-400" : "text-amber-400",
     cardBorder: is3D 
-      ? "hover:border-cyan-400/60 hover:shadow-[0_0_35px_rgba(34,211,238,0.2)] hover:bg-[#111927]" 
-      : "hover:border-amber-400/60 hover:shadow-[0_0_35px_rgba(245,158,11,0.2)] hover:bg-[#191512]",
+      ? "hover:border-cyan-500/40 hover:shadow-lg hover:shadow-cyan-500/5 hover:bg-[#0f1420]" 
+      : "hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/5 hover:bg-[#141210]",
     selectedVariant: is3D 
-      ? "border-cyan-400 bg-cyan-500/25 text-cyan-100 shadow-[0_0_15px_rgba(34,211,238,0.3)]" 
-      : "border-amber-400 bg-amber-500/25 text-amber-100 shadow-[0_0_15px_rgba(245,158,11,0.3)]",
+      ? "border-cyan-400 bg-cyan-500/20 text-cyan-100" 
+      : "border-amber-400 bg-amber-500/20 text-amber-100",
     ambientGlow: is3D
-      ? "from-cyan-500/25 via-blue-600/10 to-transparent"
-      : "from-amber-500/25 via-orange-600/10 to-transparent",
-    fiberGlow: is3D ? "bg-cyan-400 shadow-[0_0_25px_#22d3ee]" : "bg-amber-400 shadow-[0_0_25px_#f59e0b]",
+      ? "from-cyan-500/15 via-blue-600/5 to-transparent"
+      : "from-amber-500/15 via-orange-600/5 to-transparent",
   };
 
   const subCategories3D: { key: SubCategory3D; label: string }[] = [
@@ -544,29 +526,11 @@ export default function Home() {
   return (
     <div className="relative min-h-screen bg-[#07090e] text-slate-100 antialiased selection:bg-slate-700 selection:text-white overflow-x-hidden">
       
-      {/* 1. İNCE FİBER-OPTİK ÜST AKIŞ ÇİZGİSİ */}
-      <div 
-        className={`pointer-events-none fixed top-0 inset-x-0 h-1 z-50 transition-all duration-500 ease-out ${themeClasses.fiberGlow} ${
-          isTransitioning ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0"
-        }`} 
-      />
-
-      {/* 2. OPTİK DİYAFRAM YAYILMASI (Radial Iris Aura) */}
-      <div 
-        className={`pointer-events-none fixed inset-0 z-30 transition-all duration-500 ease-out ${
-          isTransitioning 
-            ? is3D 
-              ? "bg-[radial-gradient(circle_at_center,rgba(34,211,238,0.18)_0%,transparent_60%)] scale-125 opacity-100" 
-              : "bg-[radial-gradient(circle_at_center,rgba(245,158,11,0.18)_0%,transparent_60%)] scale-125 opacity-100"
-            : "scale-75 opacity-0"
-        }`}
-      />
-
       {/* ÜST DUYURU BARI */}
-      <div className={`transition-all duration-700 px-4 py-2 text-center text-xs font-black tracking-wide text-slate-950 uppercase shadow-lg flex items-center justify-center gap-2 ${
+      <div className={`transition-all duration-500 px-4 py-2 text-center text-xs font-black tracking-wide text-slate-950 uppercase shadow-md flex items-center justify-center gap-2 ${
         is3D 
-          ? "bg-gradient-to-r from-cyan-400 via-sky-300 to-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.4)]" 
-          : "bg-gradient-to-r from-amber-500 via-orange-400 to-amber-500 shadow-[0_0_20px_rgba(245,158,11,0.4)]"
+          ? "bg-gradient-to-r from-cyan-400 via-sky-300 to-cyan-400" 
+          : "bg-gradient-to-r from-amber-500 via-orange-400 to-amber-500"
       }`}>
         <Sparkles className="h-3.5 w-3.5" />
         <span>
@@ -578,28 +542,28 @@ export default function Home() {
 
       {/* ARKA PLAN AMBİYANS IŞIKLARI */}
       <div 
-        className={`pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] ${themeClasses.ambientGlow} transition-all duration-1000 ease-in-out`} 
+        className={`pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] ${themeClasses.ambientGlow} transition-all duration-700 ease-out`} 
       />
-      <div className="pointer-events-none fixed inset-0 bg-[linear-gradient(to_right,#1f293712_1px,transparent_1px),linear-gradient(to_bottom,#1f293712_1px,transparent_1px)] bg-[size:3.5rem_3.5rem]" />
+      <div className="pointer-events-none fixed inset-0 bg-[linear-gradient(to_right,#1f293710_1px,transparent_1px),linear-gradient(to_bottom,#1f293710_1px,transparent_1px)] bg-[size:3.5rem_3.5rem]" />
 
       {/* NAVBAR */}
-      <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-[#07090e]/90 backdrop-blur-2xl">
+      <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-[#07090e]/95 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3 cursor-pointer group">
             
             {/* 1. MODEL LOGO */}
-            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-[#08090d] border border-slate-800 p-1.5 shadow-inner transition-all duration-500 group-hover:scale-110 group-hover:border-slate-700">
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-[#08090d] border border-slate-800 p-1.5 shadow-inner transition-all duration-300 group-hover:scale-105 group-hover:border-slate-700">
               <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-full w-full">
-                <path d="M10 9H31L26 14H7L10 9Z" fill="#f1f5f9" className="transition-all duration-300 group-hover:translate-x-0.5" />
-                <path d="M12 16H28L23 22H9L12 16Z" fill="#f59e0b" className="transition-all duration-300 group-hover:translate-x-1" />
-                <path d="M15 24H24L19 31H12L15 24Z" fill="#b45309" className="transition-all duration-300 group-hover:translate-x-1.5" />
+                <path d="M10 9H31L26 14H7L10 9Z" fill="#f1f5f9" />
+                <path d="M12 16H28L23 22H9L12 16Z" fill="#f59e0b" />
+                <path d="M15 24H24L19 31H12L15 24Z" fill="#b45309" />
               </svg>
             </div>
 
             <div className="flex flex-col">
               <div className="flex items-center text-lg font-black tracking-tight text-white leading-none">
                 <span>ETERNA</span>
-                <span className={`ml-1 font-mono transition-colors duration-700 ${is3D ? "text-cyan-400" : "text-amber-400"}`}>
+                <span className={`ml-1 font-mono transition-colors duration-500 ${is3D ? "text-cyan-400" : "text-amber-400"}`}>
                   LAB
                 </span>
               </div>
@@ -612,7 +576,7 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <button
               onClick={() => setSoundEnabled(!soundEnabled)}
-              title={soundEnabled ? "Siber sesleri kapat" : "Siber sesleri aç"}
+              title={soundEnabled ? "Sesi kapat" : "Sesi aç"}
               className="rounded-xl border border-slate-800 bg-slate-900/80 p-2.5 text-slate-400 hover:text-white transition cursor-pointer"
             >
               {soundEnabled ? <Volume2 className="h-4 w-4 text-emerald-400" /> : <VolumeX className="h-4 w-4 text-slate-500" />}
@@ -620,12 +584,12 @@ export default function Home() {
 
             <button
               onClick={() => setIsCartOpen(true)}
-              className="relative flex items-center gap-2 rounded-xl border border-slate-700/80 bg-slate-800/80 px-4 py-2.5 text-sm font-bold text-slate-200 shadow-lg transition-all duration-300 hover:scale-105"
+              className="relative flex items-center gap-2 rounded-xl border border-slate-700/80 bg-slate-800/80 px-4 py-2.5 text-sm font-bold text-slate-200 shadow-md transition-all duration-300 hover:scale-105"
             >
               <ShoppingBag className="h-4 w-4" />
               <span>Sepetim</span>
               {totalItemCount > 0 && (
-                <span className={`ml-1 rounded-full px-2 py-0.5 text-xs font-black text-slate-950 transition-all duration-500 ${is3D ? "bg-cyan-400 shadow-[0_0_10px_#22d3ee]" : "bg-amber-400 shadow-[0_0_10px_#f59e0b]"}`}>
+                <span className={`ml-1 rounded-full px-2 py-0.5 text-xs font-black text-slate-950 transition-all duration-300 ${is3D ? "bg-cyan-400" : "bg-amber-400"}`}>
                   {totalItemCount}
                 </span>
               )}
@@ -634,70 +598,72 @@ export default function Home() {
         </div>
       </header>
 
-      {/* YENİ ASİMETRİK PORTAL GEÇİŞ SAHNESİ */}
-      <div className="relative overflow-hidden">
-        <div className={`transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] transform-gpu ${
-          transitionPhase === "out"
-            ? "opacity-20 scale-[0.97] translate-x-3 blur-[2px]"
-            : "opacity-100 scale-100 translate-x-0 blur-0"
+      {/* YUMUŞAK YATAY KİNETİK GEÇİŞ SİSTEMİ */}
+      <div className="relative">
+        <div className={`transition-all duration-300 ease-out transform-gpu ${
+          isTransitioning 
+            ? slideDirection === "left" 
+              ? "opacity-0 -translate-x-4" 
+              : "opacity-0 translate-x-4"
+            : "opacity-100 translate-x-0"
         }`}>
           
           {/* HERO ALANI */}
           <section className="relative mx-auto max-w-6xl px-6 pt-10 pb-4 text-center">
-            <div className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-extrabold backdrop-blur-xl transition-all duration-700 ${
+            <div className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-extrabold backdrop-blur-md transition-all duration-500 ${
               is3D 
-                ? "border-cyan-400/40 bg-cyan-500/10 text-cyan-300 shadow-[0_0_20px_rgba(34,211,238,0.2)]" 
-                : "border-amber-400/40 bg-amber-500/10 text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.2)]"
+                ? "border-cyan-400/30 bg-cyan-500/10 text-cyan-300" 
+                : "border-amber-400/30 bg-amber-500/10 text-amber-300"
             }`}>
               {is3D ? (
                 <>
-                  <Zap className="h-4 w-4 text-cyan-400 animate-pulse" />
+                  <Zap className="h-4 w-4 text-cyan-400" />
                   <span>3D TASARIM & LAB: CANLI ÖZELLEŞTİRİLEBİLİR MODÜLLER</span>
                 </>
               ) : (
                 <>
-                  <Flame className="h-4 w-4 text-orange-400 fill-orange-400 animate-bounce" />
+                  <Flame className="h-4 w-4 text-orange-400 fill-orange-400" />
                   <span>GARAGE DETAILING: SÜPER AVANTAJLI SETLER VE 3 AL 2 ÖDE FIRSATLARI</span>
                 </>
               )}
             </div>
 
-            <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl min-h-[70px] flex items-center justify-center transition-all duration-500">
+            <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl min-h-[70px] flex items-center justify-center transition-all duration-300">
               {is3D ? (
                 <span>
-                  Hassas <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(34,211,238,0.3)]">3D Tasarım</span> & Kişiselleştirme
+                  Hassas <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent">3D Tasarım</span> & Kişiselleştirme
                 </span>
               ) : (
                 <span>
-                  Profesyonel <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(245,158,11,0.3)]">Auto Detailing</span> Çözümleri
+                  Profesyonel <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 bg-clip-text text-transparent">Auto Detailing</span> Çözümleri
                 </span>
               )}
             </h2>
 
-            {/* GRID KATEGORİ SEÇİCİ */}
+            {/* TAB SEÇİCİ */}
             <div className="mx-auto mt-6 max-w-md">
-              <div className="grid grid-cols-2 rounded-2xl border border-slate-800/90 bg-[#0e131f]/90 p-1.5 shadow-2xl backdrop-blur-2xl">
+              <div className="grid grid-cols-2 rounded-2xl border border-slate-800 bg-[#0e131f] p-1.5 shadow-xl">
                 <button
                   onClick={() => handleTabChange("garage")}
-                  className={`flex items-center justify-center gap-2.5 rounded-xl py-3.5 text-sm font-black transition-all duration-500 cursor-pointer ${
+                  className={`flex items-center justify-center gap-2.5 rounded-xl py-3 text-sm font-black transition-all duration-300 cursor-pointer ${
                     !is3D 
-                      ? "bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-slate-950 shadow-[0_0_25px_rgba(245,158,11,0.45)] scale-[1.03]" 
+                      ? "bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-md scale-[1.02]" 
                       : "text-slate-400 hover:text-slate-200"
                   }`}
                 >
-                  <Droplets className={`h-4 w-4 transition-transform duration-500 ${!is3D ? "scale-125 rotate-12" : ""}`} />
+                  <Droplets className="h-4 w-4" />
                   <span>Auto Detailing</span>
                 </button>
 
                 <button
                   onClick={() => handleTabChange("3d")}
-                  className={`flex items-center justify-center gap-2.5 rounded-xl py-3.5 text-sm font-black transition-all duration-500 cursor-pointer ${
+                  className={`flex items-center justify-center gap-2.5 rounded-xl py-3 text-sm font-black transition-all duration-300 cursor-pointer ${
                     is3D 
-                      ? "bg-gradient-to-r from-cyan-400 via-sky-400 to-blue-500 text-slate-950 shadow-[0_0_25px_rgba(34,211,238,0.45)] scale-[1.03]" 
+                      ? "bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 shadow-md scale-[1.02]" 
                       : "text-slate-400 hover:text-slate-200"
                   }`}
                 >
-                  <Layers className={`h-4 w-4 transition-transform duration-500 ${is3D ? "scale-125 rotate-12" : ""}`} />
+                  <Layers className="h-4 w-4" />
                   <span>3D Tasarım & Lab</span>
                 </button>
               </div>
@@ -710,9 +676,9 @@ export default function Home() {
                     <button
                       key={sub.key}
                       onClick={() => { playSound("click"); setActiveSubTab3D(sub.key); }}
-                      className={`rounded-xl border px-4 py-2 text-xs font-bold transition-all duration-300 active:scale-95 cursor-pointer ${
+                      className={`rounded-xl border px-4 py-2 text-xs font-bold transition-all duration-200 active:scale-95 cursor-pointer ${
                         activeSubTab3D === sub.key
-                          ? "border-cyan-400 bg-cyan-500/20 text-cyan-200 shadow-[0_0_15px_rgba(34,211,238,0.2)] scale-105"
+                          ? "border-cyan-400 bg-cyan-500/20 text-cyan-200 shadow-sm"
                           : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
                       }`}
                     >
@@ -723,9 +689,9 @@ export default function Home() {
                     <button
                       key={sub.key}
                       onClick={() => { playSound("click"); setActiveSubTabGarage(sub.key); }}
-                      className={`rounded-xl border px-4 py-2 text-xs font-bold transition-all duration-300 active:scale-95 cursor-pointer ${
+                      className={`rounded-xl border px-4 py-2 text-xs font-bold transition-all duration-200 active:scale-95 cursor-pointer ${
                         activeSubTabGarage === sub.key
-                          ? "border-amber-400 bg-amber-500/20 text-amber-200 shadow-[0_0_15px_rgba(245,158,11,0.2)] scale-105"
+                          ? "border-amber-400 bg-amber-500/20 text-amber-200 shadow-sm"
                           : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
                       }`}
                     >
@@ -738,7 +704,7 @@ export default function Home() {
           {/* BEFORE / AFTER SLIDER */}
           {!is3D && (
             <section className="mx-auto max-w-6xl px-6 py-8">
-              <div className="overflow-hidden rounded-3xl border border-slate-800/90 bg-[#0d121c] p-6 shadow-2xl">
+              <div className="overflow-hidden rounded-3xl border border-slate-800/90 bg-[#0d121c] p-6 shadow-xl">
                 <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                   <div>
                     <span className="text-xs font-black uppercase text-amber-400 tracking-wider">🔬 GÖZLE GÖRÜLÜR ETKİ</span>
@@ -786,10 +752,10 @@ export default function Home() {
                   </div>
 
                   <div
-                    className="absolute top-0 bottom-0 w-1 bg-amber-400 shadow-[0_0_15px_#f59e0b]"
+                    className="absolute top-0 bottom-0 w-1 bg-amber-400 shadow-md"
                     style={{ left: `${sliderPosition}%` }}
                   >
-                    <div className="absolute top-1/2 -left-4 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-amber-400 text-slate-950 shadow-xl font-bold text-xs">
+                    <div className="absolute top-1/2 -left-4 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-amber-400 text-slate-950 shadow-md font-bold text-xs">
                       ↔
                     </div>
                   </div>
@@ -798,10 +764,10 @@ export default function Home() {
             </section>
           )}
 
-          {/* KENDİ GARAJ PAKETİNİ YARAT (BUNDLE BUILDER) */}
+          {/* KENDİ GARAJ PAKETİNİ YARAT */}
           {!is3D && (
             <section className="mx-auto max-w-6xl px-6 py-4">
-              <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-[#0d121c] to-[#0d121c] p-6 shadow-2xl">
+              <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-[#0d121c] to-[#0d121c] p-6 shadow-xl">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
                   <div className="flex items-center gap-3">
                     <Sliders className="h-6 w-6 text-amber-400" />
@@ -817,7 +783,7 @@ export default function Home() {
                     </div>
                     <button
                       onClick={addCustomBundleToCart}
-                      className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-3 text-xs font-black text-slate-950 shadow-lg hover:scale-105 transition cursor-pointer"
+                      className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-3 text-xs font-black text-slate-950 shadow-md hover:scale-105 transition cursor-pointer"
                     >
                       <Plus className="h-4 w-4" />
                       Kombo Paketi Sepete Ekle
@@ -893,7 +859,7 @@ export default function Home() {
           {/* 3D CUSTOMIZER */}
           {is3D && (
             <section className="mx-auto max-w-6xl px-6 py-6">
-              <div className="rounded-3xl border border-cyan-500/30 bg-gradient-to-br from-cyan-500/10 via-[#0d121c] to-[#0d121c] p-6 shadow-2xl">
+              <div className="rounded-3xl border border-cyan-500/30 bg-gradient-to-br from-cyan-500/10 via-[#0d121c] to-[#0d121c] p-6 shadow-xl">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                   <div className="flex-1">
                     <span className="text-xs font-black uppercase text-cyan-400 tracking-wider">✨ ANLIK 3D ÖNİZLEME</span>
@@ -914,19 +880,19 @@ export default function Home() {
                           const customProd = PRODUCTS.find((p) => p.id === "p3_custom");
                           if (customProd) addToCart(customProd, customPlateText);
                         }}
-                        className="rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 px-5 py-2.5 text-xs font-black text-slate-950 shadow-lg hover:scale-105 transition cursor-pointer"
+                        className="rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 px-5 py-2.5 text-xs font-black text-slate-950 shadow-md hover:scale-105 transition cursor-pointer"
                       >
                         Özel Baskıyı Sepete Ekle (190 ₺)
                       </button>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-center rounded-2xl border border-cyan-500/40 bg-slate-950 p-6 shadow-[0_0_30px_rgba(34,211,238,0.25)] min-w-[280px]">
+                  <div className="flex items-center justify-center rounded-2xl border border-cyan-500/40 bg-slate-950 p-6 shadow-md min-w-[280px]">
                     <div className="flex items-center gap-3 rounded-lg border-2 border-slate-700 bg-[#0a0d14] px-5 py-3 shadow-inner">
                       <div className="flex flex-col items-center justify-center rounded bg-blue-600 px-1.5 py-0.5 text-[10px] font-black text-white">
                         <span>TR</span>
                       </div>
-                      <span className="font-mono text-xl font-black tracking-widest text-cyan-400 drop-shadow-[0_0_10px_#22d3ee]">
+                      <span className="font-mono text-xl font-black tracking-widest text-cyan-400">
                         {customPlateText || "PLAKANIZ"}
                       </span>
                     </div>
@@ -951,17 +917,17 @@ export default function Home() {
                   <div
                     key={product.id}
                     style={{
-                      animationDelay: `${index * 60}ms`,
+                      animationDelay: `${index * 40}ms`,
                       animationFillMode: "both"
                     }}
-                    className={`group flex flex-col justify-between rounded-2xl border border-slate-800/80 bg-[#0d121c]/90 p-5 shadow-xl backdrop-blur-xl transition-all duration-500 hover:-translate-y-2 animate-in fade-in slide-in-from-bottom-6 zoom-in-95 duration-500 ease-out ${themeClasses.cardBorder}`}
+                    className={`group flex flex-col justify-between rounded-2xl border border-slate-800/80 bg-[#0d121c]/90 p-5 shadow-lg backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 animate-in fade-in slide-in-from-bottom-4 duration-300 ease-out ${themeClasses.cardBorder}`}
                   >
                     <div>
                       <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-slate-800">
                         <img
                           src={product.image}
                           alt={product.name}
-                          className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
+                          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                         />
                         <div className="absolute top-3 left-3 flex flex-col gap-1.5">
                           {product.badge && (
@@ -970,7 +936,7 @@ export default function Home() {
                             </span>
                           )}
                           {product.dealBadge && (
-                            <span className="rounded-md border border-red-500/40 bg-red-500/25 px-2 py-0.5 text-[11px] font-black text-red-400 backdrop-blur-md animate-pulse">
+                            <span className="rounded-md border border-red-500/40 bg-red-500/25 px-2 py-0.5 text-[11px] font-black text-red-400 backdrop-blur-md">
                               {product.dealBadge}
                             </span>
                           )}
@@ -997,7 +963,7 @@ export default function Home() {
                       </div>
 
                       <div className="mt-4 flex items-baseline gap-2 border-y border-slate-800/80 py-2.5">
-                        <span className={`font-mono text-2xl font-black transition-colors duration-500 ${themeClasses.price}`}>
+                        <span className={`font-mono text-2xl font-black transition-colors duration-300 ${themeClasses.price}`}>
                           {currentOpt1.price} ₺
                         </span>
                         {currentOpt1.originalPrice && (
@@ -1006,7 +972,7 @@ export default function Home() {
                           </span>
                         )}
                         {currentOpt1.discountBadge && (
-                          <span className="ml-auto rounded-md bg-emerald-500/20 px-2 py-0.5 text-xs font-black text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+                          <span className="ml-auto rounded-md bg-emerald-500/20 px-2 py-0.5 text-xs font-black text-emerald-400">
                             {currentOpt1.discountBadge}
                           </span>
                         )}
@@ -1021,7 +987,7 @@ export default function Home() {
                             <button
                               key={opt.name}
                               onClick={() => handleVariantChange(product.id, "opt1Index", idx)}
-                              className={`flex items-center justify-between rounded-xl border p-2.5 text-xs transition-all duration-300 cursor-pointer ${
+                              className={`flex items-center justify-between rounded-xl border p-2.5 text-xs transition-all duration-200 cursor-pointer ${
                                 variantState.opt1Index === idx
                                   ? themeClasses.selectedVariant
                                   : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
@@ -1050,7 +1016,7 @@ export default function Home() {
                             <button
                               key={opt}
                               onClick={() => handleVariantChange(product.id, "opt2", opt)}
-                              className={`rounded-lg border px-2.5 py-1 text-xs transition-all duration-300 cursor-pointer ${
+                              className={`rounded-lg border px-2.5 py-1 text-xs transition-all duration-200 cursor-pointer ${
                                 currentOpt2 === opt
                                   ? themeClasses.selectedVariant
                                   : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
@@ -1065,7 +1031,7 @@ export default function Home() {
 
                     <button
                       onClick={() => addToCart(product)}
-                      className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black transition-all duration-300 active:scale-95 cursor-pointer ${themeClasses.button}`}
+                      className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black transition-all duration-200 active:scale-95 cursor-pointer ${themeClasses.button}`}
                     >
                       <Plus className="h-4 w-4" />
                       Sepete Ekle ({currentOpt1.price} ₺)
@@ -1111,11 +1077,11 @@ export default function Home() {
             onClick={() => setIsCartOpen(false)}
           />
 
-          <div className="relative z-10 flex h-full w-full max-w-md flex-col justify-between border-l border-slate-800 bg-[#07090e] p-6 shadow-2xl animate-in slide-in-from-right duration-500 ease-out">
+          <div className="relative z-10 flex h-full w-full max-w-md flex-col justify-between border-l border-slate-800 bg-[#07090e] p-6 shadow-2xl animate-in slide-in-from-right duration-300 ease-out">
             <div>
               <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                 <div className="flex items-center gap-2.5">
-                  <ShoppingBag className={`h-5 w-5 transition-colors duration-500 ${is3D ? "text-cyan-400" : "text-amber-400"}`} />
+                  <ShoppingBag className={`h-5 w-5 transition-colors duration-300 ${is3D ? "text-cyan-400" : "text-amber-400"}`} />
                   <h3 className="text-lg font-bold text-white">Sepetim ({totalItemCount} Ürün)</h3>
                 </div>
                 <button
@@ -1133,7 +1099,7 @@ export default function Home() {
                 </div>
                 <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-800">
                   <div 
-                    className="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-700 ease-out" 
+                    className="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500 ease-out" 
                     style={{ width: `${Math.min(100, (totalAmount / 1500) * 100)}%` }}
                   />
                 </div>
@@ -1205,11 +1171,11 @@ export default function Home() {
               <div className="border-t border-slate-800 pt-4">
                 <div className="flex items-center justify-between font-mono text-base font-bold text-white">
                   <span>Toplam Tutar:</span>
-                  <span className={`text-2xl transition-colors duration-500 ${is3D ? "text-cyan-400" : "text-amber-400"}`}>{totalAmount} ₺</span>
+                  <span className={`text-2xl transition-colors duration-300 ${is3D ? "text-cyan-400" : "text-amber-400"}`}>{totalAmount} ₺</span>
                 </div>
                 <button
                   onClick={handleWhatsAppCheckout}
-                  className={`mt-4 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black transition-all duration-300 active:scale-95 cursor-pointer ${themeClasses.button}`}
+                  className={`mt-4 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black transition-all duration-200 active:scale-95 cursor-pointer ${themeClasses.button}`}
                 >
                   <span>Siparişi WhatsApp ile Tamamla</span>
                   <ChevronRight className="h-4 w-4" />
@@ -1227,21 +1193,21 @@ export default function Home() {
       <footer className="border-t border-slate-800/80 bg-[#06080c] py-12">
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-6 md:grid-cols-3">
           <div className="flex items-center gap-3">
-            <Gift className={`h-6 w-6 transition-colors duration-500 ${is3D ? "text-cyan-400" : "text-amber-400"}`} />
+            <Gift className={`h-6 w-6 transition-colors duration-300 ${is3D ? "text-cyan-400" : "text-amber-400"}`} />
             <div>
               <h4 className="text-sm font-bold text-white">3 Al 2 Öde & Kombo Paketler</h4>
               <p className="text-xs text-slate-400">Bezlerde ve setlerde süper tasarruf fırsatları.</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Truck className={`h-6 w-6 transition-colors duration-500 ${is3D ? "text-cyan-400" : "text-amber-400"}`} />
+            <Truck className={`h-6 w-6 transition-colors duration-300 ${is3D ? "text-cyan-400" : "text-amber-400"}`} />
             <div>
               <h4 className="text-sm font-bold text-white">Hızlı & Güvenli Gönderim</h4>
               <p className="text-xs text-slate-400">1.500 ₺ ve üzeri tüm siparişlerde ücretsiz kargo.</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <ShieldCheck className={`h-6 w-6 transition-colors duration-500 ${is3D ? "text-cyan-400" : "text-amber-400"}`} />
+            <ShieldCheck className={`h-6 w-6 transition-colors duration-300 ${is3D ? "text-cyan-400" : "text-amber-400"}`} />
             <div>
               <h4 className="text-sm font-bold text-white">Boya & Vernik Güvenliği</h4>
               <p className="text-xs text-slate-400">pH dengeli, seramik kaplamayı bozmayan formüller.</p>
