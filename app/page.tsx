@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   ShoppingBag, 
   Trash2, 
@@ -21,7 +21,10 @@ import {
   VolumeX, 
   Sliders, 
   CheckCircle, 
-  HelpCircle 
+  HelpCircle,
+  Cpu,
+  Clock,
+  Box
 } from "lucide-react";
 
 type MainCategory = "3d" | "garage";
@@ -52,6 +55,11 @@ interface Product {
   options1: ProductOption[];
   options2Label: string;
   options2: string[];
+  techSpecs?: {
+    material: string;
+    layerHeight: string;
+    leadTime: string;
+  };
 }
 
 const PRODUCTS: Product[] = [
@@ -202,6 +210,11 @@ const PRODUCTS: Product[] = [
     ],
     options2Label: "Gövde / Yazı Rengi",
     options2: ["Siyah Gövde / Neon Cyan", "Siyah Gövde / Garaj Turuncusu", "Karbon Siyah / Beyaz"],
+    techSpecs: {
+      material: "PETG Endüstriyel Polimer",
+      layerHeight: "0.16mm Ultra Hassas",
+      leadTime: "24 Saatte Kargoda"
+    }
   },
   {
     id: "p1",
@@ -220,6 +233,11 @@ const PRODUCTS: Product[] = [
     ],
     options2Label: "Renk & Malzeme",
     options2: ["Mat Siyah - PETG", "Titanyum Gri - PETG", "Mermer Beyaz - PLA"],
+    techSpecs: {
+      material: "PETG / PLA Tough",
+      layerHeight: "0.20mm Standart",
+      leadTime: "Aynı Gün Kargo"
+    }
   },
   {
     id: "p4",
@@ -238,6 +256,11 @@ const PRODUCTS: Product[] = [
     ],
     options2Label: "Renk",
     options2: ["Parlak Kırmızı", "Mat Siyah", "İpek Altın"],
+    techSpecs: {
+      material: "PLA Silk (İpeksi Parlak)",
+      layerHeight: "0.12mm Yüksek Detay",
+      leadTime: "1-2 İş Günü"
+    }
   },
   {
     id: "p6",
@@ -256,6 +279,11 @@ const PRODUCTS: Product[] = [
     ],
     options2Label: "Malzeme Türü",
     options2: ["PETG (Yüksek Sıcaklık)", "Karbon Katkılı PETG"],
+    techSpecs: {
+      material: "Isıya Dayanıklı PETG (75°C)",
+      layerHeight: "0.16mm Güçlendirilmiş",
+      leadTime: "Aynı Gün Kargo"
+    }
   }
 ];
 
@@ -267,6 +295,14 @@ interface CartItem {
   customText?: string;
   quantity: number;
 }
+
+const FAKE_NOTIFICATIONS = [
+  { city: "İstanbul", product: "A'dan Z'ye Master Bakım Paketi", time: "2 dk önce" },
+  { city: "Ankara", product: "Kişiye Özel Plaka Anahtarlık", time: "5 dk önce" },
+  { city: "İzmir", product: "1200 GSM Twisted Havlu (3 Al 2 Öde)", time: "8 dk önce" },
+  { city: "Bursa", product: "pH Nötr Demir Tozu & Jant Temizleyici", time: "11 dk önce" },
+  { city: "Antalya", product: "Araç İçi Bardaklık & Telefon Tutucu", time: "14 dk önce" }
+];
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<MainCategory>("garage");
@@ -284,6 +320,9 @@ export default function Home() {
   const [bundleWheel, setBundleWheel] = useState<string>("iron");
   const [bundleTowel, setBundleTowel] = useState<string>("twisted");
 
+  // Canlı Bildirim Pop-up State'i
+  const [currentNotification, setCurrentNotification] = useState<{ city: string; product: string; time: string } | null>(null);
+
   const [selectedVariants, setSelectedVariants] = useState<Record<string, { opt1Index: number; opt2: string }>>({
     d_master_bundle: { opt1Index: 0, opt2: "Bubble Gum (Sakız)" },
     d_iron_cleaner: { opt1Index: 2, opt2: "Tetikli Ağır Hizmet Başlık" },
@@ -297,6 +336,39 @@ export default function Home() {
     p6: { opt1Index: 0, opt2: "PETG (Yüksek Sıcaklık)" },
   });
 
+  // 1. LOCAL STORAGE: SEPETİ HAFIZADA TUTMA
+  useEffect(() => {
+    try {
+      const savedCart = localStorage.getItem("eternal_cart");
+      if (savedCart) {
+        setCart(JSON.parse(savedCart));
+      }
+    } catch (e) {
+      // LocalStorage access error handling
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("eternal_cart", JSON.stringify(cart));
+    } catch (e) {}
+  }, [cart]);
+
+  // 2. SOSYAL KANIT BİLDİRİM DÖNGÜSÜ
+  useEffect(() => {
+    let index = 0;
+    const interval = setInterval(() => {
+      setCurrentNotification(FAKE_NOTIFICATIONS[index]);
+      index = (index + 1) % FAKE_NOTIFICATIONS.length;
+
+      setTimeout(() => {
+        setCurrentNotification(null);
+      }, 5000);
+    }, 18000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   // GTA 5 iFRUIT BİLDİRİMİ & TATLI AKUSTİK ARAYÜZ SESLERİ
   const playSound = (type: "warp" | "click" | "success") => {
     if (!soundEnabled || typeof window === "undefined") return;
@@ -305,7 +377,6 @@ export default function Home() {
       const now = ctx.currentTime;
 
       if (type === "warp") {
-        // YUMUŞAK KADİFE KEPENK GEÇİŞ SESİ
         [329.63, 440.0].forEach((freq, i) => {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
@@ -329,7 +400,6 @@ export default function Home() {
         });
 
       } else if (type === "click") {
-        // MİNİK TATLI SU DAMLASI TIKLAMASI
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
 
@@ -347,17 +417,17 @@ export default function Home() {
         osc.stop(now + 0.035);
 
       } else if (type === "success") {
-        // GTA 5 iFRUIT TELEFON SMS / İŞ BİLDİRİM SESİ (BİP-BİP İKONİK TON)
+        // GTA 5 iFruit Bildirim Melodisi
         const notes = [
-          { freq: 830.61, start: 0, duration: 0.085 },       // 1. Ton (G#5)
-          { freq: 1108.73, start: 0.088, duration: 0.16 }    // 2. Yükselen İkonik Ton (C#6)
+          { freq: 830.61, start: 0, duration: 0.085 },
+          { freq: 1108.73, start: 0.088, duration: 0.16 }
         ];
 
         notes.forEach(({ freq, start, duration }) => {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
 
-          osc.type = "triangle"; // iFruit sentetik tınısı
+          osc.type = "triangle";
           osc.frequency.setValueAtTime(freq, now + start);
 
           gain.gain.setValueAtTime(0.07, now + start);
@@ -371,11 +441,10 @@ export default function Home() {
         });
       }
     } catch (e) {
-      // Audio autoplay policy
+      // Audio policy
     }
   };
 
-  // GARAJ KAPISI GEÇİŞ TETİKLEYİCİSİ
   const handleTabChange = (newTab: MainCategory) => {
     if (newTab === activeTab || isGarageDoorActive) return;
     playSound("warp");
@@ -523,41 +592,52 @@ export default function Home() {
     { key: "towels", label: "Bez & Havlular (3 Al 2 Öde)" },
   ];
 
+  // GELİŞMİŞ WHATSAPP SİPARİŞ FORMATI (ADRES & TESLİMAT TASLAKLI)
   const handleWhatsAppCheckout = () => {
     if (cart.length === 0) return;
     playSound("success");
     const phone = "905555555555";
-    let message = `*Yeni Sipariş Talebi - EternaLab*\n\n`;
+    let message = `*📦 YENİ SİPARİŞ TALEBİ - ETERNALAB*\n`;
+    message += `───────────────────────\n\n`;
+    
     cart.forEach((item, index) => {
-      message += `${index + 1}. *${item.product.name}*\n`;
-      message += `   ▫️ Paket: ${item.selectedOpt1.name}\n`;
-      message += `   ▫️ Seçim: ${item.selectedOpt2}\n`;
+      message += `*${index + 1}. ${item.product.name}*\n`;
+      message += `   ▫️ Seçenek: ${item.selectedOpt1.name}\n`;
+      message += `   ▫️ Tip / Varyant: ${item.selectedOpt2}\n`;
       if (item.customText) {
-        message += `   ▫️ *Kişiye Özel Metin/Plaka:* ${item.customText}\n`;
+        message += `   ▫️ *Özel Plaka / İsim:* ${item.customText}\n`;
       }
-      message += `   ▫️ Adet: ${item.quantity} x ${item.selectedOpt1.price} ₺ = ${item.quantity * item.selectedOpt1.price} ₺\n\n`;
+      message += `   ▫️ Adet & Fiyat: ${item.quantity} x ${item.selectedOpt1.price} ₺ = *${item.quantity * item.selectedOpt1.price} ₺*\n\n`;
     });
-    message += `*Toplam Tutar:* ${totalAmount} ₺\n\nSiparişimi onaylamak ve kargo bilgilerimi iletmek istiyorum.`;
+
+    message += `───────────────────────\n`;
+    message += `*💰 TOPLAM TUTAR:* ${totalAmount} ₺\n`;
+    message += `*🚚 KARGO:* ${totalAmount >= 1500 ? "ÜCRETSİZ" : "Alıcı Ödemeli (Standart Kargo)"}\n\n`;
+    
+    message += `*📍 TESLİMAT & İLETİŞİM BİLGİLERİM:*\n`;
+    message += `• Ad Soyad: \n`;
+    message += `• Telefon No: \n`;
+    message += `• Açık Adres: \n`;
+    message += `• İl / İlçe: \n`;
+    message += `• Ödeme Tercihi: (Havale / FAST / Kredi Kartı)\n\n`;
+    message += `Siparişimi onaylamak istiyorum, teşekkürler!`;
     
     const encoded = encodeURIComponent(message);
     window.open(`https://wa.me/${phone}?text=${encoded}`, "_blank");
   };
 
   return (
-    <div className="relative min-h-screen bg-[#07090e] text-slate-100 antialiased selection:bg-slate-700 selection:text-white overflow-x-hidden">
+    <div className="relative min-h-screen bg-[#07090e] text-slate-100 antialiased selection:bg-slate-700 selection:text-white overflow-x-hidden pb-16 md:pb-0">
       
       {/* ========================================================================= */}
-      {/* GARAJ SARMAL KAPISI (PARLAK NEON "ETERNALAB" MERKEZİ DAMGALI) */}
+      {/* GARAJ SARMAL KAPISI */}
       {/* ========================================================================= */}
       <div 
         className={`pointer-events-none fixed inset-0 z-50 flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.32,0,0.67,0)] ${
           isGarageDoorActive ? "translate-y-0" : "-translate-y-full"
         }`}
       >
-        {/* Sarmal Çelik Paneller */}
         <div className="relative flex-1 w-full bg-[#0a0d14] flex flex-col justify-between shadow-2xl border-b border-slate-700/80 overflow-hidden">
-          
-          {/* ÇELİK PANELLER */}
           {[...Array(9)].map((_, i) => (
             <div 
               key={i} 
@@ -574,15 +654,12 @@ export default function Home() {
             </div>
           ))}
 
-          {/* MERKEZİ DEV PARLAK "ETERNALAB" LOGO & AMBİYANS IŞIĞI */}
+          {/* MERKEZİ DEV PARLAK LOGO */}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none">
-            
-            {/* Arkadaki Odak Parlaması */}
             <div className={`absolute h-48 w-96 rounded-full blur-3xl opacity-30 transition-colors duration-500 ${
               is3D ? "bg-cyan-500" : "bg-amber-500"
             }`} />
 
-            {/* Ön Yüz Parlak Logo Başlığı */}
             <div className="relative flex items-center tracking-tighter text-4xl sm:text-6xl md:text-7xl font-black drop-shadow-[0_0_25px_rgba(0,0,0,0.9)]">
               <span className="text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]">
                 ETERNA
@@ -596,7 +673,6 @@ export default function Home() {
               </span>
             </div>
 
-            {/* Alt Teknik Damga */}
             <div className="relative mt-2 flex items-center gap-2">
               <div className={`h-1 w-6 rounded-full ${is3D ? "bg-cyan-400" : "bg-amber-400"}`} />
               <span className="text-[10px] sm:text-xs font-mono font-black tracking-[0.3em] uppercase text-slate-300 drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]">
@@ -606,7 +682,6 @@ export default function Home() {
             </div>
           </div>
           
-          {/* Garaj Kapısı Alt Ağır Kauçuk Fitil & Neon Kılavuz */}
           <div className="relative z-10 w-full bg-[#050608] py-2.5 px-8 flex items-center justify-between border-t-2 border-slate-700">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-mono font-black uppercase tracking-widest text-slate-400">
@@ -635,7 +710,7 @@ export default function Home() {
         </span>
       </div>
 
-      {/* ARKA PLAN AMBİYANS IŞIKLARI */}
+      {/* AMBİYANS IŞIKLARI */}
       <div 
         className={`pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] ${themeClasses.ambientGlow} transition-all duration-700 ease-out`} 
       />
@@ -646,7 +721,7 @@ export default function Home() {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3 cursor-pointer group">
             
-            {/* 1. MODEL LOGO */}
+            {/* LOGO */}
             <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-[#08090d] border border-slate-800 p-1.5 shadow-inner transition-all duration-300 group-hover:scale-105 group-hover:border-slate-700">
               <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-full w-full">
                 <path d="M10 9H31L26 14H7L10 9Z" fill="#f1f5f9" />
@@ -700,7 +775,7 @@ export default function Home() {
           : "opacity-100 translate-y-0 scale-100 filter blur-0"
       }`}>
         
-        {/* HERO ALANI */}
+        {/* HERO */}
         <section className="relative mx-auto max-w-6xl px-6 pt-10 pb-4 text-center">
           <div className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-extrabold backdrop-blur-md transition-all duration-500 ${
             is3D 
@@ -761,7 +836,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* ALT KATEGORİ ÇUBUĞU */}
+          {/* ALT KATEGORİLER */}
           <div className="mx-auto mt-6 flex max-w-5xl flex-wrap items-center justify-center gap-2">
             {is3D
               ? subCategories3D.map((sub) => (
@@ -856,7 +931,7 @@ export default function Home() {
           </section>
         )}
 
-        {/* KENDİ GARAJ PAKETİNİ YARAT */}
+        {/* BUNDLE BUILDER */}
         {!is3D && (
           <section className="mx-auto max-w-6xl px-6 py-4">
             <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-[#0d121c] to-[#0d121c] p-6 shadow-xl">
@@ -1052,6 +1127,24 @@ export default function Home() {
                       <p className="mt-1.5 text-xs leading-relaxed text-slate-400">
                         {product.description}
                       </p>
+
+                      {/* 3D ÜRÜNLER İÇİN MÜHENDİSLİK TEKNİK ÖZELLİKLERİ */}
+                      {product.techSpecs && (
+                        <div className="mt-3 flex flex-col gap-1 rounded-xl border border-slate-800 bg-slate-900/60 p-2.5 text-[11px]">
+                          <div className="flex items-center gap-1.5 text-cyan-400">
+                            <Cpu className="h-3.5 w-3.5" />
+                            <span className="text-slate-300 font-semibold">{product.techSpecs.material}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-cyan-400">
+                            <Box className="h-3.5 w-3.5" />
+                            <span className="text-slate-300">{product.techSpecs.layerHeight}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-cyan-400">
+                            <Clock className="h-3.5 w-3.5" />
+                            <span className="text-slate-300">{product.techSpecs.leadTime}</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div className="mt-4 flex items-baseline gap-2 border-y border-slate-800/80 py-2.5">
@@ -1159,6 +1252,47 @@ export default function Home() {
         </section>
 
       </div>
+
+      {/* SOSYAL KANIT: CANLI SİPARİŞ BİLDİRİMİ */}
+      {currentNotification && (
+        <div className="fixed bottom-20 left-4 z-40 max-w-xs animate-in slide-in-from-bottom-5 duration-500 ease-out md:bottom-6">
+          <div className="flex items-center gap-3 rounded-2xl border border-slate-800 bg-[#0d121c]/95 p-3.5 shadow-2xl backdrop-blur-xl">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400">
+              <ShoppingBag className="h-4 w-4" />
+            </div>
+            <div className="flex flex-col text-left">
+              <span className="text-[11px] font-bold text-slate-300">
+                {currentNotification.city} şehrinden sipariş verildi
+              </span>
+              <span className="text-[10px] text-amber-400 line-clamp-1">
+                {currentNotification.product}
+              </span>
+              <span className="text-[9px] text-slate-500">{currentNotification.time}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MOBİL YAPIŞKAN SEPET BARI (STICKY BOTTOM BAR) */}
+      {totalItemCount > 0 && !isCartOpen && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-800 bg-[#07090e]/95 p-3 backdrop-blur-xl md:hidden animate-in slide-in-from-bottom duration-300">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <span className="text-[11px] text-slate-400">{totalItemCount} Ürün Seçildi</span>
+              <div className={`font-mono text-base font-black ${is3D ? "text-cyan-400" : "text-amber-400"}`}>
+                {totalAmount} ₺
+              </div>
+            </div>
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-xs font-black text-slate-950 shadow-md ${themeClasses.button}`}
+            >
+              <ShoppingBag className="h-4 w-4" />
+              <span>Sepeti Gör & Sipariş Ver</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* SEPET PANELİ */}
       {isCartOpen && (
@@ -1272,7 +1406,7 @@ export default function Home() {
                   <ChevronRight className="h-4 w-4" />
                 </button>
                 <p className="mt-2 text-center text-[11px] text-slate-500">
-                  Sipariş listeniz otomatik formatlanıp WhatsApp üzerinden iletilecektir.
+                  Sipariş listeniz ve teslimat taslağınız otomatik iletilecektir.
                 </p>
               </div>
             )}
