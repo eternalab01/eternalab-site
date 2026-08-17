@@ -359,7 +359,7 @@ export default function Home() {
   const [activeSubTabGarage, setActiveSubTabGarage] = useState<SubCategoryGarage>("all");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isFullPageTransitioning, setIsFullPageTransitioning] = useState(false);
 
   // Başlangıç Seçimleri
   const [selectedVariants, setSelectedVariants] = useState<Record<string, { opt1Index: number; opt2: string }>>({
@@ -380,16 +380,18 @@ export default function Home() {
     p6: { opt1Index: 0, opt2: "PETG (Yüksek Sıcaklık)" },
   });
 
-  // Animasyonlu Sekme Geçiş Tetikleyicisi
+  // TÜM EKRAN SİNEMATİK GEÇİŞ TETİKLEYİCİSİ
   const handleTabChange = (newTab: MainCategory) => {
     if (newTab === activeTab) return;
-    setIsTransitioning(true);
+    setIsFullPageTransitioning(true);
     setTimeout(() => {
       setActiveTab(newTab);
       if (newTab === "3d") setActiveSubTab3D("all");
       else setActiveSubTabGarage("all");
-      setIsTransitioning(false);
-    }, 150);
+      setTimeout(() => {
+        setIsFullPageTransitioning(false);
+      }, 100);
+    }, 200);
   };
 
   const handleVariantChange = (productId: string, type: "opt1Index" | "opt2", value: any) => {
@@ -478,9 +480,10 @@ export default function Home() {
       ? "border-cyan-400 bg-cyan-500/20 text-cyan-200 shadow-sm shadow-cyan-500/20" 
       : "border-amber-400 bg-amber-500/20 text-amber-200 shadow-sm shadow-amber-500/20",
     ambientGlow: is3D
-      ? "from-cyan-600/20 via-blue-600/10 to-transparent"
-      : "from-amber-600/20 via-orange-600/10 to-transparent",
-    laserLine: is3D ? "bg-cyan-400 shadow-[0_0_20px_#22d3ee]" : "bg-amber-400 shadow-[0_0_20px_#f59e0b]",
+      ? "from-cyan-600/25 via-blue-600/10 to-transparent"
+      : "from-amber-600/25 via-orange-600/10 to-transparent",
+    laserLine: is3D ? "bg-cyan-400 shadow-[0_0_30px_#22d3ee]" : "bg-amber-400 shadow-[0_0_30px_#f59e0b]",
+    fullPageFlash: is3D ? "bg-cyan-500/10" : "bg-amber-500/10",
   };
 
   const subCategories3D: { key: SubCategory3D; label: string }[] = [
@@ -521,10 +524,17 @@ export default function Home() {
   return (
     <div className="relative min-h-screen bg-[#0a0d14] text-slate-100 antialiased selection:bg-slate-700 selection:text-white overflow-x-hidden">
       
-      {/* KATEGORİ GEÇİŞ LAZER IŞIMASI (ANIMATION SWEEP) */}
+      {/* 1. TÜM EKRAN PARLAMA DALGASI (FULL-SCREEN ATMOSPHERE FLASH) */}
       <div 
-        className={`pointer-events-none fixed top-0 left-0 right-0 h-1 z-50 transition-all duration-700 ease-out ${themeClasses.laserLine} ${
-          isTransitioning ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0"
+        className={`pointer-events-none fixed inset-0 z-40 transition-opacity duration-500 ease-out backdrop-blur-[2px] ${themeClasses.fullPageFlash} ${
+          isFullPageTransitioning ? "opacity-100" : "opacity-0"
+        }`} 
+      />
+
+      {/* 2. TEPE LAZER TARAMA IŞIĞI */}
+      <div 
+        className={`pointer-events-none fixed top-0 left-0 right-0 h-1.5 z-50 transition-all duration-700 ease-out ${themeClasses.laserLine} ${
+          isFullPageTransitioning ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0"
         }`} 
       />
 
@@ -542,7 +552,7 @@ export default function Home() {
         </span>
       </div>
 
-      {/* DINAMIK ARKA PLAN IŞIKLARI (YUMUŞAK GEÇİŞ) */}
+      {/* DINAMIK ARKA PLAN AMBİYANS IŞIĞI */}
       <div 
         className={`pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] ${themeClasses.ambientGlow} transition-all duration-1000 ease-in-out`} 
       />
@@ -591,257 +601,261 @@ export default function Home() {
         </div>
       </header>
 
-      {/* HERO & KAMPANYA ALANI */}
-      <section className="relative mx-auto max-w-6xl px-6 pt-10 pb-6 text-center">
+      {/* TÜM SAYFA GEÇİŞİNDE YAYLANAN ANA GÖVDE (TRANSITION WRAPPER) */}
+      <div className={`transition-all duration-500 ease-out ${
+        isFullPageTransitioning ? "opacity-40 scale-[0.99] filter blur-[1px]" : "opacity-100 scale-100 filter blur-0"
+      }`}>
         
-        {/* Rozet */}
-        <div className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-bold backdrop-blur transition-all duration-700 ${
-          is3D 
-            ? "border-cyan-500/30 bg-cyan-500/10 text-cyan-300" 
-            : "border-amber-500/30 bg-amber-500/10 text-amber-300"
-        }`}>
-          {is3D ? (
-            <>
-              <Sparkle className="h-4 w-4 text-cyan-400 animate-spin" style={{ animationDuration: "6s" }} />
-              <span>3D TASARIM & LAB: MİKRON HASSASİYETİNDE MÜHENDİSLİK ÜRETİMİ</span>
-            </>
-          ) : (
-            <>
-              <Flame className="h-4 w-4 text-orange-400 fill-orange-400 animate-bounce" />
-              <span>GARAGE DETAILING: SÜPER AVANTAJLI SETLER VE 3 AL 2 ÖDE FIRSATLARI</span>
-            </>
-          )}
-        </div>
-
-        {/* Başlık (Smooth Fade) */}
-        <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl min-h-[70px] flex items-center justify-center transition-all duration-500">
-          {is3D ? (
-            <span className="animate-in fade-in zoom-in-95 duration-500">
-              Hassas <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">3D Tasarım</span> & Üretim
-            </span>
-          ) : (
-            <span className="animate-in fade-in zoom-in-95 duration-500">
-              Profesyonel <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 bg-clip-text text-transparent">Auto Detailing</span> Çözümleri
-            </span>
-          )}
-        </h2>
-
-        <p className="mx-auto mt-2 max-w-2xl text-sm leading-relaxed text-slate-400 sm:text-base min-h-[48px]">
-          {is3D 
-            ? "Masaüstü, dekorasyon, duvar düzenleme ve araç içi için yüksek mukavemetli PETG/PLA üretimler." 
-            : "pH nötr demir tozu sökücüler, fırlama yapmayan lastik jelleri, 1200 GSM twisted bezler ve avantajlı setler."}
-        </p>
-
-        {/* MANUEL / MANYETİK KAYAN KAPSÜLLÜ ANA KATEGORİ SEÇİCİ */}
-        <div className="relative mx-auto mt-8 inline-flex rounded-2xl border border-slate-800 bg-[#0e131f]/90 p-1.5 shadow-2xl backdrop-blur-xl">
+        {/* HERO & KAMPANYA ALANI */}
+        <section className="relative mx-auto max-w-6xl px-6 pt-10 pb-6 text-center">
           
-          {/* Arkadaki Kayan Manyetik Işık Kapsülü */}
-          <div 
-            className={`absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] rounded-xl transition-all duration-500 cubic-bezier(0.34, 1.56, 0.64, 1) ${
-              !is3D 
-                ? "left-1.5 bg-gradient-to-r from-amber-500 to-orange-500 shadow-[0_0_25px_rgba(245,158,11,0.4)]" 
-                : "left-[calc(50%+3px)] bg-gradient-to-r from-cyan-400 to-blue-500 shadow-[0_0_25px_rgba(34,211,238,0.4)]"
-            }`}
-          />
+          {/* Rozet */}
+          <div className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-bold backdrop-blur transition-all duration-700 ${
+            is3D 
+              ? "border-cyan-500/30 bg-cyan-500/10 text-cyan-300" 
+              : "border-amber-500/30 bg-amber-500/10 text-amber-300"
+          }`}>
+            {is3D ? (
+              <>
+                <Sparkle className="h-4 w-4 text-cyan-400 animate-spin" style={{ animationDuration: "6s" }} />
+                <span>3D TASARIM & LAB: MİKRON HASSASİYETİNDE MÜHENDİSLİK ÜRETİMİ</span>
+              </>
+            ) : (
+              <>
+                <Flame className="h-4 w-4 text-orange-400 fill-orange-400 animate-bounce" />
+                <span>GARAGE DETAILING: SÜPER AVANTAJLI SETLER VE 3 AL 2 ÖDE FIRSATLARI</span>
+              </>
+            )}
+          </div>
 
-          <button
-            onClick={() => handleTabChange("garage")}
-            className={`relative z-10 flex items-center justify-center gap-2.5 rounded-xl px-7 py-3 text-sm font-black transition-colors duration-300 ${
-              !is3D ? "text-slate-950" : "text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            <Droplets className={`h-4 w-4 transition-transform duration-500 ${!is3D ? "scale-110 rotate-12" : ""}`} />
-            Auto Detailing & Mağaza
-          </button>
+          {/* Başlık */}
+          <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl min-h-[70px] flex items-center justify-center transition-all duration-500">
+            {is3D ? (
+              <span>
+                Hassas <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent">3D Tasarım</span> & Üretim
+              </span>
+            ) : (
+              <span>
+                Profesyonel <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 bg-clip-text text-transparent">Auto Detailing</span> Çözümleri
+              </span>
+            )}
+          </h2>
 
-          <button
-            onClick={() => handleTabChange("3d")}
-            className={`relative z-10 flex items-center justify-center gap-2.5 rounded-xl px-7 py-3 text-sm font-black transition-colors duration-300 ${
-              is3D ? "text-slate-950" : "text-slate-400 hover:text-slate-200"
-            }`}
-          >
-            <Layers className={`h-4 w-4 transition-transform duration-500 ${is3D ? "scale-110 rotate-12" : ""}`} />
-            3D Tasarım & Lab
-          </button>
-        </div>
+          <p className="mx-auto mt-2 max-w-2xl text-sm leading-relaxed text-slate-400 sm:text-base min-h-[48px]">
+            {is3D 
+              ? "Masaüstü, dekorasyon, duvar düzenleme ve araç içi için yüksek mukavemetli PETG/PLA üretimler." 
+              : "pH nötr demir tozu sökücüler, fırlama yapmayan lastik jelleri, 1200 GSM twisted bezler ve avantajlı setler."}
+          </p>
 
-        {/* ALT KATEGORİ ÇUBUĞU (AKICI BUTONLAR) */}
-        <div className="mx-auto mt-6 flex max-w-5xl flex-wrap items-center justify-center gap-2">
-          {is3D
-            ? subCategories3D.map((sub) => (
-                <button
-                  key={sub.key}
-                  onClick={() => setActiveSubTab3D(sub.key)}
-                  className={`rounded-xl border px-4 py-1.5 text-xs font-bold transition-all duration-300 active:scale-95 ${
-                    activeSubTab3D === sub.key
-                      ? "border-cyan-400 bg-cyan-500/20 text-cyan-200 shadow-md shadow-cyan-500/10 scale-105"
-                      : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
-                  }`}
-                >
-                  {sub.label}
-                </button>
-              ))
-            : subCategoriesGarage.map((sub) => (
-                <button
-                  key={sub.key}
-                  onClick={() => setActiveSubTabGarage(sub.key)}
-                  className={`rounded-xl border px-4 py-1.5 text-xs font-bold transition-all duration-300 active:scale-95 ${
-                    activeSubTabGarage === sub.key
-                      ? "border-amber-400 bg-amber-500/20 text-amber-200 shadow-md shadow-amber-500/10 scale-105"
-                      : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
-                  }`}
-                >
-                  {sub.label}
-                </button>
-              ))}
-        </div>
-      </section>
-
-      {/* ÜRÜN VİTRİNİ (STAGGERED ANIMATION GRID) */}
-      <main className="relative mx-auto max-w-6xl px-6 pb-24">
-        <div
-          key={`${activeTab}-${is3D ? activeSubTab3D : activeSubTabGarage}`}
-          className="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3"
-        >
-          {filteredProducts.map((product, index) => {
-            const variantState = selectedVariants[product.id] || { opt1Index: 0, opt2: product.options2[0] };
-            const currentOpt1 = product.options1[variantState.opt1Index] || product.options1[0];
-            const currentOpt2 = variantState.opt2 || product.options2[0];
-
-            return (
-              <div
-                key={product.id}
-                style={{
-                  animationDelay: `${index * 60}ms`,
-                  animationFillMode: "both"
-                }}
-                className={`group flex flex-col justify-between rounded-2xl border border-slate-800/80 bg-[#111622]/90 p-5 shadow-xl backdrop-blur-sm transition-all duration-500 hover:-translate-y-2 animate-in fade-in slide-in-from-bottom-6 zoom-in-95 duration-500 ease-out ${themeClasses.cardBorder}`}
+          {/* 100% HİZALANMIŞ, TAŞMA YAPMAYAN GRID TAB SEÇİCİ */}
+          <div className="mx-auto mt-8 max-w-md">
+            <div className="grid grid-cols-2 rounded-2xl border border-slate-800 bg-[#0e131f] p-1.5 shadow-2xl backdrop-blur-xl">
+              
+              <button
+                onClick={() => handleTabChange("garage")}
+                className={`flex items-center justify-center gap-2.5 rounded-xl py-3 text-sm font-black transition-all duration-500 ${
+                  !is3D 
+                    ? "bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-lg shadow-amber-500/25 scale-[1.02]" 
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
               >
-                <div>
-                  {/* Görsel, Rozetler & Puan */}
-                  <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-slate-800">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
-                    />
-                    <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-                      {product.badge && (
-                        <span className={`rounded-md border px-2 py-0.5 text-[11px] font-black tracking-wide backdrop-blur-md ${themeClasses.badge}`}>
-                          {product.badge}
+                <Droplets className={`h-4 w-4 transition-transform duration-500 ${!is3D ? "scale-110 rotate-12" : ""}`} />
+                <span>Auto Detailing</span>
+              </button>
+
+              <button
+                onClick={() => handleTabChange("3d")}
+                className={`flex items-center justify-center gap-2.5 rounded-xl py-3 text-sm font-black transition-all duration-500 ${
+                  is3D 
+                    ? "bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 shadow-lg shadow-cyan-400/25 scale-[1.02]" 
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                <Layers className={`h-4 w-4 transition-transform duration-500 ${is3D ? "scale-110 rotate-12" : ""}`} />
+                <span>3D Tasarım & Lab</span>
+              </button>
+
+            </div>
+          </div>
+
+          {/* ALT KATEGORİ ÇUBUĞU */}
+          <div className="mx-auto mt-6 flex max-w-5xl flex-wrap items-center justify-center gap-2">
+            {is3D
+              ? subCategories3D.map((sub) => (
+                  <button
+                    key={sub.key}
+                    onClick={() => setActiveSubTab3D(sub.key)}
+                    className={`rounded-xl border px-4 py-1.5 text-xs font-bold transition-all duration-300 active:scale-95 ${
+                      activeSubTab3D === sub.key
+                        ? "border-cyan-400 bg-cyan-500/20 text-cyan-200 shadow-md shadow-cyan-500/10 scale-105"
+                        : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                    }`}
+                  >
+                    {sub.label}
+                  </button>
+                ))
+              : subCategoriesGarage.map((sub) => (
+                  <button
+                    key={sub.key}
+                    onClick={() => setActiveSubTabGarage(sub.key)}
+                    className={`rounded-xl border px-4 py-1.5 text-xs font-bold transition-all duration-300 active:scale-95 ${
+                      activeSubTabGarage === sub.key
+                        ? "border-amber-400 bg-amber-500/20 text-amber-200 shadow-md shadow-amber-500/10 scale-105"
+                        : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                    }`}
+                  >
+                    {sub.label}
+                  </button>
+                ))}
+          </div>
+        </section>
+
+        {/* ÜRÜN VİTRİNİ */}
+        <main className="relative mx-auto max-w-6xl px-6 pb-24">
+          <div
+            key={`${activeTab}-${is3D ? activeSubTab3D : activeSubTabGarage}`}
+            className="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3"
+          >
+            {filteredProducts.map((product, index) => {
+              const variantState = selectedVariants[product.id] || { opt1Index: 0, opt2: product.options2[0] };
+              const currentOpt1 = product.options1[variantState.opt1Index] || product.options1[0];
+              const currentOpt2 = variantState.opt2 || product.options2[0];
+
+              return (
+                <div
+                  key={product.id}
+                  style={{
+                    animationDelay: `${index * 60}ms`,
+                    animationFillMode: "both"
+                  }}
+                  className={`group flex flex-col justify-between rounded-2xl border border-slate-800/80 bg-[#111622]/90 p-5 shadow-xl backdrop-blur-sm transition-all duration-500 hover:-translate-y-2 animate-in fade-in slide-in-from-bottom-6 zoom-in-95 duration-500 ease-out ${themeClasses.cardBorder}`}
+                >
+                  <div>
+                    {/* Görsel, Rozetler & Puan */}
+                    <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-slate-800">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="h-full w-full object-cover transition duration-700 group-hover:scale-110"
+                      />
+                      <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+                        {product.badge && (
+                          <span className={`rounded-md border px-2 py-0.5 text-[11px] font-black tracking-wide backdrop-blur-md ${themeClasses.badge}`}>
+                            {product.badge}
+                          </span>
+                        )}
+                        {product.dealBadge && (
+                          <span className="rounded-md border border-red-500/40 bg-red-500/25 px-2 py-0.5 text-[11px] font-black text-red-400 backdrop-blur-md animate-pulse">
+                            {product.dealBadge}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Değerlendirme & Başlık */}
+                    <div className="mt-3.5">
+                      <div className="flex items-center gap-1.5 text-xs text-amber-400">
+                        <div className="flex items-center">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                          ))}
+                        </div>
+                        <span className="font-bold text-slate-200">{product.rating}</span>
+                        <span className="text-[11px] text-slate-500">({product.reviewCount} değerlendirme)</span>
+                      </div>
+
+                      <h3 className="mt-1.5 font-bold text-base text-white group-hover:text-slate-100 transition-colors">
+                        {product.name}
+                      </h3>
+                      <p className="mt-1.5 text-xs leading-relaxed text-slate-400">
+                        {product.description}
+                      </p>
+                    </div>
+
+                    {/* Fiyat Göstergesi */}
+                    <div className="mt-4 flex items-baseline gap-2 border-y border-slate-800/80 py-2.5">
+                      <span className={`font-mono text-2xl font-black transition-colors duration-500 ${themeClasses.price}`}>
+                        {currentOpt1.price} ₺
+                      </span>
+                      {currentOpt1.originalPrice && (
+                        <span className="font-mono text-sm text-slate-500 line-through">
+                          {currentOpt1.originalPrice} ₺
                         </span>
                       )}
-                      {product.dealBadge && (
-                        <span className="rounded-md border border-red-500/40 bg-red-500/25 px-2 py-0.5 text-[11px] font-black text-red-400 backdrop-blur-md animate-pulse">
-                          {product.dealBadge}
+                      {currentOpt1.discountBadge && (
+                        <span className="ml-auto rounded-md bg-emerald-500/20 px-2 py-0.5 text-xs font-bold text-emerald-400">
+                          {currentOpt1.discountBadge}
                         </span>
                       )}
                     </div>
-                  </div>
 
-                  {/* Değerlendirme & Başlık */}
-                  <div className="mt-3.5">
-                    <div className="flex items-center gap-1.5 text-xs text-amber-400">
-                      <div className="flex items-center">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                    {/* 1. Seçenek (Paket & Kampanya Boyutları) */}
+                    <div className="mt-4">
+                      <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+                        {product.options1Label}: <span className="text-slate-200 font-semibold">{currentOpt1.name}</span>
+                      </span>
+                      <div className="mt-2 flex flex-col gap-1.5">
+                        {product.options1.map((opt, idx) => (
+                          <button
+                            key={opt.name}
+                            onClick={() => handleVariantChange(product.id, "opt1Index", idx)}
+                            className={`flex items-center justify-between rounded-xl border p-2.5 text-xs transition-all duration-300 ${
+                              variantState.opt1Index === idx
+                                ? themeClasses.selectedVariant
+                                : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                            }`}
+                          >
+                            <div className="text-left">
+                              <span className="font-semibold text-slate-200">{opt.name}</span>
+                              {opt.giftText && (
+                                <span className="block text-[10px] text-amber-400 font-medium">{opt.giftText}</span>
+                              )}
+                            </div>
+                            <div className="text-right font-mono">
+                              <span className="font-bold text-white text-sm">{opt.price} ₺</span>
+                            </div>
+                          </button>
                         ))}
                       </div>
-                      <span className="font-bold text-slate-200">{product.rating}</span>
-                      <span className="text-[11px] text-slate-500">({product.reviewCount} değerlendirme)</span>
                     </div>
 
-                    <h3 className="mt-1.5 font-bold text-base text-white group-hover:text-slate-100 transition-colors">
-                      {product.name}
-                    </h3>
-                    <p className="mt-1.5 text-xs leading-relaxed text-slate-400">
-                      {product.description}
-                    </p>
-                  </div>
-
-                  {/* Fiyat Göstergesi */}
-                  <div className="mt-4 flex items-baseline gap-2 border-y border-slate-800/80 py-2.5">
-                    <span className={`font-mono text-2xl font-black transition-colors duration-500 ${themeClasses.price}`}>
-                      {currentOpt1.price} ₺
-                    </span>
-                    {currentOpt1.originalPrice && (
-                      <span className="font-mono text-sm text-slate-500 line-through">
-                        {currentOpt1.originalPrice} ₺
+                    {/* 2. Seçenek */}
+                    <div className="mt-3.5">
+                      <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+                        {product.options2Label}: <span className="text-slate-200">{currentOpt2}</span>
                       </span>
-                    )}
-                    {currentOpt1.discountBadge && (
-                      <span className="ml-auto rounded-md bg-emerald-500/20 px-2 py-0.5 text-xs font-bold text-emerald-400">
-                        {currentOpt1.discountBadge}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* 1. Seçenek (Paket & Kampanya Boyutları) */}
-                  <div className="mt-4">
-                    <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
-                      {product.options1Label}: <span className="text-slate-200 font-semibold">{currentOpt1.name}</span>
-                    </span>
-                    <div className="mt-2 flex flex-col gap-1.5">
-                      {product.options1.map((opt, idx) => (
-                        <button
-                          key={opt.name}
-                          onClick={() => handleVariantChange(product.id, "opt1Index", idx)}
-                          className={`flex items-center justify-between rounded-xl border p-2.5 text-xs transition-all duration-300 ${
-                            variantState.opt1Index === idx
-                              ? themeClasses.selectedVariant
-                              : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
-                          }`}
-                        >
-                          <div className="text-left">
-                            <span className="font-semibold text-slate-200">{opt.name}</span>
-                            {opt.giftText && (
-                              <span className="block text-[10px] text-amber-400 font-medium">{opt.giftText}</span>
-                            )}
-                          </div>
-                          <div className="text-right font-mono">
-                            <span className="font-bold text-white text-sm">{opt.price} ₺</span>
-                          </div>
-                        </button>
-                      ))}
+                      <div className="mt-1.5 flex flex-wrap gap-1.5">
+                        {product.options2.map((opt) => (
+                          <button
+                            key={opt}
+                            onClick={() => handleVariantChange(product.id, "opt2", opt)}
+                            className={`rounded-lg border px-2.5 py-1 text-xs transition-all duration-300 ${
+                              currentOpt2 === opt
+                                ? themeClasses.selectedVariant
+                                : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                            }`}
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
-                  {/* 2. Seçenek */}
-                  <div className="mt-3.5">
-                    <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
-                      {product.options2Label}: <span className="text-slate-200">{currentOpt2}</span>
-                    </span>
-                    <div className="mt-1.5 flex flex-wrap gap-1.5">
-                      {product.options2.map((opt) => (
-                        <button
-                          key={opt}
-                          onClick={() => handleVariantChange(product.id, "opt2", opt)}
-                          className={`rounded-lg border px-2.5 py-1 text-xs transition-all duration-300 ${
-                            currentOpt2 === opt
-                              ? themeClasses.selectedVariant
-                              : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
-                          }`}
-                        >
-                          {opt}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                  {/* Sepete Ekle Butonu */}
+                  <button
+                    onClick={() => addToCart(product)}
+                    className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black transition-all duration-300 active:scale-95 ${themeClasses.button}`}
+                  >
+                    <Plus className="h-4 w-4" />
+                    Sepete Ekle ({currentOpt1.price} ₺)
+                  </button>
                 </div>
-
-                {/* Sepete Ekle Butonu */}
-                <button
-                  onClick={() => addToCart(product)}
-                  className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black transition-all duration-300 active:scale-95 ${themeClasses.button}`}
-                >
-                  <Plus className="h-4 w-4" />
-                  Sepete Ekle ({currentOpt1.price} ₺)
-                </button>
-              </div>
-            );
-          })}
-        </div>
-      </main>
+              );
+            })}
+          </div>
+        </main>
+      </div>
 
       {/* SEPET PANELİ (SMX DÜZENİNDE ÖZET & WHATSAPP SİPARİŞİ) */}
       {isCartOpen && (
