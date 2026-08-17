@@ -311,7 +311,6 @@ export default function Home() {
       const now = ctx.currentTime;
 
       if (type === "warp") {
-        // 1. DÜŞÜK FREKANSLI AĞIR SUB-BASS PATLAMASI (Cinematic Sub-Drop)
         const subOsc = ctx.createOscillator();
         const subGain = ctx.createGain();
         subOsc.type = "sawtooth";
@@ -334,7 +333,6 @@ export default function Home() {
         subOsc.start(now);
         subOsc.stop(now + 0.45);
 
-        // 2. KASVETLİ HAVA VE MEKANİK BASINÇ SESİ (Heavy Air Pressure Whoosh)
         const bufferSize = Math.floor(ctx.sampleRate * 0.35);
         const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
         const output = noiseBuffer.getChannelData(0);
@@ -363,7 +361,6 @@ export default function Home() {
         whiteNoise.stop(now + 0.35);
 
       } else if (type === "click") {
-        // TOK, AĞIR METALİK TETİK / PİSTON TIKLAMASI (Heavy Mechanical Click)
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = "triangle";
@@ -386,7 +383,6 @@ export default function Home() {
         osc.stop(now + 0.08);
 
       } else if (type === "success") {
-        // TOK GARAJ KİLİTLENMESİ VE DERİN ÇİFT VURUŞ (Heavy Double Clunk)
         [0, 0.09].forEach((delay, idx) => {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
@@ -619,14 +615,16 @@ export default function Home() {
       <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-[#07090e]/90 backdrop-blur-2xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3 cursor-pointer group">
-            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 border border-slate-800 p-2 shadow-inner transition duration-500 group-hover:scale-110">
+            
+            {/* 1. MODEL LOGO: TİTANYUM & YANIK BAKIR KADEMELİ NOZZLE/TÜRBİN KESİTİ */}
+            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-[#08090d] border border-slate-800 p-1.5 shadow-inner transition-all duration-500 group-hover:scale-110 group-hover:border-slate-700">
               <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-full w-full">
-                <path
-                  d="M8 8H32V13H14V18H28V23H14V28H32V33H8V8Z"
-                  fill="currentColor"
-                  className={`transition-colors duration-700 ${is3D ? "text-cyan-400 drop-shadow-[0_0_10px_#22d3ee]" : "text-amber-400 drop-shadow-[0_0_10px_#f59e0b]"}`}
-                />
-                <rect x="22" y="18" width="6" height="5" fill="#07090e" />
+                {/* 1. Üst Katman - Fırçalanmış Platin */}
+                <path d="M10 9H31L26 14H7L10 9Z" fill="#f1f5f9" className="transition-all duration-300 group-hover:translate-x-0.5" />
+                {/* 2. Orta Katman - Yanık Bakır / Amber */}
+                <path d="M12 16H28L23 22H9L12 16Z" fill="#f59e0b" className="transition-all duration-300 group-hover:translate-x-1" />
+                {/* 3. Alt Katman - Derin Bakır */}
+                <path d="M15 24H24L19 31H12L15 24Z" fill="#b45309" className="transition-all duration-300 group-hover:translate-x-1.5" />
               </svg>
             </div>
 
