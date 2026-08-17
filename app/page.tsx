@@ -14,17 +14,23 @@ import {
   Droplets,
   CheckCircle2,
   Tag,
-  Percent
+  Star,
+  Flame,
+  Gift,
+  Clock,
+  ChevronRight
 } from "lucide-react";
 
 type MainCategory = "3d" | "garage";
 type SubCategory3D = "all" | "decor" | "fun" | "wall" | "auto";
-type SubCategoryGarage = "all" | "deals" | "wheel_tire" | "wash_chem" | "towels" | "brushes";
+type SubCategoryGarage = "all" | "bundles" | "wheel_tire" | "wash_foam" | "towels" | "interior" | "brushes";
 
 interface ProductOption {
-  label: string;
-  priceModifier?: number; // Fiyatı doğrudan belirlemek veya çarpmak için
-  discountText?: string;  // Örn: "1 Adet Bedava", "%25 İndirimli"
+  name: string;
+  price: number;
+  originalPrice?: number;
+  discountBadge?: string;
+  giftText?: string;
 }
 
 interface Product {
@@ -32,27 +38,213 @@ interface Product {
   name: string;
   category: MainCategory;
   subCategory?: SubCategory3D | SubCategoryGarage;
-  basePrice: number;
+  rating: number;
+  reviewCount: number;
   badge?: string;
   dealBadge?: string;
   description: string;
   image: string;
   options1Label: string;
-  options1: { name: string; price: number; discountBadge?: string }[];
+  options1: ProductOption[];
   options2Label: string;
   options2: string[];
 }
 
 const PRODUCTS: Product[] = [
+  // =========================================================================
+  // --- 1. AUTO DETAILING (SMX Tarzı Zengin Ürünler & Kampanyalı Paketler) ---
+  // =========================================================================
+  {
+    id: "d_master_bundle",
+    name: "A'dan Z'ye Komple Master Detailing Bakım Paketi (12 Parça)",
+    category: "garage",
+    subCategory: "bundles",
+    rating: 5.0,
+    reviewCount: 148,
+    badge: "🏆 EN ÇOK SATAN SET",
+    dealBadge: "650 ₺ TASARRUF",
+    description: "İçerik: pH Nötr Demir Tozu (1L) + Seramik Katkılı Hızlı Cila (750ml) + Carnauba Şampuan (1L) + Lastik Parlatıcı Jel (500ml) + 1200 GSM Twisted Havlu + 5'li Çizmez Fırça + Süngerler.",
+    image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=600&auto=format&fit=crop&q=80",
+    options1Label: "Set Seçeneği",
+    options1: [
+      { name: "Full Set (12 Parça Standart)", price: 1499, originalPrice: 2150, discountBadge: "%30 İndirim", giftText: "🎁 Bagaj Çantası & Sünger Hediye" },
+      { name: "Mega Garaj Boy Set (5L Şampuanlı)", price: 2199, originalPrice: 3100, discountBadge: "%40 İndirim", giftText: "🎁 Bagaj Çantası + 2x Bez Hediye" }
+    ],
+    options2Label: "Koku / Esans Tercihi",
+    options2: ["Bubble Gum (Sakız)", "Fresh Berry", "Karpuz Aromalı"],
+  },
+  {
+    id: "d_wheel_bundle",
+    name: "Kusursuz Jant & Lastik Koruma Paketi",
+    category: "garage",
+    subCategory: "bundles",
+    rating: 4.9,
+    reviewCount: 94,
+    badge: "🔥 ÇİFTLİ AVANTAJ",
+    dealBadge: "SÜNGER HEDİYELİ",
+    description: "pH Nötr moraran demir tozu sökücü ve fırlama yapmayan ultra parlak silikonlu lastik jeli bir arada.",
+    image: "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=600&auto=format&fit=crop&q=80",
+    options1Label: "Paket Boyutu",
+    options1: [
+      { name: "Standart Set (500ml + 500ml)", price: 599, originalPrice: 780, discountBadge: "180 ₺ Tasarruf", giftText: "🎁 Kavisli Aplikatör Sünger Dahil" },
+      { name: "Mega Boy Set (1000ml + 1000ml)", price: 949, originalPrice: 1350, discountBadge: "400 ₺ Tasarruf", giftText: "🎁 Jant Fırçası + Sünger Dahil" }
+    ],
+    options2Label: "Sprey Başlığı",
+    options2: ["Endüstriyel Tetikli Başlık", "Standart Kapak + Yedek Başlık"],
+  },
+  {
+    id: "d_iron_cleaner",
+    name: "pH Nötr Moraran Demir Tozu & Jant Temizleyici",
+    category: "garage",
+    subCategory: "wheel_tire",
+    rating: 4.9,
+    reviewCount: 215,
+    badge: "5 AL 3 ÖDE FIRSATI",
+    dealBadge: "Vernik Dostu",
+    description: "Balata tozu, metal partikülleri ve inatçı jant kirlerini temas anında morararak derinlemesine çözer.",
+    image: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&auto=format&fit=crop&q=80",
+    options1Label: "Avantaj Paketleri",
+    options1: [
+      { name: "500 ml Sprey", price: 349, originalPrice: 399 },
+      { name: "1000 ml Şişe", price: 549, originalPrice: 699, discountBadge: "150 ₺ Cepte" },
+      { name: "5 Al 3 Öde (5x 500ml)", price: 999, originalPrice: 1745, discountBadge: "2 Adet Bedava!" },
+      { name: "5 Litre Garaj / Bidon", price: 1450, originalPrice: 1950, discountBadge: "Ekonomik Boy" }
+    ],
+    options2Label: "Uygulama Şekli",
+    options2: ["Tetikli Ağır Hizmet Başlık", "Köpük Yapan Nozul Başlığı"],
+  },
+  {
+    id: "d_tire_gel",
+    name: "Ultra Parlak & Su İtici Simli Lastik Parlatıcı Jel",
+    category: "garage",
+    subCategory: "wheel_tire",
+    rating: 4.8,
+    reviewCount: 182,
+    badge: "3 AL 2 ÖDE",
+    dealBadge: "Fırlama Yapmaz",
+    description: "Yağmurda akmayan, çamur tutmayan, haftalarca derin ıslak siyahlık sağlayan özel polimer jel formülü.",
+    image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=600&auto=format&fit=crop&q=80",
+    options1Label: "Adet & Kampanya",
+    options1: [
+      { name: "500 ml Standart", price: 289, originalPrice: 349 },
+      { name: "3 Al 2 Öde (3x 500ml)", price: 578, originalPrice: 867, discountBadge: "289 ₺ Bedava!" },
+      { name: "500 ml + Kavisli Hazneli Sünger", price: 349, originalPrice: 450, giftText: "🎁 Sünger Dahil" },
+      { name: "5 Litre Profesyonel Bidon", price: 1199, originalPrice: 1600 }
+    ],
+    options2Label: "Parlaklık Tipi",
+    options2: ["Derin Islak Parlaklık (Wet Look)", "Fabrika Çıkışı Doğal Mat Siyah"],
+  },
+  {
+    id: "d_twisted_towel",
+    name: "Twisted Pile Ultra Emici Oto Kurulama Havlusu (1200 GSM)",
+    category: "garage",
+    subCategory: "towels",
+    rating: 5.0,
+    reviewCount: 320,
+    badge: "3 AL 2 ÖDE 🔥",
+    dealBadge: "Çizik & Hav Bırakmaz",
+    description: "Tek geçişte tüm aracı sıkmadan kurutan, mikrofiber bükümlü iplik teknolojisi.",
+    image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=600&auto=format&fit=crop&q=80",
+    options1Label: "Kampanya Paketi",
+    options1: [
+      { name: "1 Adet (50x70 cm)", price: 359, originalPrice: 450 },
+      { name: "3 Al 2 Öde (3 Adet 50x70 cm)", price: 718, originalPrice: 1077, discountBadge: "1 Adet Bedava!" },
+      { name: "1 Adet Jumbo Boy (60x90 cm)", price: 469, originalPrice: 590 },
+      { name: "Jumbo İkili Set (2x 60x90 cm)", price: 799, originalPrice: 1180, discountBadge: "380 ₺ Tasarruf" }
+    ],
+    options2Label: "Renk Seçeneği",
+    options2: ["Antrasit Gri", "Neon Amber Turuncu", "Safir Mavi"],
+  },
+  {
+    id: "d_ceramic_wax",
+    name: "SiO2 Seramik Katkılı Hızlı & Pratik Cila Spreyi (750 ml)",
+    category: "garage",
+    subCategory: "wash_foam",
+    rating: 4.8,
+    reviewCount: 160,
+    badge: "Aşırı Su İtici",
+    dealBadge: "3 Al 2 Öde",
+    description: "Islak veya kuru yüzeye sık-sil! Boyayı canlandırır, ayna parlaklığı ve boncuklama etkisi yaratır.",
+    image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&auto=format&fit=crop&q=80",
+    options1Label: "Paket Seçenekleri",
+    options1: [
+      { name: "750 ml Tek Şişe", price: 349, originalPrice: 420 },
+      { name: "3 Al 2 Öde (3x 750ml)", price: 698, originalPrice: 1047, discountBadge: "1 Şişe Bedava!" },
+      { name: "750ml + Lazer Kesim Cila Bezi", price: 429, originalPrice: 550, giftText: "🎁 Bez Hediye" },
+      { name: "5 Litre Bidon", price: 1290, originalPrice: 1750 }
+    ],
+    options2Label: "Kullanım",
+    options2: ["Islak & Kuru Uygulama Uyumlu"],
+  },
+  {
+    id: "d_carnauba_shampoo",
+    name: "%90 Carnauba Cilalı & Konsantre Neon Oto Şampuanı",
+    category: "garage",
+    subCategory: "wash_foam",
+    rating: 4.9,
+    reviewCount: 135,
+    badge: "Bol Köpük",
+    description: "pH 5.5 nötr formül, seramik korumaya zarar vermez. Yıkama esnasında ekstra kayganlık ve parlaklık sunar.",
+    image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=600&auto=format&fit=crop&q=80",
+    options1Label: "Hacim Seçimi",
+    options1: [
+      { name: "1000 ml Şişe", price: 299, originalPrice: 380 },
+      { name: "2x 1000ml İkili Paket", price: 499, originalPrice: 760, discountBadge: "260 ₺ İndirim" },
+      { name: "5 Litre Bidon + 2L Köpük Pompası Seti", price: 1190, originalPrice: 1650, discountBadge: "Pompa Dahil" },
+      { name: "20 Litre Oto Yıkama Boyu", price: 2450, originalPrice: 3200 }
+    ],
+    options2Label: "Uygulama Tipi",
+    options2: ["Kova & Sünger Yıkama", "Foam Lance (Köpük Tabancası) Uyumlu"],
+  },
+  {
+    id: "d_brush_kit",
+    name: "Ultra Yumuşak Çizilmez Detay Temizlik Fırça Seti (5 Parça)",
+    category: "garage",
+    subCategory: "brushes",
+    rating: 4.7,
+    reviewCount: 88,
+    badge: "Çizmez Kıl",
+    description: "Klima menfezleri, amblemler, jant bijonları ve deri koltuk dikişleri için metal içermeyen gövde.",
+    image: "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=600&auto=format&fit=crop&q=80",
+    options1Label: "Set Tipi",
+    options1: [
+      { name: "5'li Standart Boy Set", price: 249, originalPrice: 320 },
+      { name: "5'li Fırça + Jant Namlu Fırçası", price: 429, originalPrice: 580, discountBadge: "Kombo Set" }
+    ],
+    options2Label: "Gövde Malzemesi",
+    options2: ["Polimer Çizmez Gövde (Metal İçermez)"],
+  },
+  {
+    id: "d_interior_spray",
+    name: "Torpido & Plastik Aksam Yenileyici ve Koruyucu (Mat Bitiş)",
+    category: "garage",
+    subCategory: "interior",
+    rating: 4.8,
+    reviewCount: 92,
+    badge: "Antistatik",
+    dealBadge: "Toz Tutmaz",
+    description: "Güneş çatlaklarını ve solmaları engeller, yağlı ve parlamış yapay görüntü yerine orijinal mat görünüm verir.",
+    image: "https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?w=600&auto=format&fit=crop&q=80",
+    options1Label: "Hacim",
+    options1: [
+      { name: "500 ml Sprey", price: 279, originalPrice: 340 },
+      { name: "2x 500ml Çiftli Paket", price: 469, originalPrice: 680, discountBadge: "210 ₺ Tasarruf" },
+      { name: "5 Litre Bidon", price: 990, originalPrice: 1350 }
+    ],
+    options2Label: "Bitiş Hissi",
+    options2: ["Orijinal Mat Görünüm", "Hafif Saten Parlaklık"],
+  },
+
   // ==========================================
-  // --- 1. 3D TASARIM & LAB BÖLÜMÜ ---
+  // --- 2. 3D TASARIM & LAB BÖLÜMÜ ---
   // ==========================================
   {
     id: "p1",
     name: "Masaüstü Filament & Kablo Düzenleyici",
     category: "3d",
     subCategory: "decor",
-    basePrice: 220,
+    rating: 4.9,
+    reviewCount: 42,
     badge: "Masaüstü",
     description: "Atölye ve masa düzeni için modüler, geçmeli kilitleme sistemli kablo kılavuzu.",
     image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&auto=format&fit=crop&q=80",
@@ -69,7 +261,8 @@ const PRODUCTS: Product[] = [
     name: "Geometrik Çokgen Sukulent Saksısı",
     category: "3d",
     subCategory: "decor",
-    basePrice: 160,
+    rating: 4.8,
+    reviewCount: 29,
     description: "İç mekan için modern geometrik tasarımlı dekoratif saksı ve kalemlik.",
     image: "https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=600&auto=format&fit=crop&q=80",
     options1Label: "Paket",
@@ -85,7 +278,8 @@ const PRODUCTS: Product[] = [
     name: "Özel Tasarım Logo & Gamer Anahtarlık",
     category: "3d",
     subCategory: "fun",
-    basePrice: 180,
+    rating: 5.0,
+    reviewCount: 65,
     badge: "Popüler",
     description: "Kişiselleştirilebilir çift renkli, darbelere dayanıklı özel üretim anahtarlık.",
     image: "https://images.unsplash.com/photo-1614036417651-efe5912149d8?w=600&auto=format&fit=crop&q=80",
@@ -99,10 +293,11 @@ const PRODUCTS: Product[] = [
   },
   {
     id: "p4",
-    name: "Artikülasyonlu Eklemli Figür",
+    name: "Artikülasyonlu Eklemli Ejderha Figürü",
     category: "3d",
     subCategory: "fun",
-    basePrice: 260,
+    rating: 4.9,
+    reviewCount: 51,
     badge: "Hobi",
     description: "Tam hareketli eklem yapısına sahip, esnek ve pürüzsüz yüzeyli masaüstü figürü.",
     image: "https://images.unsplash.com/photo-1563089145-599997674d42?w=600&auto=format&fit=crop&q=80",
@@ -119,7 +314,8 @@ const PRODUCTS: Product[] = [
     name: "Kulaklık & Gamepad Duvar / Masa Askısı",
     category: "3d",
     subCategory: "wall",
-    basePrice: 210,
+    rating: 4.7,
+    reviewCount: 38,
     description: "Güçlendirilmiş tırnak yapısıyla kulaklık ve oyun kollarını güvenle asan aparat.",
     image: "https://images.unsplash.com/photo-1593305841991-05c297ba4575?w=600&auto=format&fit=crop&q=80",
     options1Label: "Paket",
@@ -135,7 +331,8 @@ const PRODUCTS: Product[] = [
     name: "Araç İçi Bardaklık & Telefon Tutucu",
     category: "3d",
     subCategory: "auto",
-    basePrice: 340,
+    rating: 4.9,
+    reviewCount: 57,
     badge: "Özel Uyum",
     description: "Araç içi trimlere tam oturan, yüksek kabin sıcaklığına dayanıklı PETG modül.",
     image: "https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?w=600&auto=format&fit=crop&q=80",
@@ -146,147 +343,13 @@ const PRODUCTS: Product[] = [
     ],
     options2Label: "Malzeme Türü",
     options2: ["PETG (Yüksek Sıcaklık)", "Karbon Katkılı PETG"],
-  },
-
-  // ==========================================
-  // --- 2. AUTO DETAILING (KAMPANYALAR & PAKETLER) ---
-  // ==========================================
-  {
-    id: "d0_bundle",
-    name: "Komple Master Detailing Bakım Seti",
-    category: "garage",
-    subCategory: "deals",
-    badge: "Süper Avantaj",
-    dealBadge: "390 ₺ Cepte",
-    basePrice: 1190,
-    description: "İçerik: 500ml Demir Tozu + 500ml Lastik Parlatıcı + 1200 GSM Twisted Kurulama Bezi + 5'li Çizmez Fırça Seti.",
-    image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=600&auto=format&fit=crop&q=80",
-    options1Label: "Paket Seçimi",
-    options1: [
-      { name: "Full Set (4 Parça)", price: 1190, discountBadge: "%25 İndirimli" },
-      { name: "Mega Set (1000ml Boyutlar + Çift Bez)", price: 1750, discountBadge: "En Kapsamlı" }
-    ],
-    options2Label: "Hediye Seçimi",
-    options2: ["Uygulama Süngeri + Valet Fırça Hediyeli", "2x Mikrofiber Bez Hediyeli"],
-  },
-  {
-    id: "d3",
-    name: "Twisted Pile Ultra Emici Araç Kurulama Bezi (1200 GSM)",
-    category: "garage",
-    subCategory: "towels",
-    badge: "3 AL 2 ÖDE",
-    dealBadge: "1 Adet Bedava",
-    basePrice: 360,
-    description: "Tek geçişte tüm aracı çizmeden kurutan, hav ve su damlası bırakmayan premium bükümlü mikrofiber havlu.",
-    image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=600&auto=format&fit=crop&q=80",
-    options1Label: "Kampanya / Paket",
-    options1: [
-      { name: "1 Adet (50x70 cm)", price: 360 },
-      { name: "2'li Ekonomik Paket", price: 620, discountBadge: "100 ₺ Tasarruf" },
-      { name: "3 Al 2 Öde (3 Adet)", price: 720, discountBadge: "360 ₺ Bedava!" },
-      { name: "1 Adet Dev Boy (60x90 cm)", price: 460 }
-    ],
-    options2Label: "Renk Tercihi",
-    options2: ["Antrasit Gri", "Neon Turuncu", "Koyu Mavi"],
-  },
-  {
-    id: "d1",
-    name: "pH Nötr Jant & Kaporta Demir Tozu Temizleyici",
-    category: "garage",
-    subCategory: "wheel_tire",
-    badge: "Çok Satan",
-    basePrice: 380,
-    description: "Boya ve verniğe zarar vermeden balata tozu ve metalik kirleri morararak çözen güçlü formül.",
-    image: "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=600&auto=format&fit=crop&q=80",
-    options1Label: "Boyut / Avantaj Paketi",
-    options1: [
-      { name: "500 ml Sprey", price: 380 },
-      { name: "1000 ml Şişe", price: 590, discountBadge: "%20 Avantaj" },
-      { name: "2x 500ml İkili Paket", price: 640, discountBadge: "120 ₺ Tasarruf" },
-      { name: "5 Litre Garaj Boyu", price: 1650, discountBadge: "En Ekonomik" }
-    ],
-    options2Label: "Başlık & Aksesuar",
-    options2: ["Tetikli Ağır Hizmet Sprey Başlığı", "Standart Kapak + Yedek Dolum"],
-  },
-  {
-    id: "d2",
-    name: "Ultra Parlak & Su İtici Lastik Parlatıcı Jel",
-    category: "garage",
-    subCategory: "wheel_tire",
-    badge: "Uzun Ömürlü",
-    basePrice: 290,
-    description: "Kahverengileşmeyi önleyen, fırlama yapmayan derin ıslak parlaklık sunan jel formül.",
-    image: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&auto=format&fit=crop&q=80",
-    options1Label: "Paket & Kampanya",
-    options1: [
-      { name: "500 ml Standart", price: 290 },
-      { name: "500 ml + Kavisli Sünger Set", price: 340, discountBadge: "Sünger Dahil" },
-      { name: "2x 500ml Çiftli Paket", price: 490, discountBadge: "90 ₺ Tasarruf" },
-      { name: "1000 ml Boyut", price: 480 }
-    ],
-    options2Label: "Uygulama",
-    options2: ["Kavisli Lastik Süngeri Hediyeli", "Standart Şişe"],
-  },
-  {
-    id: "d6",
-    name: "Lazer Kesim Mikrofiber Cila & Silme Bezi",
-    category: "garage",
-    subCategory: "towels",
-    badge: "3 AL 2 ÖDE",
-    dealBadge: "3'lü & 6'lı Paket",
-    basePrice: 190,
-    description: "Dikişsiz kenarlarıyla kılcal çizik oluşturmayan wax, hızlı cila ve iç mekan silme bezi (450 GSM).",
-    image: "https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=600&auto=format&fit=crop&q=80",
-    options1Label: "Kampanya Paketi",
-    options1: [
-      { name: "Tekli Paket", price: 190 },
-      { name: "3 Al 2 Öde (3'lü Paket)", price: 380, discountBadge: "1 Adet Bedava" },
-      { name: "6'lı Detailing Atölye Paketi", price: 690, discountBadge: "%40 İndirim" }
-    ],
-    options2Label: "Renk Grubu",
-    options2: ["Karma Renkler", "Tamamı Koyu Gri", "Sarı / Mavi"],
-  },
-  {
-    id: "d4",
-    name: "Çizilmez Profesyonel Detailing Fırça Seti",
-    category: "garage",
-    subCategory: "brushes",
-    badge: "Set",
-    basePrice: 240,
-    description: "Jant bijon araları, klima ızgaraları, amblemler ve trimler için ultra yumuşak kıl yapısı.",
-    image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=600&auto=format&fit=crop&q=80",
-    options1Label: "Set Tipi",
-    options1: [
-      { name: "5'li Standart Boy Set", price: 240 },
-      { name: "5'li Fırça + Jant Namlu Fırçası", price: 420, discountBadge: "Kombo Set" }
-    ],
-    options2Label: "Sap Türü",
-    options2: ["Plastik Gövde (Metal İçermez - Çizmez)"],
-  },
-  {
-    id: "d5",
-    name: "Yüksek Köpüklü Cilalı Şampuan (Carnauba)",
-    category: "garage",
-    subCategory: "wash_chem",
-    badge: "Ph Dengeli",
-    basePrice: 310,
-    description: "Mevcut seramik ve boya korumaya zarar vermeden üstün kayganlık ve parlaklık sağlar.",
-    image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&auto=format&fit=crop&q=80",
-    options1Label: "Hacim / Boyut",
-    options1: [
-      { name: "1000 ml", price: 310 },
-      { name: "2x 1000ml Çiftli Paket", price: 540, discountBadge: "80 ₺ Tasarruf" },
-      { name: "5 Litre Bidon", price: 980, discountBadge: "Garaj Boyu" }
-    ],
-    options2Label: "Kullanım Şekli",
-    options2: ["Foam Lance (Köpük Tabancası) & Kova Uyumlu"],
   }
 ];
 
 interface CartItem {
   cartId: string;
   product: Product;
-  selectedOpt1: { name: string; price: number };
+  selectedOpt1: ProductOption;
   selectedOpt2: string;
   quantity: number;
 }
@@ -300,19 +363,21 @@ export default function Home() {
 
   // Başlangıç Seçimleri
   const [selectedVariants, setSelectedVariants] = useState<Record<string, { opt1Index: number; opt2: string }>>({
+    d_master_bundle: { opt1Index: 0, opt2: "Bubble Gum (Sakız)" },
+    d_wheel_bundle: { opt1Index: 0, opt2: "Endüstriyel Tetikli Başlık" },
+    d_iron_cleaner: { opt1Index: 2, opt2: "Tetikli Ağır Hizmet Başlık" }, // 5 Al 3 Öde
+    d_tire_gel: { opt1Index: 1, opt2: "Derin Islak Parlaklık (Wet Look)" }, // 3 Al 2 Öde
+    d_twisted_towel: { opt1Index: 1, opt2: "Antrasit Gri" }, // 3 Al 2 Öde
+    d_ceramic_wax: { opt1Index: 1, opt2: "Islak & Kuru Uygulama Uyumlu" }, // 3 Al 2 Öde
+    d_carnauba_shampoo: { opt1Index: 0, opt2: "Foam Lance (Köpük Tabancası) Uyumlu" },
+    d_brush_kit: { opt1Index: 0, opt2: "Polimer Çizmez Gövde (Metal İçermez)" },
+    d_interior_spray: { opt1Index: 0, opt2: "Orijinal Mat Görünüm" },
     p1: { opt1Index: 0, opt2: "Mat Siyah - PETG" },
     p2: { opt1Index: 0, opt2: "Mat Siyah" },
     p3: { opt1Index: 0, opt2: "Siyah / Kırmızı" },
     p4: { opt1Index: 0, opt2: "Parlak Kırmızı" },
     p5: { opt1Index: 0, opt2: "Mat Siyah" },
     p6: { opt1Index: 0, opt2: "PETG (Yüksek Sıcaklık)" },
-    d0_bundle: { opt1Index: 0, opt2: "Uygulama Süngeri + Valet Fırça Hediyeli" },
-    d1: { opt1Index: 0, opt2: "Tetikli Ağır Hizmet Sprey Başlığı" },
-    d2: { opt1Index: 1, opt2: "Kavisli Lastik Süngeri Hediyeli" },
-    d3: { opt1Index: 2, opt2: "Antrasit Gri" }, // Varsayılan 3 Al 2 Öde
-    d4: { opt1Index: 0, opt2: "Plastik Gövde (Metal İçermez - Çizmez)" },
-    d5: { opt1Index: 0, opt2: "Foam Lance (Köpük Tabancası) & Kova Uyumlu" },
-    d6: { opt1Index: 1, opt2: "Karma Renkler" }, // Varsayılan 3 Al 2 Öde
   });
 
   const handleVariantChange = (productId: string, type: "opt1Index" | "opt2", value: any) => {
@@ -392,7 +457,7 @@ export default function Home() {
       : "bg-amber-500/10 text-amber-400 border-amber-500/30",
     button: is3D 
       ? "bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-cyan-500/25" 
-      : "bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-amber-500/25",
+      : "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-amber-500/25",
     price: is3D ? "text-cyan-400" : "text-amber-400",
     cardBorder: is3D 
       ? "hover:border-cyan-500/50 hover:shadow-cyan-500/10" 
@@ -414,33 +479,40 @@ export default function Home() {
   ];
 
   const subCategoriesGarage: { key: SubCategoryGarage; label: string }[] = [
-    { key: "all", label: "Tüm Detailing Ürünleri" },
-    { key: "deals", label: "🔥 Fırsat Paketleri & Setler" },
-    { key: "towels", label: "Kurulama & Bez (3 Al 2 Öde)" },
+    { key: "all", label: "Tüm Ürünler" },
+    { key: "bundles", label: "🏆 Fırsat Paketleri & Setler" },
     { key: "wheel_tire", label: "Jant & Lastik Bakımı" },
-    { key: "wash_chem", label: "Dış Yıkama & Şampuan" },
-    { key: "brushes", label: "Fırça & Sünger Setleri" },
+    { key: "wash_foam", label: "Cila & Şampuanlar" },
+    { key: "towels", label: "Bez & Havlular (3 Al 2 Öde)" },
+    { key: "interior", label: "İç Detay & Torpido" },
+    { key: "brushes", label: "Fırça & Ekipmanlar" },
   ];
 
   // WhatsApp Sipariş Yönlendirmesi
   const handleWhatsAppCheckout = () => {
     if (cart.length === 0) return;
-    const phone = "905555555555"; // Kendi numaranı buraya yazabilirsin
+    const phone = "905555555555";
     let message = `*Yeni Sipariş Talebi - EternaLab*\n\n`;
     cart.forEach((item, index) => {
       message += `${index + 1}. *${item.product.name}*\n`;
-      message += `   ▫️ Paket/Seçenek: ${item.selectedOpt1.name}\n`;
-      message += `   ▫️ Detay: ${item.selectedOpt2}\n`;
+      message += `   ▫️ Paket: ${item.selectedOpt1.name}\n`;
+      message += `   ▫️ Seçim: ${item.selectedOpt2}\n`;
       message += `   ▫️ Adet: ${item.quantity} x ${item.selectedOpt1.price} ₺ = ${item.quantity * item.selectedOpt1.price} ₺\n\n`;
     });
-    message += `*Toplam Tutar:* ${totalAmount} ₺\n\nSiparişimi onaylamak ve kargo bilgilerimi iletmek istiyorum.`;
+    message += `*Toplam Tutar:* ${totalAmount} ₺\n\nSiparişimi onaylamak ve kargo/adres bilgilerimi iletmek istiyorum.`;
     
     const encoded = encodeURIComponent(message);
     window.open(`https://wa.me/${phone}?text=${encoded}`, "_blank");
   };
 
   return (
-    <div className="relative min-h-screen bg-[#0d1117] text-slate-100 antialiased selection:bg-slate-700 selection:text-white">
+    <div className="relative min-h-screen bg-[#0a0d14] text-slate-100 antialiased selection:bg-slate-700 selection:text-white">
+      {/* ÜST SMX TARZI DUYURU BARI */}
+      <div className="bg-gradient-to-r from-amber-600 via-orange-600 to-amber-600 px-4 py-2 text-center text-xs font-black tracking-wide text-slate-950 uppercase shadow-md flex items-center justify-center gap-2">
+        <Sparkles className="h-3.5 w-3.5" />
+        <span>1.500 ₺ Üzeri Ücretsiz Kargo • Bezlerde 3 Al 2 Öde & 5 Al 3 Öde Fırsatı Başladı!</span>
+      </div>
+
       {/* DINAMIK ARKA PLAN IŞIKLARI */}
       <div 
         className={`pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] ${themeClasses.ambientGlow} transition-all duration-700`} 
@@ -448,7 +520,7 @@ export default function Home() {
       <div className="pointer-events-none fixed inset-0 bg-[linear-gradient(to_right,#1f293708_1px,transparent_1px),linear-gradient(to_bottom,#1f293708_1px,transparent_1px)] bg-[size:4rem_4rem]" />
 
       {/* NAVBAR */}
-      <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-[#0d1117]/85 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-[#0a0d14]/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3 cursor-pointer group">
             <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 border border-slate-800 p-2 shadow-inner transition duration-300 group-hover:border-slate-700">
@@ -458,7 +530,7 @@ export default function Home() {
                   fill="currentColor"
                   className={`transition-colors duration-500 ${is3D ? "text-cyan-400" : "text-amber-400"}`}
                 />
-                <rect x="22" y="18" width="6" height="5" fill="#0d1117" />
+                <rect x="22" y="18" width="6" height="5" fill="#0a0d14" />
               </svg>
             </div>
 
@@ -470,7 +542,7 @@ export default function Home() {
                 </span>
               </div>
               <span className="text-[9px] font-semibold tracking-[0.25em] text-slate-400 uppercase mt-1">
-                3D Lab & Detailing Deals
+                Pro Detailing & 3D Lab
               </span>
             </div>
           </div>
@@ -480,7 +552,7 @@ export default function Home() {
             className="relative flex items-center gap-2 rounded-xl border border-slate-700/80 bg-slate-800/80 px-4 py-2.5 text-sm font-medium text-slate-200 shadow-sm transition hover:border-slate-600 hover:bg-slate-800"
           >
             <ShoppingBag className="h-4 w-4" />
-            <span>Sepet</span>
+            <span>Sepetim</span>
             {totalItemCount > 0 && (
               <span className={`ml-1 rounded-full px-2 py-0.5 text-xs font-bold text-slate-950 transition-all duration-300 ${is3D ? "bg-cyan-400" : "bg-amber-400"}`}>
                 {totalItemCount}
@@ -490,11 +562,11 @@ export default function Home() {
         </div>
       </header>
 
-      {/* HERO & KAMPANYA BANNERI */}
+      {/* HERO & KAMPANYA ALANI */}
       <section className="relative mx-auto max-w-6xl px-6 pt-10 pb-6 text-center">
-        <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-xs font-bold text-amber-400 backdrop-blur animate-pulse">
-          <Tag className="h-3.5 w-3.5" />
-          <span>🔥 AUTO DETAILING'DE 3 AL 2 ÖDE & SET İNDİRİMLERİ BAŞLADI!</span>
+        <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-1.5 text-xs font-bold text-amber-400 backdrop-blur">
+          <Flame className="h-4 w-4 text-orange-400 fill-orange-400" />
+          <span>GARAGE DETAILING: SÜPER AVANTAJLI SETLER VE ÇOK AL AZ ÖDE FIRSATLARI</span>
         </div>
 
         <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-white sm:text-5xl lg:text-6xl">
@@ -504,15 +576,15 @@ export default function Home() {
             </>
           ) : (
             <>
-              Profesyonel <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Auto Detailing</span> & Setler
+              Profesyonel <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Auto Detailing</span> Çözümleri
             </>
           )}
         </h2>
 
-        <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-slate-400 sm:text-base">
+        <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-slate-400 sm:text-base">
           {is3D 
-            ? "Masaüstü, dekorasyon, duvar düzenleme ve araç içi için özel üretim 3D çözümler." 
-            : "Bezlerde 3 Al 2 Öde fırsatı, demir tozu sökücüler, lastik jelleri ve avantajlı başlangıç kombo setleri."}
+            ? "Masaüstü, dekorasyon, duvar düzenleme ve araç içi için mikron hassasiyetinde 3D üretimler." 
+            : "pH nötr demir tozu sökücüler, fırlama yapmayan lastik jelleri, 1200 GSM twisted bezler ve avantajlı kombo bakım setleri."}
         </p>
 
         {/* ANA KATEGORİ SEÇİCİ */}
@@ -529,7 +601,7 @@ export default function Home() {
             }`}
           >
             <Droplets className="h-4 w-4" />
-            Auto Detailing & Kampanyalar
+            Auto Detailing & Mağaza
           </button>
 
           <button
@@ -548,8 +620,8 @@ export default function Home() {
           </button>
         </div>
 
-        {/* ALT KATEGORİ FİLTRE ÇUBUĞU */}
-        <div className="mx-auto mt-6 flex max-w-4xl flex-wrap items-center justify-center gap-2 animate-in fade-in zoom-in-95 duration-300">
+        {/* ALT KATEGORİ ÇUBUĞU */}
+        <div className="mx-auto mt-6 flex max-w-5xl flex-wrap items-center justify-center gap-2 animate-in fade-in zoom-in-95 duration-300">
           {is3D
             ? subCategories3D.map((sub) => (
                 <button
@@ -594,78 +666,99 @@ export default function Home() {
             return (
               <div
                 key={product.id}
-                className={`group flex flex-col justify-between rounded-2xl border border-slate-800/80 bg-slate-900/60 p-5 shadow-lg backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 ${themeClasses.cardBorder}`}
+                className={`group flex flex-col justify-between rounded-2xl border border-slate-800/80 bg-[#111622]/90 p-5 shadow-xl backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 ${themeClasses.cardBorder}`}
               >
                 <div>
-                  {/* Görsel ve Kampanya Rozetleri */}
+                  {/* Görsel, Rozetler & Puan */}
                   <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-slate-800">
                     <img
                       src={product.image}
                       alt={product.name}
                       className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                     />
-                    <div className="absolute top-3 left-3 flex flex-col gap-1">
+                    <div className="absolute top-3 left-3 flex flex-col gap-1.5">
                       {product.badge && (
-                        <span className={`rounded-md border px-2 py-0.5 text-[11px] font-bold tracking-wide backdrop-blur-md ${themeClasses.badge}`}>
+                        <span className={`rounded-md border px-2 py-0.5 text-[11px] font-black tracking-wide backdrop-blur-md ${themeClasses.badge}`}>
                           {product.badge}
                         </span>
                       )}
                       {product.dealBadge && (
-                        <span className="rounded-md border border-red-500/40 bg-red-500/20 px-2 py-0.5 text-[11px] font-extrabold text-red-400 backdrop-blur-md">
+                        <span className="rounded-md border border-red-500/40 bg-red-500/25 px-2 py-0.5 text-[11px] font-black text-red-400 backdrop-blur-md">
                           {product.dealBadge}
                         </span>
                       )}
                     </div>
                   </div>
 
-                  {/* Başlık & Fiyat */}
-                  <div className="mt-4">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-bold text-base text-white group-hover:text-slate-100">{product.name}</h3>
-                      <div className="text-right">
-                        <span className={`font-mono text-xl font-black ${themeClasses.price}`}>{currentOpt1.price} ₺</span>
-                        {currentOpt1.discountBadge && (
-                          <span className="block text-[10px] font-bold text-emerald-400">{currentOpt1.discountBadge}</span>
-                        )}
+                  {/* Değerlendirme & Başlık */}
+                  <div className="mt-3.5">
+                    <div className="flex items-center gap-1.5 text-xs text-amber-400">
+                      <div className="flex items-center">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                        ))}
                       </div>
+                      <span className="font-bold text-slate-200">{product.rating}</span>
+                      <span className="text-[11px] text-slate-500">({product.reviewCount} değerlendirme)</span>
                     </div>
-                    <p className="mt-2 text-xs leading-relaxed text-slate-400">
+
+                    <h3 className="mt-1.5 font-bold text-base text-white group-hover:text-amber-300/90 transition-colors">
+                      {product.name}
+                    </h3>
+                    <p className="mt-1.5 text-xs leading-relaxed text-slate-400">
                       {product.description}
                     </p>
+                  </div>
+
+                  {/* Fiyat Göstergesi */}
+                  <div className="mt-4 flex items-baseline gap-2 border-y border-slate-800/80 py-2.5">
+                    <span className={`font-mono text-2xl font-black ${themeClasses.price}`}>
+                      {currentOpt1.price} ₺
+                    </span>
+                    {currentOpt1.originalPrice && (
+                      <span className="font-mono text-sm text-slate-500 line-through">
+                        {currentOpt1.originalPrice} ₺
+                      </span>
+                    )}
+                    {currentOpt1.discountBadge && (
+                      <span className="ml-auto rounded-md bg-emerald-500/20 px-2 py-0.5 text-xs font-bold text-emerald-400">
+                        {currentOpt1.discountBadge}
+                      </span>
+                    )}
                   </div>
 
                   {/* 1. Seçenek (Paket & Kampanya Boyutları) */}
                   <div className="mt-4">
                     <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
-                      {product.options1Label}: <span className="text-slate-200">{currentOpt1.name}</span>
+                      {product.options1Label}: <span className="text-slate-200 font-semibold">{currentOpt1.name}</span>
                     </span>
                     <div className="mt-2 flex flex-col gap-1.5">
                       {product.options1.map((opt, idx) => (
                         <button
                           key={opt.name}
                           onClick={() => handleVariantChange(product.id, "opt1Index", idx)}
-                          className={`flex items-center justify-between rounded-lg border px-3 py-2 text-xs transition ${
+                          className={`flex items-center justify-between rounded-xl border p-2.5 text-xs transition ${
                             variantState.opt1Index === idx
                               ? themeClasses.selectedVariant
-                              : "border-slate-800 bg-slate-800/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                              : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
                           }`}
                         >
-                          <span className="font-medium">{opt.name}</span>
-                          <div className="flex items-center gap-2">
-                            {opt.discountBadge && (
-                              <span className="rounded bg-emerald-500/20 px-1.5 py-0.2 text-[10px] font-bold text-emerald-300">
-                                {opt.discountBadge}
-                              </span>
+                          <div className="text-left">
+                            <span className="font-semibold text-slate-200">{opt.name}</span>
+                            {opt.giftText && (
+                              <span className="block text-[10px] text-amber-400 font-medium">{opt.giftText}</span>
                             )}
-                            <span className="font-mono font-bold text-white">{opt.price} ₺</span>
+                          </div>
+                          <div className="text-right font-mono">
+                            <span className="font-bold text-white text-sm">{opt.price} ₺</span>
                           </div>
                         </button>
                       ))}
                     </div>
                   </div>
 
-                  {/* 2. Seçenek (Renk / Detay Tercihi) */}
-                  <div className="mt-3">
+                  {/* 2. Seçenek (Koku / Başlık / Renk Seçimi) */}
+                  <div className="mt-3.5">
                     <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
                       {product.options2Label}: <span className="text-slate-200">{currentOpt2}</span>
                     </span>
@@ -677,7 +770,7 @@ export default function Home() {
                           className={`rounded-lg border px-2.5 py-1 text-xs transition ${
                             currentOpt2 === opt
                               ? themeClasses.selectedVariant
-                              : "border-slate-800 bg-slate-800/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                              : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
                           }`}
                         >
                           {opt}
@@ -687,10 +780,10 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Sepete Ekle */}
+                {/* Sepete Ekle Butonu */}
                 <button
                   onClick={() => addToCart(product)}
-                  className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold shadow-lg transition-all duration-300 active:scale-98 ${themeClasses.button}`}
+                  className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black shadow-lg transition-all duration-300 active:scale-98 ${themeClasses.button}`}
                 >
                   <Plus className="h-4 w-4" />
                   Sepete Ekle ({currentOpt1.price} ₺)
@@ -701,7 +794,7 @@ export default function Home() {
         </div>
       </main>
 
-      {/* SEPET PANELİ (WHATSAPP SİPARİŞ ENTEGRASYONLU) */}
+      {/* SEPET PANELİ (SMX DÜZENİNDE ÖZET & WHATSAPP SİPARİŞİ) */}
       {isCartOpen && (
         <div className="fixed inset-0 z-50 flex justify-end">
           <div
@@ -709,12 +802,12 @@ export default function Home() {
             onClick={() => setIsCartOpen(false)}
           />
 
-          <div className="relative z-10 flex h-full w-full max-w-md flex-col justify-between border-l border-slate-800 bg-[#0d1117] p-6 shadow-2xl animate-in slide-in-from-right duration-300">
+          <div className="relative z-10 flex h-full w-full max-w-md flex-col justify-between border-l border-slate-800 bg-[#0a0d14] p-6 shadow-2xl animate-in slide-in-from-right duration-300">
             <div>
               <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                 <div className="flex items-center gap-2.5">
                   <ShoppingBag className={`h-5 w-5 ${is3D ? "text-cyan-400" : "text-amber-400"}`} />
-                  <h3 className="text-lg font-bold text-white">Sepetim ({totalItemCount})</h3>
+                  <h3 className="text-lg font-bold text-white">Sepetim ({totalItemCount} Ürün)</h3>
                 </div>
                 <button
                   onClick={() => setIsCartOpen(false)}
@@ -724,8 +817,29 @@ export default function Home() {
                 </button>
               </div>
 
+              {/* Ücretsiz Kargo İlerleme Çubuğu */}
+              <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900/60 p-3">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-400">Ücretsiz Kargo Hedefi:</span>
+                  <span className="font-bold text-amber-400">1.500 ₺</span>
+                </div>
+                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-800">
+                  <div 
+                    className="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500" 
+                    style={{ width: `${Math.min(100, (totalAmount / 1500) * 100)}%` }}
+                  />
+                </div>
+                <p className="mt-1.5 text-[11px] text-slate-400">
+                  {totalAmount >= 1500 ? (
+                    <span className="font-bold text-emerald-400">🎉 Tebrikler, kargonuz ÜCRETSİZ!</span>
+                  ) : (
+                    <span>Ücretsiz kargo için sepetinize <strong>{1500 - totalAmount} ₺</strong> daha ekleyin.</span>
+                  )}
+                </p>
+              </div>
+
               {/* Sepet İçi Ürünler */}
-              <div className="mt-4 max-h-[60vh] space-y-3 overflow-y-auto pr-1">
+              <div className="mt-4 max-h-[50vh] space-y-3 overflow-y-auto pr-1">
                 {cart.length === 0 ? (
                   <div className="py-16 text-center text-slate-500">
                     <ShoppingBag className="mx-auto h-12 w-12 opacity-30" />
@@ -782,16 +896,17 @@ export default function Home() {
               <div className="border-t border-slate-800 pt-4">
                 <div className="flex items-center justify-between font-mono text-base font-bold text-white">
                   <span>Toplam Tutar:</span>
-                  <span className={`text-xl ${is3D ? "text-cyan-400" : "text-amber-400"}`}>{totalAmount} ₺</span>
+                  <span className={`text-2xl ${is3D ? "text-cyan-400" : "text-amber-400"}`}>{totalAmount} ₺</span>
                 </div>
                 <button
                   onClick={handleWhatsAppCheckout}
-                  className={`mt-4 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-bold shadow-lg transition-all duration-300 active:scale-98 ${themeClasses.button}`}
+                  className={`mt-4 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black shadow-lg transition-all duration-300 active:scale-98 ${themeClasses.button}`}
                 >
-                  <span>Siparişi WhatsApp İle Tamamla</span>
+                  <span>Siparişi WhatsApp ile Tamamla</span>
+                  <ChevronRight className="h-4 w-4" />
                 </button>
                 <p className="mt-2 text-center text-[11px] text-slate-500">
-                  Sipariş detaylarınız otomatik olarak hazırlanıp WhatsApp hattımıza iletilir.
+                  Sipariş listeniz otomatik formatlanıp WhatsApp üzerinden iletilecektir.
                 </p>
               </div>
             )}
@@ -800,27 +915,27 @@ export default function Home() {
       )}
 
       {/* FOOTER */}
-      <footer className="border-t border-slate-800/80 bg-slate-950/70 py-12">
+      <footer className="border-t border-slate-800/80 bg-[#080b11] py-12">
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-6 md:grid-cols-3">
           <div className="flex items-center gap-3">
-            <Percent className={`h-6 w-6 ${is3D ? "text-cyan-400" : "text-amber-400"}`} />
+            <Gift className="h-6 w-6 text-amber-400" />
             <div>
-              <h4 className="text-sm font-bold text-white">Çok Al Az Öde Fırsatı</h4>
-              <p className="text-xs text-slate-400">Bezlerde 3 Al 2 Öde ve set alımlarında %25 indirim.</p>
+              <h4 className="text-sm font-bold text-white">3 Al 2 Öde & Hediyeli Paketler</h4>
+              <p className="text-xs text-slate-400">Bezlerde ve setlerde süper tasarruf fırsatları.</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Truck className={`h-6 w-6 ${is3D ? "text-cyan-400" : "text-amber-400"}`} />
+            <Truck className="h-6 w-6 text-amber-400" />
             <div>
-              <h4 className="text-sm font-bold text-white">Güvenli Kargo & Paketleme</h4>
-              <p className="text-xs text-slate-400">Sızdırmaz kilitli kapak ve korumalı ambalaj.</p>
+              <h4 className="text-sm font-bold text-white">Hızlı & Güvenli Gönderim</h4>
+              <p className="text-xs text-slate-400">1.500 ₺ ve üzeri tüm alışverişlerde ücretsiz kargo.</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <CheckCircle2 className={`h-6 w-6 ${is3D ? "text-cyan-400" : "text-amber-400"}`} />
+            <ShieldCheck className="h-6 w-6 text-amber-400" />
             <div>
-              <h4 className="text-sm font-bold text-white">Boya Dostu pH Dengesi</h4>
-              <p className="text-xs text-slate-400">Aracınızın seramik ve boyasına zarar vermeyen formüller.</p>
+              <h4 className="text-sm font-bold text-white">Boya & Vernik Güvenliği</h4>
+              <p className="text-xs text-slate-400">pH dengeli, seramik kaplamayı bozmayan formüller.</p>
             </div>
           </div>
         </div>
