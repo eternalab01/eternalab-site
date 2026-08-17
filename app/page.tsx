@@ -11,17 +11,17 @@ import {
   Truck, 
   Sparkles, 
   Layers, 
-  Droplets,
-  Star,
-  Flame,
-  Gift,
-  ChevronRight,
-  Zap,
-  Volume2,
-  VolumeX,
-  Sliders,
-  CheckCircle,
-  HelpCircle
+  Droplets, 
+  Star, 
+  Flame, 
+  Gift, 
+  ChevronRight, 
+  Zap, 
+  Volume2, 
+  VolumeX, 
+  Sliders, 
+  CheckCircle, 
+  HelpCircle 
 } from "lucide-react";
 
 type MainCategory = "3d" | "garage";
@@ -274,8 +274,7 @@ export default function Home() {
   const [activeSubTabGarage, setActiveSubTabGarage] = useState<SubCategoryGarage>("all");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [slideDirection, setSlideDirection] = useState<"left" | "right">("right");
+  const [isCurtainActive, setIsCurtainActive] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
   const [sliderPosition, setSliderPosition] = useState(50);
@@ -309,16 +308,16 @@ export default function Home() {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = "sine";
-        osc.frequency.setValueAtTime(180, now);
-        osc.frequency.exponentialRampToValueAtTime(240, now + 0.16);
+        osc.frequency.setValueAtTime(190, now);
+        osc.frequency.exponentialRampToValueAtTime(260, now + 0.18);
 
-        gain.gain.setValueAtTime(0.05, now);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+        gain.gain.setValueAtTime(0.06, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.2);
 
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.start(now);
-        osc.stop(now + 0.18);
+        osc.stop(now + 0.2);
 
       } else if (type === "click") {
         const osc = ctx.createOscillator();
@@ -355,12 +354,11 @@ export default function Home() {
     }
   };
 
-  // DOĞAL VE PARLAK YATAY KİNETİK GEÇİŞ
+  // TÜM EKRAN IŞIK PERDESİ GEÇİŞ TETİKLEYİCİSİ
   const handleTabChange = (newTab: MainCategory) => {
-    if (newTab === activeTab || isTransitioning) return;
+    if (newTab === activeTab || isCurtainActive) return;
     playSound("warp");
-    setSlideDirection(newTab === "3d" ? "left" : "right");
-    setIsTransitioning(true);
+    setIsCurtainActive(true);
 
     setTimeout(() => {
       setActiveTab(newTab);
@@ -368,9 +366,9 @@ export default function Home() {
       else setActiveSubTabGarage("all");
       
       setTimeout(() => {
-        setIsTransitioning(false);
-      }, 50);
-    }, 140);
+        setIsCurtainActive(false);
+      }, 180);
+    }, 160);
   };
 
   const handleVariantChange = (productId: string, type: "opt1Index" | "opt2", value: any) => {
@@ -483,8 +481,11 @@ export default function Home() {
       ? "border-cyan-400 bg-cyan-500/20 text-cyan-100" 
       : "border-amber-400 bg-amber-500/20 text-amber-100",
     ambientGlow: is3D
-      ? "from-cyan-500/15 via-blue-600/5 to-transparent"
-      : "from-amber-500/15 via-orange-600/5 to-transparent",
+      ? "from-cyan-500/20 via-blue-600/10 to-transparent"
+      : "from-amber-500/20 via-orange-600/10 to-transparent",
+    curtainColor: is3D
+      ? "from-cyan-500/25 via-blue-600/15 to-transparent border-cyan-400/40"
+      : "from-amber-500/25 via-orange-600/15 to-transparent border-amber-400/40"
   };
 
   const subCategories3D: { key: SubCategory3D; label: string }[] = [
@@ -526,6 +527,17 @@ export default function Home() {
   return (
     <div className="relative min-h-screen bg-[#07090e] text-slate-100 antialiased selection:bg-slate-700 selection:text-white overflow-x-hidden">
       
+      {/* 1. TÜM EKRANI KAPLAYAN SİNEMATİK IŞIK PERDESİ (FULL SCREEN FLOOD CURTAIN) */}
+      <div 
+        className={`pointer-events-none fixed inset-0 z-50 transition-all duration-300 ease-out flex flex-col justify-end bg-gradient-to-b ${themeClasses.curtainColor} backdrop-blur-[3px] border-b ${
+          isCurtainActive 
+            ? "opacity-100 translate-y-0" 
+            : "opacity-0 -translate-y-full"
+        }`}
+      >
+        <div className={`w-full h-1 ${is3D ? "bg-cyan-400 shadow-[0_0_20px_#22d3ee]" : "bg-amber-400 shadow-[0_0_20px_#f59e0b]"}`} />
+      </div>
+
       {/* ÜST DUYURU BARI */}
       <div className={`transition-all duration-500 px-4 py-2 text-center text-xs font-black tracking-wide text-slate-950 uppercase shadow-md flex items-center justify-center gap-2 ${
         is3D 
@@ -598,475 +610,471 @@ export default function Home() {
         </div>
       </header>
 
-      {/* YUMUŞAK YATAY KİNETİK GEÇİŞ SİSTEMİ */}
-      <div className="relative">
-        <div className={`transition-all duration-300 ease-out transform-gpu ${
-          isTransitioning 
-            ? slideDirection === "left" 
-              ? "opacity-0 -translate-x-4" 
-              : "opacity-0 translate-x-4"
-            : "opacity-100 translate-x-0"
-        }`}>
-          
-          {/* HERO ALANI */}
-          <section className="relative mx-auto max-w-6xl px-6 pt-10 pb-4 text-center">
-            <div className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-extrabold backdrop-blur-md transition-all duration-500 ${
-              is3D 
-                ? "border-cyan-400/30 bg-cyan-500/10 text-cyan-300" 
-                : "border-amber-400/30 bg-amber-500/10 text-amber-300"
-            }`}>
-              {is3D ? (
-                <>
-                  <Zap className="h-4 w-4 text-cyan-400" />
-                  <span>3D TASARIM & LAB: CANLI ÖZELLEŞTİRİLEBİLİR MODÜLLER</span>
-                </>
-              ) : (
-                <>
-                  <Flame className="h-4 w-4 text-orange-400 fill-orange-400" />
-                  <span>GARAGE DETAILING: SÜPER AVANTAJLI SETLER VE 3 AL 2 ÖDE FIRSATLARI</span>
-                </>
-              )}
+      {/* 2. TÜM SAYFAYI KAPLAYAN SENKRONİZE GÖVDE (FULL PAGE STAGE) */}
+      <div className={`transition-all duration-300 ease-out transform-gpu ${
+        isCurtainActive 
+          ? "opacity-30 translate-y-3 scale-[0.99] filter blur-[1px]" 
+          : "opacity-100 translate-y-0 scale-100 filter blur-0"
+      }`}>
+        
+        {/* HERO ALANI */}
+        <section className="relative mx-auto max-w-6xl px-6 pt-10 pb-4 text-center">
+          <div className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-extrabold backdrop-blur-md transition-all duration-500 ${
+            is3D 
+              ? "border-cyan-400/30 bg-cyan-500/10 text-cyan-300" 
+              : "border-amber-400/30 bg-amber-500/10 text-amber-300"
+          }`}>
+            {is3D ? (
+              <>
+                <Zap className="h-4 w-4 text-cyan-400" />
+                <span>3D TASARIM & LAB: CANLI ÖZELLEŞTİRİLEBİLİR MODÜLLER</span>
+              </>
+            ) : (
+              <>
+                <Flame className="h-4 w-4 text-orange-400 fill-orange-400" />
+                <span>GARAGE DETAILING: SÜPER AVANTAJLI SETLER VE 3 AL 2 ÖDE FIRSATLARI</span>
+              </>
+            )}
+          </div>
+
+          <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl min-h-[70px] flex items-center justify-center transition-all duration-300">
+            {is3D ? (
+              <span>
+                Hassas <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent">3D Tasarım</span> & Kişiselleştirme
+              </span>
+            ) : (
+              <span>
+                Profesyonel <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 bg-clip-text text-transparent">Auto Detailing</span> Çözümleri
+              </span>
+            )}
+          </h2>
+
+          {/* TAB SEÇİCİ */}
+          <div className="mx-auto mt-6 max-w-md">
+            <div className="grid grid-cols-2 rounded-2xl border border-slate-800 bg-[#0e131f] p-1.5 shadow-xl">
+              <button
+                onClick={() => handleTabChange("garage")}
+                className={`flex items-center justify-center gap-2.5 rounded-xl py-3 text-sm font-black transition-all duration-300 cursor-pointer ${
+                  !is3D 
+                    ? "bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-md scale-[1.02]" 
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                <Droplets className="h-4 w-4" />
+                <span>Auto Detailing</span>
+              </button>
+
+              <button
+                onClick={() => handleTabChange("3d")}
+                className={`flex items-center justify-center gap-2.5 rounded-xl py-3 text-sm font-black transition-all duration-300 cursor-pointer ${
+                  is3D 
+                    ? "bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 shadow-md scale-[1.02]" 
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                <Layers className="h-4 w-4" />
+                <span>3D Tasarım & Lab</span>
+              </button>
             </div>
+          </div>
 
-            <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl min-h-[70px] flex items-center justify-center transition-all duration-300">
-              {is3D ? (
-                <span>
-                  Hassas <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent">3D Tasarım</span> & Kişiselleştirme
-                </span>
-              ) : (
-                <span>
-                  Profesyonel <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 bg-clip-text text-transparent">Auto Detailing</span> Çözümleri
-                </span>
-              )}
-            </h2>
+          {/* ALT KATEGORİ ÇUBUĞU */}
+          <div className="mx-auto mt-6 flex max-w-5xl flex-wrap items-center justify-center gap-2">
+            {is3D
+              ? subCategories3D.map((sub) => (
+                  <button
+                    key={sub.key}
+                    onClick={() => { playSound("click"); setActiveSubTab3D(sub.key); }}
+                    className={`rounded-xl border px-4 py-2 text-xs font-bold transition-all duration-200 active:scale-95 cursor-pointer ${
+                      activeSubTab3D === sub.key
+                        ? "border-cyan-400 bg-cyan-500/20 text-cyan-200 shadow-sm"
+                        : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                    }`}
+                  >
+                    {sub.label}
+                  </button>
+                ))
+              : subCategoriesGarage.map((sub) => (
+                  <button
+                    key={sub.key}
+                    onClick={() => { playSound("click"); setActiveSubTabGarage(sub.key); }}
+                    className={`rounded-xl border px-4 py-2 text-xs font-bold transition-all duration-200 active:scale-95 cursor-pointer ${
+                      activeSubTabGarage === sub.key
+                        ? "border-amber-400 bg-amber-500/20 text-amber-200 shadow-sm"
+                        : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                    }`}
+                  >
+                    {sub.label}
+                  </button>
+                ))}
+          </div>
+        </section>
 
-            {/* TAB SEÇİCİ */}
-            <div className="mx-auto mt-6 max-w-md">
-              <div className="grid grid-cols-2 rounded-2xl border border-slate-800 bg-[#0e131f] p-1.5 shadow-xl">
-                <button
-                  onClick={() => handleTabChange("garage")}
-                  className={`flex items-center justify-center gap-2.5 rounded-xl py-3 text-sm font-black transition-all duration-300 cursor-pointer ${
-                    !is3D 
-                      ? "bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-md scale-[1.02]" 
-                      : "text-slate-400 hover:text-slate-200"
-                  }`}
-                >
-                  <Droplets className="h-4 w-4" />
-                  <span>Auto Detailing</span>
-                </button>
-
-                <button
-                  onClick={() => handleTabChange("3d")}
-                  className={`flex items-center justify-center gap-2.5 rounded-xl py-3 text-sm font-black transition-all duration-300 cursor-pointer ${
-                    is3D 
-                      ? "bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 shadow-md scale-[1.02]" 
-                      : "text-slate-400 hover:text-slate-200"
-                  }`}
-                >
-                  <Layers className="h-4 w-4" />
-                  <span>3D Tasarım & Lab</span>
-                </button>
-              </div>
-            </div>
-
-            {/* ALT KATEGORİ ÇUBUĞU */}
-            <div className="mx-auto mt-6 flex max-w-5xl flex-wrap items-center justify-center gap-2">
-              {is3D
-                ? subCategories3D.map((sub) => (
-                    <button
-                      key={sub.key}
-                      onClick={() => { playSound("click"); setActiveSubTab3D(sub.key); }}
-                      className={`rounded-xl border px-4 py-2 text-xs font-bold transition-all duration-200 active:scale-95 cursor-pointer ${
-                        activeSubTab3D === sub.key
-                          ? "border-cyan-400 bg-cyan-500/20 text-cyan-200 shadow-sm"
-                          : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
-                      }`}
-                    >
-                      {sub.label}
-                    </button>
-                  ))
-                : subCategoriesGarage.map((sub) => (
-                    <button
-                      key={sub.key}
-                      onClick={() => { playSound("click"); setActiveSubTabGarage(sub.key); }}
-                      className={`rounded-xl border px-4 py-2 text-xs font-bold transition-all duration-200 active:scale-95 cursor-pointer ${
-                        activeSubTabGarage === sub.key
-                          ? "border-amber-400 bg-amber-500/20 text-amber-200 shadow-sm"
-                          : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
-                      }`}
-                    >
-                      {sub.label}
-                    </button>
-                  ))}
-            </div>
-          </section>
-
-          {/* BEFORE / AFTER SLIDER */}
-          {!is3D && (
-            <section className="mx-auto max-w-6xl px-6 py-8">
-              <div className="overflow-hidden rounded-3xl border border-slate-800/90 bg-[#0d121c] p-6 shadow-xl">
-                <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                  <div>
-                    <span className="text-xs font-black uppercase text-amber-400 tracking-wider">🔬 GÖZLE GÖRÜLÜR ETKİ</span>
-                    <h3 className="text-xl font-bold text-white">pH Nötr Demir Tozu & Jant Temizleme Performansı</h3>
-                  </div>
-                  <p className="text-xs text-slate-400">Çizgiyi sağa-sola kaydırarak öncesi ve sonrasını karşılaştırın.</p>
+        {/* BEFORE / AFTER SLIDER */}
+        {!is3D && (
+          <section className="mx-auto max-w-6xl px-6 py-8">
+            <div className="overflow-hidden rounded-3xl border border-slate-800/90 bg-[#0d121c] p-6 shadow-xl">
+              <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                <div>
+                  <span className="text-xs font-black uppercase text-amber-400 tracking-wider">🔬 GÖZLE GÖRÜLÜR ETKİ</span>
+                  <h3 className="text-xl font-bold text-white">pH Nötr Demir Tozu & Jant Temizleme Performansı</h3>
                 </div>
+                <p className="text-xs text-slate-400">Çizgiyi sağa-sola kaydırarak öncesi ve sonrasını karşılaştırın.</p>
+              </div>
 
-                <div 
-                  className="relative aspect-[21/9] w-full select-none overflow-hidden rounded-2xl cursor-ew-resize bg-slate-950"
-                  onMouseMove={(e) => {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-                    setSliderPosition((x / rect.width) * 100);
-                  }}
-                  onTouchMove={(e) => {
-                    const rect = e.currentTarget.getBoundingClientRect();
-                    const touch = e.touches[0];
-                    const x = Math.max(0, Math.min(touch.clientX - rect.left, rect.width));
-                    setSliderPosition((x / rect.width) * 100);
-                  }}
+              <div 
+                className="relative aspect-[21/9] w-full select-none overflow-hidden rounded-2xl cursor-ew-resize bg-slate-950"
+                onMouseMove={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+                  setSliderPosition((x / rect.width) * 100);
+                }}
+                onTouchMove={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const touch = e.touches[0];
+                  const x = Math.max(0, Math.min(touch.clientX - rect.left, rect.width));
+                  setSliderPosition((x / rect.width) * 100);
+                }}
+              >
+                <img
+                  src="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=1200&auto=format&fit=crop&q=80"
+                  alt="Sonrası"
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
+                <span className="absolute top-4 right-4 rounded-lg bg-emerald-500/80 px-3 py-1 text-xs font-black text-slate-950 backdrop-blur">
+                  ✨ UYGULAMA SONRASI (PARLAK)
+                </span>
+
+                <div
+                  className="absolute inset-0 overflow-hidden"
+                  style={{ width: `${sliderPosition}%` }}
                 >
                   <img
-                    src="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=1200&auto=format&fit=crop&q=80"
-                    alt="Sonrası"
-                    className="absolute inset-0 h-full w-full object-cover"
+                    src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=1200&auto=format&fit=crop&q=80"
+                    alt="Öncesi"
+                    className="absolute inset-0 h-full w-full object-cover max-w-none"
+                    style={{ width: "100%", height: "100%" }}
                   />
-                  <span className="absolute top-4 right-4 rounded-lg bg-emerald-500/80 px-3 py-1 text-xs font-black text-slate-950 backdrop-blur">
-                    ✨ UYGULAMA SONRASI (PARLAK)
+                  <span className="absolute top-4 left-4 rounded-lg bg-red-500/80 px-3 py-1 text-xs font-black text-white backdrop-blur">
+                    🛑 UYGULAMA ÖNCESİ (BALATA TOZU)
                   </span>
-
-                  <div
-                    className="absolute inset-0 overflow-hidden"
-                    style={{ width: `${sliderPosition}%` }}
-                  >
-                    <img
-                      src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=1200&auto=format&fit=crop&q=80"
-                      alt="Öncesi"
-                      className="absolute inset-0 h-full w-full object-cover max-w-none"
-                      style={{ width: "100%", height: "100%" }}
-                    />
-                    <span className="absolute top-4 left-4 rounded-lg bg-red-500/80 px-3 py-1 text-xs font-black text-white backdrop-blur">
-                      🛑 UYGULAMA ÖNCESİ (BALATA TOZU)
-                    </span>
-                  </div>
-
-                  <div
-                    className="absolute top-0 bottom-0 w-1 bg-amber-400 shadow-md"
-                    style={{ left: `${sliderPosition}%` }}
-                  >
-                    <div className="absolute top-1/2 -left-4 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-amber-400 text-slate-950 shadow-md font-bold text-xs">
-                      ↔
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-          )}
-
-          {/* KENDİ GARAJ PAKETİNİ YARAT */}
-          {!is3D && (
-            <section className="mx-auto max-w-6xl px-6 py-4">
-              <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-[#0d121c] to-[#0d121c] p-6 shadow-xl">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
-                  <div className="flex items-center gap-3">
-                    <Sliders className="h-6 w-6 text-amber-400" />
-                    <div>
-                      <h3 className="text-lg font-black text-white">🛠️ Kendi Garaj Kombo Paketini Oluştur</h3>
-                      <p className="text-xs text-slate-400">3 temel ürünü seç, anında %20 indirimli özel fiyatla sepete at.</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <span className="text-xs text-slate-500 line-through">999 ₺</span>
-                      <span className="block font-mono text-2xl font-black text-amber-400">799 ₺</span>
-                    </div>
-                    <button
-                      onClick={addCustomBundleToCart}
-                      className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-3 text-xs font-black text-slate-950 shadow-md hover:scale-105 transition cursor-pointer"
-                    >
-                      <Plus className="h-4 w-4" />
-                      Kombo Paketi Sepete Ekle
-                    </button>
-                  </div>
                 </div>
 
-                <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-                    <span className="text-[11px] font-bold text-amber-400">ADIM 1: Yıkama & Cila</span>
-                    <div className="mt-2 space-y-2">
-                      <label 
-                        onClick={() => { playSound("click"); setBundleShampoo("carnauba"); }}
-                        className={`flex items-center justify-between rounded-xl border p-3 text-xs cursor-pointer transition ${bundleShampoo === "carnauba" ? "border-amber-400 bg-amber-500/20 text-white" : "border-slate-800 text-slate-400"}`}
-                      >
-                        <span>Carnauba Şampuan (1L)</span>
-                        <CheckCircle className={`h-4 w-4 ${bundleShampoo === "carnauba" ? "text-amber-400" : "opacity-0"}`} />
-                      </label>
-                      <label 
-                        onClick={() => { playSound("click"); setBundleShampoo("ceramic"); }}
-                        className={`flex items-center justify-between rounded-xl border p-3 text-xs cursor-pointer transition ${bundleShampoo === "ceramic" ? "border-amber-400 bg-amber-500/20 text-white" : "border-slate-800 text-slate-400"}`}
-                      >
-                        <span>SiO2 Seramik Hızlı Cila (750ml)</span>
-                        <CheckCircle className={`h-4 w-4 ${bundleShampoo === "ceramic" ? "text-amber-400" : "opacity-0"}`} />
-                      </label>
-                    </div>
+                <div
+                  className="absolute top-0 bottom-0 w-1 bg-amber-400 shadow-md"
+                  style={{ left: `${sliderPosition}%` }}
+                >
+                  <div className="absolute top-1/2 -left-4 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-amber-400 text-slate-950 shadow-md font-bold text-xs">
+                    ↔
                   </div>
-
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-                    <span className="text-[11px] font-bold text-amber-400">ADIM 2: Jant & Lastik</span>
-                    <div className="mt-2 space-y-2">
-                      <label 
-                        onClick={() => { playSound("click"); setBundleWheel("iron"); }}
-                        className={`flex items-center justify-between rounded-xl border p-3 text-xs cursor-pointer transition ${bundleWheel === "iron" ? "border-amber-400 bg-amber-500/20 text-white" : "border-slate-800 text-slate-400"}`}
-                      >
-                        <span>pH Nötr Demir Tozu (500ml)</span>
-                        <CheckCircle className={`h-4 w-4 ${bundleWheel === "iron" ? "text-amber-400" : "opacity-0"}`} />
-                      </label>
-                      <label 
-                        onClick={() => { playSound("click"); setBundleWheel("tire"); }}
-                        className={`flex items-center justify-between rounded-xl border p-3 text-xs cursor-pointer transition ${bundleWheel === "tire" ? "border-amber-400 bg-amber-500/20 text-white" : "border-slate-800 text-slate-400"}`}
-                      >
-                        <span>Simli Lastik Jeli (500ml)</span>
-                        <CheckCircle className={`h-4 w-4 ${bundleWheel === "tire" ? "text-amber-400" : "opacity-0"}`} />
-                      </label>
-                    </div>
-                  </div>
-
-                  <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-                    <span className="text-[11px] font-bold text-amber-400">ADIM 3: Kurulama & Bez</span>
-                    <div className="mt-2 space-y-2">
-                      <label 
-                        onClick={() => { playSound("click"); setBundleTowel("twisted"); }}
-                        className={`flex items-center justify-between rounded-xl border p-3 text-xs cursor-pointer transition ${bundleTowel === "twisted" ? "border-amber-400 bg-amber-500/20 text-white" : "border-slate-800 text-slate-400"}`}
-                      >
-                        <span>1200 GSM Twisted Havlu</span>
-                        <CheckCircle className={`h-4 w-4 ${bundleTowel === "twisted" ? "text-amber-400" : "opacity-0"}`} />
-                      </label>
-                      <label 
-                        onClick={() => { playSound("click"); setBundleTowel("microfiber"); }}
-                        className={`flex items-center justify-between rounded-xl border p-3 text-xs cursor-pointer transition ${bundleTowel === "microfiber" ? "border-amber-400 bg-amber-500/20 text-white" : "border-slate-800 text-slate-400"}`}
-                      >
-                        <span>Lazer Kesim Cila Bezi (3'lü)</span>
-                        <CheckCircle className={`h-4 w-4 ${bundleTowel === "microfiber" ? "text-amber-400" : "opacity-0"}`} />
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-          )}
-
-          {/* 3D CUSTOMIZER */}
-          {is3D && (
-            <section className="mx-auto max-w-6xl px-6 py-6">
-              <div className="rounded-3xl border border-cyan-500/30 bg-gradient-to-br from-cyan-500/10 via-[#0d121c] to-[#0d121c] p-6 shadow-xl">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                  <div className="flex-1">
-                    <span className="text-xs font-black uppercase text-cyan-400 tracking-wider">✨ ANLIK 3D ÖNİZLEME</span>
-                    <h3 className="text-xl font-bold text-white">Kişiye Özel Anahtarlık / Plakalık Tasarla</h3>
-                    <p className="mt-1 text-xs text-slate-400">Metin kutusuna isminizi veya araç plakanızı yazın, anlık önizleyin.</p>
-                    
-                    <div className="mt-4 flex gap-3">
-                      <input
-                        type="text"
-                        value={customPlateText}
-                        maxLength={14}
-                        onChange={(e) => setCustomPlateText(e.target.value.toUpperCase())}
-                        placeholder="Örn: 01 ETL 34"
-                        className="rounded-xl border border-cyan-500/40 bg-slate-900/90 px-4 py-2.5 font-mono text-sm font-bold text-cyan-300 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-400"
-                      />
-                      <button
-                        onClick={() => {
-                          const customProd = PRODUCTS.find((p) => p.id === "p3_custom");
-                          if (customProd) addToCart(customProd, customPlateText);
-                        }}
-                        className="rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 px-5 py-2.5 text-xs font-black text-slate-950 shadow-md hover:scale-105 transition cursor-pointer"
-                      >
-                        Özel Baskıyı Sepete Ekle (190 ₺)
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-center rounded-2xl border border-cyan-500/40 bg-slate-950 p-6 shadow-md min-w-[280px]">
-                    <div className="flex items-center gap-3 rounded-lg border-2 border-slate-700 bg-[#0a0d14] px-5 py-3 shadow-inner">
-                      <div className="flex flex-col items-center justify-center rounded bg-blue-600 px-1.5 py-0.5 text-[10px] font-black text-white">
-                        <span>TR</span>
-                      </div>
-                      <span className="font-mono text-xl font-black tracking-widest text-cyan-400">
-                        {customPlateText || "PLAKANIZ"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-          )}
-
-          {/* ÜRÜN VİTRİNİ */}
-          <main className="relative mx-auto max-w-6xl px-6 pb-16">
-            <div
-              key={`${activeTab}-${is3D ? activeSubTab3D : activeSubTabGarage}`}
-              className="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3"
-            >
-              {filteredProducts.map((product, index) => {
-                const variantState = selectedVariants[product.id] || { opt1Index: 0, opt2: product.options2[0] };
-                const currentOpt1 = product.options1[variantState.opt1Index] || product.options1[0];
-                const currentOpt2 = variantState.opt2 || product.options2[0];
-
-                return (
-                  <div
-                    key={product.id}
-                    style={{
-                      animationDelay: `${index * 40}ms`,
-                      animationFillMode: "both"
-                    }}
-                    className={`group flex flex-col justify-between rounded-2xl border border-slate-800/80 bg-[#0d121c]/90 p-5 shadow-lg backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 animate-in fade-in slide-in-from-bottom-4 duration-300 ease-out ${themeClasses.cardBorder}`}
-                  >
-                    <div>
-                      <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-slate-800">
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                        />
-                        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-                          {product.badge && (
-                            <span className={`rounded-md border px-2 py-0.5 text-[11px] font-black tracking-wide backdrop-blur-md ${themeClasses.badge}`}>
-                              {product.badge}
-                            </span>
-                          )}
-                          {product.dealBadge && (
-                            <span className="rounded-md border border-red-500/40 bg-red-500/25 px-2 py-0.5 text-[11px] font-black text-red-400 backdrop-blur-md">
-                              {product.dealBadge}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="mt-3.5">
-                        <div className="flex items-center gap-1.5 text-xs text-amber-400">
-                          <div className="flex items-center">
-                            {[...Array(5)].map((_, i) => (
-                              <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                            ))}
-                          </div>
-                          <span className="font-bold text-slate-200">{product.rating}</span>
-                          <span className="text-[11px] text-slate-500">({product.reviewCount} değerlendirme)</span>
-                        </div>
-
-                        <h3 className="mt-1.5 font-bold text-base text-white group-hover:text-slate-100 transition-colors">
-                          {product.name}
-                        </h3>
-                        <p className="mt-1.5 text-xs leading-relaxed text-slate-400">
-                          {product.description}
-                        </p>
-                      </div>
-
-                      <div className="mt-4 flex items-baseline gap-2 border-y border-slate-800/80 py-2.5">
-                        <span className={`font-mono text-2xl font-black transition-colors duration-300 ${themeClasses.price}`}>
-                          {currentOpt1.price} ₺
-                        </span>
-                        {currentOpt1.originalPrice && (
-                          <span className="font-mono text-sm text-slate-500 line-through">
-                            {currentOpt1.originalPrice} ₺
-                          </span>
-                        )}
-                        {currentOpt1.discountBadge && (
-                          <span className="ml-auto rounded-md bg-emerald-500/20 px-2 py-0.5 text-xs font-black text-emerald-400">
-                            {currentOpt1.discountBadge}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="mt-4">
-                        <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
-                          {product.options1Label}: <span className="text-slate-200 font-semibold">{currentOpt1.name}</span>
-                        </span>
-                        <div className="mt-2 flex flex-col gap-1.5">
-                          {product.options1.map((opt, idx) => (
-                            <button
-                              key={opt.name}
-                              onClick={() => handleVariantChange(product.id, "opt1Index", idx)}
-                              className={`flex items-center justify-between rounded-xl border p-2.5 text-xs transition-all duration-200 cursor-pointer ${
-                                variantState.opt1Index === idx
-                                  ? themeClasses.selectedVariant
-                                  : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
-                              }`}
-                            >
-                              <div className="text-left">
-                                <span className="font-semibold text-slate-200">{opt.name}</span>
-                                {opt.giftText && (
-                                  <span className="block text-[10px] text-amber-400 font-medium">{opt.giftText}</span>
-                                )}
-                              </div>
-                              <div className="text-right font-mono">
-                                <span className="font-bold text-white text-sm">{opt.price} ₺</span>
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="mt-3.5">
-                        <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
-                          {product.options2Label}: <span className="text-slate-200">{currentOpt2}</span>
-                        </span>
-                        <div className="mt-1.5 flex flex-wrap gap-1.5">
-                          {product.options2.map((opt) => (
-                            <button
-                              key={opt}
-                              onClick={() => handleVariantChange(product.id, "opt2", opt)}
-                              className={`rounded-lg border px-2.5 py-1 text-xs transition-all duration-200 cursor-pointer ${
-                                currentOpt2 === opt
-                                  ? themeClasses.selectedVariant
-                                  : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
-                              }`}
-                            >
-                              {opt}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <button
-                      onClick={() => addToCart(product)}
-                      className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black transition-all duration-200 active:scale-95 cursor-pointer ${themeClasses.button}`}
-                    >
-                      <Plus className="h-4 w-4" />
-                      Sepete Ekle ({currentOpt1.price} ₺)
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          </main>
-
-          {/* REHBER */}
-          <section className="mx-auto max-w-6xl px-6 pb-20">
-            <div className="rounded-3xl border border-slate-800/80 bg-[#0c1018] p-8">
-              <div className="flex items-center gap-2 text-amber-400 mb-4">
-                <HelpCircle className="h-5 w-5" />
-                <h3 className="font-bold text-base text-white">EternaLab Garaj & Üretim Rehberi</h3>
-              </div>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3 text-xs leading-relaxed text-slate-400">
-                <div className="rounded-2xl border border-slate-800/80 bg-slate-900/50 p-4">
-                  <h4 className="font-bold text-slate-200 mb-1">☀️ Güneş Altında Uygulama Yapmayın</h4>
-                  <p>Demir tozu ve şampuanları direkt güneş altında veya sıcak kaportada kurumaya bırakmayın. Serin gölgede uygulayıp durulayın.</p>
-                </div>
-                <div className="rounded-2xl border border-slate-800/80 bg-slate-900/50 p-4">
-                  <h4 className="font-bold text-slate-200 mb-1">🧼 Twisted Havlu Bakımı</h4>
-                  <p>1200 GSM havlunuzu yumuşatıcı kullanmadan, 30 derecede yıkayın. Yumuşatıcı mikrofiber kanalları tıkayarak su emilimini düşürür.</p>
-                </div>
-                <div className="rounded-2xl border border-slate-800/80 bg-slate-900/50 p-4">
-                  <h4 className="font-bold text-slate-200 mb-1">🚗 Araç İçi Yüksek Sıcaklık Dayanımı</h4>
-                  <p>3D araç içi aparatlarımızda standart PLA yerine kabin içi 75°C sıcaklığa dayanıklı güçlendirilmiş PETG hammadde kullanılır.</p>
                 </div>
               </div>
             </div>
           </section>
+        )}
 
-        </div>
+        {/* KENDİ GARAJ PAKETİNİ YARAT */}
+        {!is3D && (
+          <section className="mx-auto max-w-6xl px-6 py-4">
+            <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-[#0d121c] to-[#0d121c] p-6 shadow-xl">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                <div className="flex items-center gap-3">
+                  <Sliders className="h-6 w-6 text-amber-400" />
+                  <div>
+                    <h3 className="text-lg font-black text-white">🛠️ Kendi Garaj Kombo Paketini Oluştur</h3>
+                    <p className="text-xs text-slate-400">3 temel ürünü seç, anında %20 indirimli özel fiyatla sepete at.</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="text-right">
+                    <span className="text-xs text-slate-500 line-through">999 ₺</span>
+                    <span className="block font-mono text-2xl font-black text-amber-400">799 ₺</span>
+                  </div>
+                  <button
+                    onClick={addCustomBundleToCart}
+                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-3 text-xs font-black text-slate-950 shadow-md hover:scale-105 transition cursor-pointer"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Kombo Paketi Sepete Ekle
+                  </button>
+                </div>
+              </div>
+
+              <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
+                  <span className="text-[11px] font-bold text-amber-400">ADIM 1: Yıkama & Cila</span>
+                  <div className="mt-2 space-y-2">
+                    <label 
+                      onClick={() => { playSound("click"); setBundleShampoo("carnauba"); }}
+                      className={`flex items-center justify-between rounded-xl border p-3 text-xs cursor-pointer transition ${bundleShampoo === "carnauba" ? "border-amber-400 bg-amber-500/20 text-white" : "border-slate-800 text-slate-400"}`}
+                    >
+                      <span>Carnauba Şampuan (1L)</span>
+                      <CheckCircle className={`h-4 w-4 ${bundleShampoo === "carnauba" ? "text-amber-400" : "opacity-0"}`} />
+                    </label>
+                    <label 
+                      onClick={() => { playSound("click"); setBundleShampoo("ceramic"); }}
+                      className={`flex items-center justify-between rounded-xl border p-3 text-xs cursor-pointer transition ${bundleShampoo === "ceramic" ? "border-amber-400 bg-amber-500/20 text-white" : "border-slate-800 text-slate-400"}`}
+                    >
+                      <span>SiO2 Seramik Hızlı Cila (750ml)</span>
+                      <CheckCircle className={`h-4 w-4 ${bundleShampoo === "ceramic" ? "text-amber-400" : "opacity-0"}`} />
+                    </label>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
+                  <span className="text-[11px] font-bold text-amber-400">ADIM 2: Jant & Lastik</span>
+                  <div className="mt-2 space-y-2">
+                    <label 
+                      onClick={() => { playSound("click"); setBundleWheel("iron"); }}
+                      className={`flex items-center justify-between rounded-xl border p-3 text-xs cursor-pointer transition ${bundleWheel === "iron" ? "border-amber-400 bg-amber-500/20 text-white" : "border-slate-800 text-slate-400"}`}
+                    >
+                      <span>pH Nötr Demir Tozu (500ml)</span>
+                      <CheckCircle className={`h-4 w-4 ${bundleWheel === "iron" ? "text-amber-400" : "opacity-0"}`} />
+                    </label>
+                    <label 
+                      onClick={() => { playSound("click"); setBundleWheel("tire"); }}
+                      className={`flex items-center justify-between rounded-xl border p-3 text-xs cursor-pointer transition ${bundleWheel === "tire" ? "border-amber-400 bg-amber-500/20 text-white" : "border-slate-800 text-slate-400"}`}
+                    >
+                      <span>Simli Lastik Jeli (500ml)</span>
+                      <CheckCircle className={`h-4 w-4 ${bundleWheel === "tire" ? "text-amber-400" : "opacity-0"}`} />
+                    </label>
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
+                  <span className="text-[11px] font-bold text-amber-400">ADIM 3: Kurulama & Bez</span>
+                  <div className="mt-2 space-y-2">
+                    <label 
+                      onClick={() => { playSound("click"); setBundleTowel("twisted"); }}
+                      className={`flex items-center justify-between rounded-xl border p-3 text-xs cursor-pointer transition ${bundleTowel === "twisted" ? "border-amber-400 bg-amber-500/20 text-white" : "border-slate-800 text-slate-400"}`}
+                    >
+                      <span>1200 GSM Twisted Havlu</span>
+                      <CheckCircle className={`h-4 w-4 ${bundleTowel === "twisted" ? "text-amber-400" : "opacity-0"}`} />
+                    </label>
+                    <label 
+                      onClick={() => { playSound("click"); setBundleTowel("microfiber"); }}
+                      className={`flex items-center justify-between rounded-xl border p-3 text-xs cursor-pointer transition ${bundleTowel === "microfiber" ? "border-amber-400 bg-amber-500/20 text-white" : "border-slate-800 text-slate-400"}`}
+                    >
+                      <span>Lazer Kesim Cila Bezi (3'lü)</span>
+                      <CheckCircle className={`h-4 w-4 ${bundleTowel === "microfiber" ? "text-amber-400" : "opacity-0"}`} />
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* 3D CUSTOMIZER */}
+        {is3D && (
+          <section className="mx-auto max-w-6xl px-6 py-6">
+            <div className="rounded-3xl border border-cyan-500/30 bg-gradient-to-br from-cyan-500/10 via-[#0d121c] to-[#0d121c] p-6 shadow-xl">
+              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex-1">
+                  <span className="text-xs font-black uppercase text-cyan-400 tracking-wider">✨ ANLIK 3D ÖNİZLEME</span>
+                  <h3 className="text-xl font-bold text-white">Kişiye Özel Anahtarlık / Plakalık Tasarla</h3>
+                  <p className="mt-1 text-xs text-slate-400">Metin kutusuna isminizi veya araç plakanızı yazın, anlık önizleyin.</p>
+                  
+                  <div className="mt-4 flex gap-3">
+                    <input
+                      type="text"
+                      value={customPlateText}
+                      maxLength={14}
+                      onChange={(e) => setCustomPlateText(e.target.value.toUpperCase())}
+                      placeholder="Örn: 01 ETL 34"
+                      className="rounded-xl border border-cyan-500/40 bg-slate-900/90 px-4 py-2.5 font-mono text-sm font-bold text-cyan-300 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                    />
+                    <button
+                      onClick={() => {
+                        const customProd = PRODUCTS.find((p) => p.id === "p3_custom");
+                        if (customProd) addToCart(customProd, customPlateText);
+                      }}
+                      className="rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 px-5 py-2.5 text-xs font-black text-slate-950 shadow-md hover:scale-105 transition cursor-pointer"
+                    >
+                      Özel Baskıyı Sepete Ekle (190 ₺)
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-center rounded-2xl border border-cyan-500/40 bg-slate-950 p-6 shadow-md min-w-[280px]">
+                  <div className="flex items-center gap-3 rounded-lg border-2 border-slate-700 bg-[#0a0d14] px-5 py-3 shadow-inner">
+                    <div className="flex flex-col items-center justify-center rounded bg-blue-600 px-1.5 py-0.5 text-[10px] font-black text-white">
+                      <span>TR</span>
+                    </div>
+                    <span className="font-mono text-xl font-black tracking-widest text-cyan-400">
+                      {customPlateText || "PLAKANIZ"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* ÜRÜN VİTRİNİ */}
+        <main className="relative mx-auto max-w-6xl px-6 pb-16">
+          <div
+            key={`${activeTab}-${is3D ? activeSubTab3D : activeSubTabGarage}`}
+            className="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3"
+          >
+            {filteredProducts.map((product, index) => {
+              const variantState = selectedVariants[product.id] || { opt1Index: 0, opt2: product.options2[0] };
+              const currentOpt1 = product.options1[variantState.opt1Index] || product.options1[0];
+              const currentOpt2 = variantState.opt2 || product.options2[0];
+
+              return (
+                <div
+                  key={product.id}
+                  style={{
+                    animationDelay: `${index * 40}ms`,
+                    animationFillMode: "both"
+                  }}
+                  className={`group flex flex-col justify-between rounded-2xl border border-slate-800/80 bg-[#0d121c]/90 p-5 shadow-lg backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 animate-in fade-in slide-in-from-bottom-4 duration-300 ease-out ${themeClasses.cardBorder}`}
+                >
+                  <div>
+                    <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-slate-800">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute top-3 left-3 flex flex-col gap-1.5">
+                        {product.badge && (
+                          <span className={`rounded-md border px-2 py-0.5 text-[11px] font-black tracking-wide backdrop-blur-md ${themeClasses.badge}`}>
+                            {product.badge}
+                          </span>
+                        )}
+                        {product.dealBadge && (
+                          <span className="rounded-md border border-red-500/40 bg-red-500/25 px-2 py-0.5 text-[11px] font-black text-red-400 backdrop-blur-md">
+                            {product.dealBadge}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="mt-3.5">
+                      <div className="flex items-center gap-1.5 text-xs text-amber-400">
+                        <div className="flex items-center">
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                          ))}
+                        </div>
+                        <span className="font-bold text-slate-200">{product.rating}</span>
+                        <span className="text-[11px] text-slate-500">({product.reviewCount} değerlendirme)</span>
+                      </div>
+
+                      <h3 className="mt-1.5 font-bold text-base text-white group-hover:text-slate-100 transition-colors">
+                        {product.name}
+                      </h3>
+                      <p className="mt-1.5 text-xs leading-relaxed text-slate-400">
+                        {product.description}
+                      </p>
+                    </div>
+
+                    <div className="mt-4 flex items-baseline gap-2 border-y border-slate-800/80 py-2.5">
+                      <span className={`font-mono text-2xl font-black transition-colors duration-300 ${themeClasses.price}`}>
+                        {currentOpt1.price} ₺
+                      </span>
+                      {currentOpt1.originalPrice && (
+                        <span className="font-mono text-sm text-slate-500 line-through">
+                          {currentOpt1.originalPrice} ₺
+                        </span>
+                      )}
+                      {currentOpt1.discountBadge && (
+                        <span className="ml-auto rounded-md bg-emerald-500/20 px-2 py-0.5 text-xs font-black text-emerald-400">
+                          {currentOpt1.discountBadge}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="mt-4">
+                      <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+                        {product.options1Label}: <span className="text-slate-200 font-semibold">{currentOpt1.name}</span>
+                      </span>
+                      <div className="mt-2 flex flex-col gap-1.5">
+                        {product.options1.map((opt, idx) => (
+                          <button
+                            key={opt.name}
+                            onClick={() => handleVariantChange(product.id, "opt1Index", idx)}
+                            className={`flex items-center justify-between rounded-xl border p-2.5 text-xs transition-all duration-200 cursor-pointer ${
+                              variantState.opt1Index === idx
+                                ? themeClasses.selectedVariant
+                                : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                            }`}
+                          >
+                            <div className="text-left">
+                              <span className="font-semibold text-slate-200">{opt.name}</span>
+                              {opt.giftText && (
+                                <span className="block text-[10px] text-amber-400 font-medium">{opt.giftText}</span>
+                              )}
+                            </div>
+                            <div className="text-right font-mono">
+                              <span className="font-bold text-white text-sm">{opt.price} ₺</span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="mt-3.5">
+                      <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
+                        {product.options2Label}: <span className="text-slate-200">{currentOpt2}</span>
+                      </span>
+                      <div className="mt-1.5 flex flex-wrap gap-1.5">
+                        {product.options2.map((opt) => (
+                          <button
+                            key={opt}
+                            onClick={() => handleVariantChange(product.id, "opt2", opt)}
+                            className={`rounded-lg border px-2.5 py-1 text-xs transition-all duration-200 cursor-pointer ${
+                              currentOpt2 === opt
+                                ? themeClasses.selectedVariant
+                                : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                            }`}
+                          >
+                            {opt}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => addToCart(product)}
+                    className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black transition-all duration-200 active:scale-95 cursor-pointer ${themeClasses.button}`}
+                  >
+                    <Plus className="h-4 w-4" />
+                    Sepete Ekle ({currentOpt1.price} ₺)
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </main>
+
+        {/* REHBER */}
+        <section className="mx-auto max-w-6xl px-6 pb-20">
+          <div className="rounded-3xl border border-slate-800/80 bg-[#0c1018] p-8">
+            <div className="flex items-center gap-2 text-amber-400 mb-4">
+              <HelpCircle className="h-5 w-5" />
+              <h3 className="font-bold text-base text-white">EternaLab Garaj & Üretim Rehberi</h3>
+            </div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3 text-xs leading-relaxed text-slate-400">
+              <div className="rounded-2xl border border-slate-800/80 bg-slate-900/50 p-4">
+                <h4 className="font-bold text-slate-200 mb-1">☀️ Güneş Altında Uygulama Yapmayın</h4>
+                <p>Demir tozu ve şampuanları direkt güneş altında veya sıcak kaportada kurumaya bırakmayın. Serin gölgede uygulayıp durulayın.</p>
+              </div>
+              <div className="rounded-2xl border border-slate-800/80 bg-slate-900/50 p-4">
+                <h4 className="font-bold text-slate-200 mb-1">🧼 Twisted Havlu Bakımı</h4>
+                <p>1200 GSM havlunuzu yumuşatıcı kullanmadan, 30 derecede yıkayın. Yumuşatıcı mikrofiber kanalları tıkayarak su emilimini düşürür.</p>
+              </div>
+              <div className="rounded-2xl border border-slate-800/80 bg-slate-900/50 p-4">
+                <h4 className="font-bold text-slate-200 mb-1">🚗 Araç İçi Yüksek Sıcaklık Dayanımı</h4>
+                <p>3D araç içi aparatlarımızda standart PLA yerine kabin içi 75°C sıcaklığa dayanıklı güçlendirilmiş PETG hammadde kullanılır.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
       </div>
 
       {/* SEPET PANELİ */}
