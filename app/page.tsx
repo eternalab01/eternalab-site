@@ -320,7 +320,6 @@ export default function Home() {
   const [bundleWheel, setBundleWheel] = useState<string>("iron");
   const [bundleTowel, setBundleTowel] = useState<string>("twisted");
 
-  // Canlı Bildirim Pop-up State'i
   const [currentNotification, setCurrentNotification] = useState<{ city: string; product: string; time: string } | null>(null);
 
   const [selectedVariants, setSelectedVariants] = useState<Record<string, { opt1Index: number; opt2: string }>>({
@@ -336,16 +335,11 @@ export default function Home() {
     p6: { opt1Index: 0, opt2: "PETG (Yüksek Sıcaklık)" },
   });
 
-  // 1. LOCAL STORAGE: SEPETİ HAFIZADA TUTMA
   useEffect(() => {
     try {
       const savedCart = localStorage.getItem("eternal_cart");
-      if (savedCart) {
-        setCart(JSON.parse(savedCart));
-      }
-    } catch (e) {
-      // LocalStorage access error handling
-    }
+      if (savedCart) setCart(JSON.parse(savedCart));
+    } catch (e) {}
   }, []);
 
   useEffect(() => {
@@ -354,7 +348,6 @@ export default function Home() {
     } catch (e) {}
   }, [cart]);
 
-  // 2. SOSYAL KANIT BİLDİRİM DÖNGÜSÜ
   useEffect(() => {
     let index = 0;
     const interval = setInterval(() => {
@@ -369,7 +362,6 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  // GTA 5 iFRUIT BİLDİRİMİ & TATLI AKUSTİK ARAYÜZ SESLERİ
   const playSound = (type: "warp" | "click" | "success") => {
     if (!soundEnabled || typeof window === "undefined") return;
     try {
@@ -417,7 +409,6 @@ export default function Home() {
         osc.stop(now + 0.035);
 
       } else if (type === "success") {
-        // GTA 5 iFruit Bildirim Melodisi
         const notes = [
           { freq: 830.61, start: 0, duration: 0.085 },
           { freq: 1108.73, start: 0.088, duration: 0.16 }
@@ -440,9 +431,7 @@ export default function Home() {
           osc.stop(now + start + duration);
         });
       }
-    } catch (e) {
-      // Audio policy
-    }
+    } catch (e) {}
   };
 
   const handleTabChange = (newTab: MainCategory) => {
@@ -565,8 +554,8 @@ export default function Home() {
       : "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-md shadow-amber-500/20",
     price: is3D ? "text-cyan-400" : "text-amber-400",
     cardBorder: is3D 
-      ? "hover:border-cyan-500/40 hover:shadow-lg hover:shadow-cyan-500/5 hover:bg-[#0f1420]" 
-      : "hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/5 hover:bg-[#141210]",
+      ? "hover:border-cyan-500/40 hover:shadow-lg hover:shadow-cyan-500/5 hover:bg-[#0f1420]/95" 
+      : "hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/5 hover:bg-[#141210]/95",
     selectedVariant: is3D 
       ? "border-cyan-400 bg-cyan-500/20 text-cyan-100" 
       : "border-amber-400 bg-amber-500/20 text-amber-100",
@@ -592,7 +581,6 @@ export default function Home() {
     { key: "towels", label: "Bez & Havlular (3 Al 2 Öde)" },
   ];
 
-  // GELİŞMİŞ WHATSAPP SİPARİŞ FORMATI (ADRES & TESLİMAT TASLAKLI)
   const handleWhatsAppCheckout = () => {
     if (cart.length === 0) return;
     playSound("success");
@@ -630,8 +618,42 @@ export default function Home() {
     <div className="relative min-h-screen bg-[#07090e] text-slate-100 antialiased selection:bg-slate-700 selection:text-white overflow-x-hidden pb-16 md:pb-0">
       
       {/* ========================================================================= */}
-      {/* GARAJ SARMAL KAPISI */}
+      {/* SAĞ VE SOL AMBİYANS FOTOĞRAF KANATLARI (AMBIENT STUDIO WINGS) */}
       {/* ========================================================================= */}
+      
+      {/* SOL KANAT ARKA PLAN FOTOĞRAFI */}
+      <div className="pointer-events-none fixed top-0 bottom-0 left-0 w-1/3 z-0 overflow-hidden hidden xl:block opacity-25 transition-opacity duration-1000">
+        <img
+          src={
+            is3D
+              ? "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80" // 3D Lab / Atölye
+              : "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800&auto=format&fit=crop&q=80" // Lüks Spor Araç / Garaj
+          }
+          alt="Studio Sol Ambiyans"
+          className="h-full w-full object-cover filter grayscale contrast-125 transition-all duration-700"
+        />
+        {/* Sol Kenar Karartma & Merkeze Geçiş Maskesi */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#07090e]/70 to-[#07090e]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#07090e] via-transparent to-[#07090e]" />
+      </div>
+
+      {/* SAĞ KANAT ARKA PLAN FOTOĞRAFI */}
+      <div className="pointer-events-none fixed top-0 bottom-0 right-0 w-1/3 z-0 overflow-hidden hidden xl:block opacity-25 transition-opacity duration-1000">
+        <img
+          src={
+            is3D
+              ? "https://images.unsplash.com/photo-1563089145-599997674d42?w=800&auto=format&fit=crop&q=80" // 3D Baskı / Lazer Geometri
+              : "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&auto=format&fit=crop&q=80" // Seramik Kaplama / Detailing
+          }
+          alt="Studio Sağ Ambiyans"
+          className="h-full w-full object-cover filter grayscale contrast-125 transition-all duration-700"
+        />
+        {/* Sağ Kenar Karartma & Merkeze Geçiş Maskesi */}
+        <div className="absolute inset-0 bg-gradient-to-l from-transparent via-[#07090e]/70 to-[#07090e]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#07090e] via-transparent to-[#07090e]" />
+      </div>
+
+      {/* GARAJ SARMAL KAPISI */}
       <div 
         className={`pointer-events-none fixed inset-0 z-50 flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.32,0,0.67,0)] ${
           isGarageDoorActive ? "translate-y-0" : "-translate-y-full"
@@ -697,7 +719,7 @@ export default function Home() {
       </div>
 
       {/* ÜST DUYURU BARI */}
-      <div className={`transition-all duration-500 px-4 py-2 text-center text-xs font-black tracking-wide text-slate-950 uppercase shadow-md flex items-center justify-center gap-2 ${
+      <div className={`relative z-20 transition-all duration-500 px-4 py-2 text-center text-xs font-black tracking-wide text-slate-950 uppercase shadow-md flex items-center justify-center gap-2 ${
         is3D 
           ? "bg-gradient-to-r from-cyan-400 via-sky-300 to-cyan-400" 
           : "bg-gradient-to-r from-amber-500 via-orange-400 to-amber-500"
@@ -710,14 +732,13 @@ export default function Home() {
         </span>
       </div>
 
-      {/* AMBİYANS IŞIKLARI */}
+      {/* AMBİYANS RADYAL IŞIĞI */}
       <div 
-        className={`pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] ${themeClasses.ambientGlow} transition-all duration-700 ease-out`} 
+        className={`pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] ${themeClasses.ambientGlow} transition-all duration-700 ease-out`} 
       />
-      <div className="pointer-events-none fixed inset-0 bg-[linear-gradient(to_right,#1f293710_1px,transparent_1px),linear-gradient(to_bottom,#1f293710_1px,transparent_1px)] bg-[size:3.5rem_3.5rem]" />
 
       {/* NAVBAR */}
-      <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-[#07090e]/95 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-[#07090e]/90 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3 cursor-pointer group">
             
@@ -769,7 +790,7 @@ export default function Home() {
       </header>
 
       {/* GÖVDE */}
-      <div className={`transition-all duration-300 ease-out transform-gpu ${
+      <div className={`relative z-10 transition-all duration-300 ease-out transform-gpu ${
         isGarageDoorActive 
           ? "opacity-40 translate-y-4 scale-[0.99] filter blur-[1px]" 
           : "opacity-100 translate-y-0 scale-100 filter blur-0"
@@ -871,7 +892,7 @@ export default function Home() {
         {/* BEFORE / AFTER SLIDER */}
         {!is3D && (
           <section className="mx-auto max-w-6xl px-6 py-8">
-            <div className="overflow-hidden rounded-3xl border border-slate-800/90 bg-[#0d121c] p-6 shadow-xl">
+            <div className="overflow-hidden rounded-3xl border border-slate-800/90 bg-[#0d121c]/90 p-6 shadow-xl backdrop-blur-md">
               <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                 <div>
                   <span className="text-xs font-black uppercase text-amber-400 tracking-wider">🔬 GÖZLE GÖRÜLÜR ETKİ</span>
@@ -934,7 +955,7 @@ export default function Home() {
         {/* BUNDLE BUILDER */}
         {!is3D && (
           <section className="mx-auto max-w-6xl px-6 py-4">
-            <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-[#0d121c] to-[#0d121c] p-6 shadow-xl">
+            <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-[#0d121c]/90 to-[#0d121c]/90 p-6 shadow-xl backdrop-blur-md">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
                 <div className="flex items-center gap-3">
                   <Sliders className="h-6 w-6 text-amber-400" />
@@ -959,7 +980,7 @@ export default function Home() {
               </div>
 
               <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
+                <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4">
                   <span className="text-[11px] font-bold text-amber-400">ADIM 1: Yıkama & Cila</span>
                   <div className="mt-2 space-y-2">
                     <label 
@@ -979,7 +1000,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
+                <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4">
                   <span className="text-[11px] font-bold text-amber-400">ADIM 2: Jant & Lastik</span>
                   <div className="mt-2 space-y-2">
                     <label 
@@ -999,7 +1020,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
+                <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4">
                   <span className="text-[11px] font-bold text-amber-400">ADIM 3: Kurulama & Bez</span>
                   <div className="mt-2 space-y-2">
                     <label 
@@ -1026,7 +1047,7 @@ export default function Home() {
         {/* 3D CUSTOMIZER */}
         {is3D && (
           <section className="mx-auto max-w-6xl px-6 py-6">
-            <div className="rounded-3xl border border-cyan-500/30 bg-gradient-to-br from-cyan-500/10 via-[#0d121c] to-[#0d121c] p-6 shadow-xl">
+            <div className="rounded-3xl border border-cyan-500/30 bg-gradient-to-br from-cyan-500/10 via-[#0d121c]/90 to-[#0d121c]/90 p-6 shadow-xl backdrop-blur-md">
               <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                 <div className="flex-1">
                   <span className="text-xs font-black uppercase text-cyan-400 tracking-wider">✨ ANLIK 3D ÖNİZLEME</span>
@@ -1128,7 +1149,6 @@ export default function Home() {
                         {product.description}
                       </p>
 
-                      {/* 3D ÜRÜNLER İÇİN MÜHENDİSLİK TEKNİK ÖZELLİKLERİ */}
                       {product.techSpecs && (
                         <div className="mt-3 flex flex-col gap-1 rounded-xl border border-slate-800 bg-slate-900/60 p-2.5 text-[11px]">
                           <div className="flex items-center gap-1.5 text-cyan-400">
@@ -1229,7 +1249,7 @@ export default function Home() {
 
         {/* REHBER */}
         <section className="mx-auto max-w-6xl px-6 pb-20">
-          <div className="rounded-3xl border border-slate-800/80 bg-[#0c1018] p-8">
+          <div className="rounded-3xl border border-slate-800/80 bg-[#0c1018]/90 p-8 backdrop-blur-md">
             <div className="flex items-center gap-2 text-amber-400 mb-4">
               <HelpCircle className="h-5 w-5" />
               <h3 className="font-bold text-base text-white">EternaLab Garaj & Üretim Rehberi</h3>
@@ -1253,7 +1273,7 @@ export default function Home() {
 
       </div>
 
-      {/* SOSYAL KANIT: CANLI SİPARİŞ BİLDİRİMİ */}
+      {/* SOSYAL KANIT BİLDİRİMİ */}
       {currentNotification && (
         <div className="fixed bottom-20 left-4 z-40 max-w-xs animate-in slide-in-from-bottom-5 duration-500 ease-out md:bottom-6">
           <div className="flex items-center gap-3 rounded-2xl border border-slate-800 bg-[#0d121c]/95 p-3.5 shadow-2xl backdrop-blur-xl">
@@ -1273,7 +1293,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* MOBİL YAPIŞKAN SEPET BARI (STICKY BOTTOM BAR) */}
+      {/* MOBİL YAPIŞKAN SEPET BARI */}
       {totalItemCount > 0 && !isCartOpen && (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-800 bg-[#07090e]/95 p-3 backdrop-blur-xl md:hidden animate-in slide-in-from-bottom duration-300">
           <div className="flex items-center justify-between gap-3">
@@ -1415,7 +1435,7 @@ export default function Home() {
       )}
 
       {/* FOOTER */}
-      <footer className="border-t border-slate-800/80 bg-[#06080c] py-12">
+      <footer className="relative z-10 border-t border-slate-800/80 bg-[#06080c] py-12">
         <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-6 md:grid-cols-3">
           <div className="flex items-center gap-3">
             <Gift className={`h-6 w-6 transition-colors duration-300 ${is3D ? "text-cyan-400" : "text-amber-400"}`} />
