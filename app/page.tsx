@@ -1,1682 +1,316 @@
-"use client";
+import React from 'react';
 
-import React, { useState, useEffect } from "react";
-import { 
-  ShoppingBag, 
-  Trash2, 
-  Plus, 
-  Minus, 
-  X, 
-  ShieldCheck, 
-  Truck, 
-  Sparkles, 
-  Layers, 
-  Droplets, 
-  Star, 
-  Flame, 
-  Gift, 
-  ChevronRight, 
-  Zap, 
-  Volume2, 
-  VolumeX, 
-  Sliders, 
-  CheckCircle, 
-  HelpCircle,
-  Cpu,
-  Clock,
-  Box,
-  CreditCard,
-  Building2,
-  Copy,
-  Check
-} from "lucide-react";
+// Vektörel Cyber/Garage EternaLab Logosu
+const Logo = () => (
+  <svg
+    viewBox="0 0 720 160"
+    className="w-full h-auto max-w-[210px] md:max-w-[240px]"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <circle cx="28" cy="46" r="3" fill="#ffffff" />
+    <polyline
+      points="31,46 130,46 170,18 430,18"
+      stroke="#ffffff"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <rect x="610" y="16" width="7" height="7" fill="#ffffff" opacity="0.25" />
+    <rect x="622" y="16" width="7" height="7" fill="#ffffff" opacity="0.5" />
+    <rect x="634" y="16" width="7" height="7" fill="#ffffff" opacity="0.75" />
+    <rect x="646" y="16" width="7" height="7" fill="#ffffff" />
 
-type MainCategory = "3d" | "garage";
-type SubCategory3D = "all" | "decor" | "fun" | "wall" | "auto";
-type SubCategoryGarage = "all" | "bundles" | "wheel_tire" | "wash_foam" | "towels";
+    {/* Geometrik E */}
+    <g fill="#ffffff">
+      <polygon points="105,48 152,48 132,68 85,68" />
+      <polygon points="100,75 147,75 130,92 112,92 98,78" />
+      <polygon points="85,82 108,105 132,105 152,125 105,125 70,90" />
+    </g>
 
-interface ProductOption {
-  name: string;
-  price: number;
-  originalPrice?: number;
-  discountBadge?: string;
-  giftText?: string;
-}
+    {/* EternaLab Tipografi */}
+    <text
+      x="175"
+      y="106"
+      fill="#ffffff"
+      fontFamily="sans-serif"
+      fontSize="64"
+      fontWeight="800"
+      letterSpacing="-1.5"
+    >
+      Eterna<tspan fontWeight="900">Lab</tspan>
+    </text>
 
-interface Product {
-  id: string;
-  name: string;
-  category: MainCategory;
-  subCategory?: SubCategory3D | SubCategoryGarage;
-  rating: number;
-  reviewCount: number;
-  badge?: string;
-  dealBadge?: string;
-  description: string;
-  image: string;
-  isCustomizable?: boolean;
-  options1Label: string;
-  options1: ProductOption[];
-  options2Label: string;
-  options2: string[];
-  techSpecs?: {
-    material: string;
-    layerHeight: string;
-    leadTime: string;
-  };
-}
+    {/* Tescil İmi */}
+    <circle cx="585" cy="62" r="10" stroke="#ffffff" strokeWidth="2" fill="none" />
+    <text
+      x="581"
+      y="67"
+      fill="#ffffff"
+      fontFamily="sans-serif"
+      fontSize="13"
+      fontWeight="bold"
+    >
+      R
+    </text>
 
-const PRODUCTS: Product[] = [
-  // =========================================================================
-  // --- 1. AUTO DETAILING ---
-  // =========================================================================
-  {
-    id: "d_master_bundle",
-    name: "A'dan Z'ye Komple Master Detailing Bakım Paketi (12 Parça)",
-    category: "garage",
-    subCategory: "bundles",
-    rating: 5.0,
-    reviewCount: 148,
-    badge: "🏆 EN ÇOK SATAN SET",
-    dealBadge: "650 ₺ TASARRUF",
-    description: "İçerik: pH Nötr Demir Tozu (1L) + Seramik Katkılı Hızlı Cila (750ml) + Carnauba Şampuan (1L) + Lastik Jel (500ml) + 1200 GSM Havlu + 5'li Çizmez Fırça + Süngerler.",
-    image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=600&auto=format&fit=crop&q=80",
-    options1Label: "Set Seçeneği",
-    options1: [
-      { name: "Full Set (12 Parça Standart)", price: 1499, originalPrice: 2150, discountBadge: "%30 İndirim", giftText: "🎁 Bagaj Çantası & Sünger Hediye" },
-      { name: "Mega Garaj Boy Set (5L Şampuanlı)", price: 2199, originalPrice: 3100, discountBadge: "%40 İndirim", giftText: "🎁 Bagaj Çantası + 2x Bez Hediye" }
-    ],
-    options2Label: "Koku / Esans Tercihi",
-    options2: ["Bubble Gum (Sakız)", "Fresh Berry", "Karpuz Aromalı"],
-  },
-  {
-    id: "d_iron_cleaner",
-    name: "pH Nötr Moraran Demir Tozu & Jant Temizleyici",
-    category: "garage",
-    subCategory: "wheel_tire",
-    rating: 4.9,
-    reviewCount: 215,
-    badge: "5 AL 3 ÖDE FIRSATI",
-    dealBadge: "Vernik Dostu",
-    description: "Balata tozu, metal partikülleri ve inatçı jant kirlerini temas anında morararak derinlemesine çözer.",
-    image: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=600&auto=format&fit=crop&q=80",
-    options1Label: "Avantaj Paketleri",
-    options1: [
-      { name: "500 ml Sprey", price: 349, originalPrice: 399 },
-      { name: "1000 ml Şişe", price: 549, originalPrice: 699, discountBadge: "150 ₺ Cepte" },
-      { name: "5 Al 3 Öde (5x 500ml)", price: 999, originalPrice: 1745, discountBadge: "2 Adet Bedava!" },
-      { name: "5 Litre Garaj / Bidon", price: 1450, originalPrice: 1950, discountBadge: "Ekonomik Boy" }
-    ],
-    options2Label: "Uygulama Şekli",
-    options2: ["Tetikli Ağır Hizmet Başlık", "Köpük Yapan Nozul Başlığı"],
-  },
-  {
-    id: "d_tire_gel",
-    name: "Ultra Parlak & Su İtici Simli Lastik Parlatıcı Jel",
-    category: "garage",
-    subCategory: "wheel_tire",
-    rating: 4.8,
-    reviewCount: 182,
-    badge: "3 AL 2 ÖDE",
-    dealBadge: "Fırlama Yapmaz",
-    description: "Yağmurda akmayan, çamur tutmayan, haftalarca derin ıslak siyahlık sağlayan özel polimer jel formülü.",
-    image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=600&auto=format&fit=crop&q=80",
-    options1Label: "Adet & Kampanya",
-    options1: [
-      { name: "500 ml Standart", price: 289, originalPrice: 349 },
-      { name: "3 Al 2 Öde (3x 500ml)", price: 578, originalPrice: 867, discountBadge: "289 ₺ Bedava!" },
-      { name: "500 ml + Kavisli Hazneli Sünger", price: 349, originalPrice: 450, giftText: "🎁 Sünger Dahil" },
-      { name: "5 Litre Profesyonel Bidon", price: 1199, originalPrice: 1600 }
-    ],
-    options2Label: "Parlaklık Tipi",
-    options2: ["Derin Islak Parlaklık (Wet Look)", "Fabrika Çıkışı Doğal Mat Siyah"],
-  },
-  {
-    id: "d_twisted_towel",
-    name: "Twisted Pile Ultra Emici Oto Kurulama Havlusu (1200 GSM)",
-    category: "garage",
-    subCategory: "towels",
-    rating: 5.0,
-    reviewCount: 320,
-    badge: "3 AL 2 ÖDE 🔥",
-    dealBadge: "Çizik & Hav Bırakmaz",
-    description: "Tek geçişte tüm aracı sıkmadan kurutan, mikrofiber bükümlü iplik teknolojisi.",
-    image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=600&auto=format&fit=crop&q=80",
-    options1Label: "Kampanya Paketi",
-    options1: [
-      { name: "1 Adet (50x70 cm)", price: 359, originalPrice: 450 },
-      { name: "3 Al 2 Öde (3 Adet 50x70 cm)", price: 718, originalPrice: 1077, discountBadge: "1 Adet Bedava!" },
-      { name: "1 Adet Jumbo Boy (60x90 cm)", price: 469, originalPrice: 590 },
-      { name: "Jumbo İkili Set (2x 60x90 cm)", price: 799, originalPrice: 1180, discountBadge: "380 ₺ Tasarruf" }
-    ],
-    options2Label: "Renk Seçeneği",
-    options2: ["Antrasit Gri", "Neon Amber Turuncu", "Safir Mavi"],
-  },
-  {
-    id: "d_ceramic_wax",
-    name: "SiO2 Seramik Katkılı Hızlı & Pratik Cila Spreyi (750 ml)",
-    category: "garage",
-    subCategory: "wash_foam",
-    rating: 4.8,
-    reviewCount: 160,
-    badge: "Aşırı Su İtici",
-    dealBadge: "3 Al 2 Öde",
-    description: "Islak veya kuru yüzeye sık-sil! Boyayı canlandırır, ayna parlaklığı ve boncuklama etkisi yaratır.",
-    image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=600&auto=format&fit=crop&q=80",
-    options1Label: "Paket Seçenekleri",
-    options1: [
-      { name: "750 ml Tek Şişe", price: 349, originalPrice: 420 },
-      { name: "3 Al 2 Öde (3x 750ml)", price: 698, originalPrice: 1047, discountBadge: "1 Şişe Bedava!" },
-      { name: "750ml + Lazer Kesim Cila Bezi", price: 429, originalPrice: 550, giftText: "🎁 Bez Hediye" },
-      { name: "5 Litre Bidon", price: 1290, originalPrice: 1750 }
-    ],
-    options2Label: "Kullanım",
-    options2: ["Islak & Kuru Uygulama Uyumlu"],
-  },
-  {
-    id: "d_carnauba_shampoo",
-    name: "%90 Carnauba Cilalı & Konsantre Neon Oto Şampuanı",
-    category: "garage",
-    subCategory: "wash_foam",
-    rating: 4.9,
-    reviewCount: 135,
-    badge: "Bol Köpük",
-    description: "pH 5.5 nötr formül, seramik korumaya zarar vermez. Yıkama esnasında ekstra kayganlık ve parlaklık sunar.",
-    image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=600&auto=format&fit=crop&q=80",
-    options1Label: "Hacim Seçimi",
-    options1: [
-      { name: "1000 ml Şişe", price: 299, originalPrice: 380 },
-      { name: "2x 1000ml İkili Paket", price: 499, originalPrice: 760, discountBadge: "260 ₺ İndirim" },
-      { name: "5 Litre Bidon + 2L Köpük Pompası Seti", price: 1190, originalPrice: 1650, discountBadge: "Pompa Dahil" }
-    ],
-    options2Label: "Uygulama Tipi",
-    options2: ["Kova & Sünger Yıkama", "Foam Lance (Köpük Tabancası) Uyumlu"],
-  },
+    {/* Alt Çerçeve Hatları */}
+    <polyline
+      points="28,70 28,142 300,142 340,122 550,122"
+      stroke="#ffffff"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <circle cx="330" cy="142" r="3" fill="#ffffff" />
+    <line
+      x1="333"
+      y1="142"
+      x2="400"
+      y2="142"
+      stroke="#ffffff"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+    />
 
-  // ==========================================
-  // --- 2. 3D TASARIM & LAB BÖLÜMÜ ---
-  // ==========================================
+    <polygon points="505,142 522,125 544,125 527,142" fill="#ffffff" />
+    <polygon points="535,142 552,125 574,125 557,142" fill="#ffffff" />
+    <polygon points="565,142 582,125 604,125 587,142" fill="#ffffff" />
+    <polyline
+      points="590,142 660,142 690,105"
+      stroke="#ffffff"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <circle cx="690" cy="105" r="3" fill="#ffffff" />
+  </svg>
+);
+
+const products = [
   {
-    id: "p3_custom",
-    name: "Kişiye Özel Plaka & İsimli Metalik Anahtarlık",
-    category: "3d",
-    subCategory: "fun",
-    rating: 5.0,
-    reviewCount: 92,
-    badge: "🔥 KİŞİYE ÖZEL",
-    isCustomizable: true,
-    description: "Kendi plakanızı veya isminizi yazabileceğiniz çift katmanlı darbelere dayanıklı PETG anahtarlık.",
-    image: "https://images.unsplash.com/photo-1614036417651-efe5912149d8?w=600&auto=format&fit=crop&q=80",
-    options1Label: "Adet",
-    options1: [
-      { name: "1 Adet Kişiye Özel", price: 190 },
-      { name: "2'li Çift Paketi (2 İsim/Plaka)", price: 299, discountBadge: "%25 İndirim" }
-    ],
-    options2Label: "Gövde / Yazı Rengi",
-    options2: ["Siyah Gövde / Neon Cyan", "Siyah Gövde / Garaj Turuncusu", "Karbon Siyah / Beyaz"],
-    techSpecs: {
-      material: "PETG Endüstriyel Polimer",
-      layerHeight: "0.16mm Ultra Hassas",
-      leadTime: "24 Saatte Kargoda"
-    }
+    id: 1,
+    name: 'FOAM PRO // AKTİF KÖPÜK',
+    subtitle: 'Fırçasız Boya Güvenli Ön Yıkama',
+    tag: '500 ML HDPE',
+    price: '249 TL',
+    badge: 'Çok Satan',
+    specs: ['pH Dengeli Reçete', 'Krema Köpük Dokusu', 'İndüksiyon Korumalı'],
   },
   {
-    id: "p1",
-    name: "Masaüstü Filament & Kablo Düzenleyici",
-    category: "3d",
-    subCategory: "decor",
-    rating: 4.9,
-    reviewCount: 42,
-    badge: "Masaüstü",
-    description: "Atölye ve masa düzeni için modüler, geçmeli kilitleme sistemli kablo kılavuzu.",
-    image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=600&auto=format&fit=crop&q=80",
-    options1Label: "Adet / Paket",
-    options1: [
-      { name: "Tekli Standart", price: 220 },
-      { name: "3'lü Set", price: 540, discountBadge: "120 ₺ Tasarruf" }
-    ],
-    options2Label: "Renk & Malzeme",
-    options2: ["Mat Siyah - PETG", "Titanyum Gri - PETG", "Mermer Beyaz - PLA"],
-    techSpecs: {
-      material: "PETG / PLA Tough",
-      layerHeight: "0.20mm Standart",
-      leadTime: "Aynı Gün Kargo"
-    }
+    id: 2,
+    name: 'IRON PURGE // DEMİR TOZU',
+    subtitle: 'Reaktif Jant & Boya Temizleyici',
+    tag: '500 ML HDPE',
+    price: '289 TL',
+    badge: 'Yeni Formül',
+    specs: ['Hızlı Renk Değişimi', 'Asitsiz pH Nötr', 'Ağır Balata Çözücü'],
   },
   {
-    id: "p4",
-    name: "Artikülasyonlu Eklemli Ejderha Figürü",
-    category: "3d",
-    subCategory: "fun",
-    rating: 4.9,
-    reviewCount: 51,
-    badge: "Hobi",
-    description: "Tam hareketli eklem yapısına sahip, esnek ve pürüzsüz yüzeyli masaüstü figürü.",
-    image: "https://images.unsplash.com/photo-1563089145-599997674d42?w=600&auto=format&fit=crop&q=80",
-    options1Label: "Boyut",
-    options1: [
-      { name: "Standart (18 cm)", price: 260 },
-      { name: "Büyük Boy (26 cm)", price: 380 }
-    ],
-    options2Label: "Renk",
-    options2: ["Parlak Kırmızı", "Mat Siyah", "İpek Altın"],
-    techSpecs: {
-      material: "PLA Silk (İpeksi Parlak)",
-      layerHeight: "0.12mm Yüksek Detay",
-      leadTime: "1-2 İş Günü"
-    }
+    id: 3,
+    name: 'TWISTED LOOP // KURULAMA',
+    subtitle: 'Yüksek Gramaj Detailing Havlusu',
+    tag: '800 GSM // 50x70 CM',
+    price: '349 TL',
+    badge: 'Premium Doku',
+    specs: ['Tek Geçişte Kurulama', 'Çizik Önleyici Dikiş', 'Ultra Su Hapsi'],
   },
-  {
-    id: "p6",
-    name: "Araç İçi Bardaklık & Telefon Tutucu",
-    category: "3d",
-    subCategory: "auto",
-    rating: 4.9,
-    reviewCount: 57,
-    badge: "Özel Uyum",
-    description: "Araç içi trimlere tam oturan, yüksek kabin sıcaklığına dayanıklı PETG modül.",
-    image: "https://images.unsplash.com/photo-1584438784894-089d6a62b8fa?w=600&auto=format&fit=crop&q=80",
-    options1Label: "Model",
-    options1: [
-      { name: "Standart Uyum", price: 340 },
-      { name: "Genişletilmiş XL Yuva", price: 380 }
-    ],
-    options2Label: "Malzeme Türü",
-    options2: ["PETG (Yüksek Sıcaklık)", "Karbon Katkılı PETG"],
-    techSpecs: {
-      material: "Isıya Dayanıklı PETG (75°C)",
-      layerHeight: "0.16mm Güçlendirilmiş",
-      leadTime: "Aynı Gün Kargo"
-    }
-  }
 ];
 
-interface CartItem {
-  cartId: string;
-  product: Product;
-  selectedOpt1: ProductOption;
-  selectedOpt2: string;
-  customText?: string;
-  quantity: number;
-}
-
-const FAKE_NOTIFICATIONS = [
-  { city: "İstanbul", product: "A'dan Z'ye Master Bakım Paketi", time: "2 dk önce" },
-  { city: "Ankara", product: "Kişiye Özel Plaka Anahtarlık", time: "5 dk önce" },
-  { city: "İzmir", product: "1200 GSM Twisted Havlu (3 Al 2 Öde)", time: "8 dk önce" },
-  { city: "Bursa", product: "pH Nötr Demir Tozu & Jant Temizleyici", time: "11 dk önce" },
-  { city: "Antalya", product: "Araç İçi Bardaklık & Telefon Tutucu", time: "14 dk önce" }
-];
-
-export default function Home() {
-  const [activeTab, setActiveTab] = useState<MainCategory>("garage");
-  const [activeSubTab3D, setActiveSubTab3D] = useState<SubCategory3D>("all");
-  const [activeSubTabGarage, setActiveSubTabGarage] = useState<SubCategoryGarage>("all");
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isGarageDoorActive, setIsGarageDoorActive] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(true);
-
-  // ÖDEME VE SİPARİŞ FORM STATE'LERİ
-  const [checkoutStep, setCheckoutStep] = useState<"cart" | "form" | "success">("cart");
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "transfer">("card");
-  const [copiedIban, setCopiedIban] = useState(false);
-  
-  const [formData, setFormData] = useState({
-    fullName: "",
-    phone: "",
-    city: "",
-    district: "",
-    address: "",
-    note: ""
-  });
-
-  const [sliderPosition, setSliderPosition] = useState(50);
-  const [customPlateText, setCustomPlateText] = useState("34 RMZ 34");
-
-  const [bundleShampoo, setBundleShampoo] = useState<string>("carnauba");
-  const [bundleWheel, setBundleWheel] = useState<string>("iron");
-  const [bundleTowel, setBundleTowel] = useState<string>("twisted");
-
-  const [currentNotification, setCurrentNotification] = useState<{ city: string; product: string; time: string } | null>(null);
-
-  const [selectedVariants, setSelectedVariants] = useState<Record<string, { opt1Index: number; opt2: string }>>({
-    d_master_bundle: { opt1Index: 0, opt2: "Bubble Gum (Sakız)" },
-    d_iron_cleaner: { opt1Index: 2, opt2: "Tetikli Ağır Hizmet Başlık" },
-    d_tire_gel: { opt1Index: 1, opt2: "Derin Islak Parlaklık (Wet Look)" },
-    d_twisted_towel: { opt1Index: 1, opt2: "Antrasit Gri" },
-    d_ceramic_wax: { opt1Index: 1, opt2: "Islak & Kuru Uygulama Uyumlu" },
-    d_carnauba_shampoo: { opt1Index: 0, opt2: "Foam Lance (Köpük Tabancası) Uyumlu" },
-    p3_custom: { opt1Index: 0, opt2: "Siyah Gövde / Neon Cyan" },
-    p1: { opt1Index: 0, opt2: "Mat Siyah - PETG" },
-    p4: { opt1Index: 0, opt2: "Parlak Kırmızı" },
-    p6: { opt1Index: 0, opt2: "PETG (Yüksek Sıcaklık)" },
-  });
-
-  useEffect(() => {
-    try {
-      const savedCart = localStorage.getItem("eternal_cart");
-      if (savedCart) setCart(JSON.parse(savedCart));
-    } catch (e) {}
-  }, []);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem("eternal_cart", JSON.stringify(cart));
-    } catch (e) {}
-  }, [cart]);
-
-  useEffect(() => {
-    let index = 0;
-    const interval = setInterval(() => {
-      setCurrentNotification(FAKE_NOTIFICATIONS[index]);
-      index = (index + 1) % FAKE_NOTIFICATIONS.length;
-
-      setTimeout(() => {
-        setCurrentNotification(null);
-      }, 5000);
-    }, 18000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const playSound = (type: "warp" | "click" | "success") => {
-    if (!soundEnabled || typeof window === "undefined") return;
-    try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
-      const now = ctx.currentTime;
-
-      if (type === "warp") {
-        [329.63, 440.0].forEach((freq, i) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          const filter = ctx.createBiquadFilter();
-
-          osc.type = "sine";
-          osc.frequency.setValueAtTime(freq, now + i * 0.05);
-
-          filter.type = "lowpass";
-          filter.frequency.setValueAtTime(600, now);
-
-          gain.gain.setValueAtTime(0.04, now + i * 0.05);
-          gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.05 + 0.25);
-
-          osc.connect(filter);
-          filter.connect(gain);
-          gain.connect(ctx.destination);
-
-          osc.start(now + i * 0.05);
-          osc.stop(now + i * 0.05 + 0.25);
-        });
-
-      } else if (type === "click") {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(450, now);
-        osc.frequency.exponentialRampToValueAtTime(680, now + 0.035);
-
-        gain.gain.setValueAtTime(0.035, now);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.035);
-
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-
-        osc.start(now);
-        osc.stop(now + 0.035);
-
-      } else if (type === "success") {
-        const notes = [
-          { freq: 830.61, start: 0, duration: 0.085 },
-          { freq: 1108.73, start: 0.088, duration: 0.16 }
-        ];
-
-        notes.forEach(({ freq, start, duration }) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-
-          osc.type = "triangle";
-          osc.frequency.setValueAtTime(freq, now + start);
-
-          gain.gain.setValueAtTime(0.07, now + start);
-          gain.gain.exponentialRampToValueAtTime(0.0001, now + start + duration);
-
-          osc.connect(gain);
-          gain.connect(ctx.destination);
-
-          osc.start(now + start);
-          osc.stop(now + start + duration);
-        });
-      }
-    } catch (e) {}
-  };
-
-  const handleTabChange = (newTab: MainCategory) => {
-    if (newTab === activeTab || isGarageDoorActive) return;
-    playSound("warp");
-    setIsGarageDoorActive(true);
-
-    setTimeout(() => {
-      setActiveTab(newTab);
-      if (newTab === "3d") setActiveSubTab3D("all");
-      else setActiveSubTabGarage("all");
-      
-      setTimeout(() => {
-        setIsGarageDoorActive(false);
-      }, 160);
-    }, 220);
-  };
-
-  const handleVariantChange = (productId: string, type: "opt1Index" | "opt2", value: any) => {
-    playSound("click");
-    setSelectedVariants((prev) => ({
-      ...prev,
-      [productId]: {
-        ...prev[productId],
-        [type]: value,
-      },
-    }));
-  };
-
-  const addToCart = (product: Product, customText?: string) => {
-    playSound("success");
-    const variantState = selectedVariants[product.id] || { opt1Index: 0, opt2: product.options2[0] };
-    const opt1Choice = product.options1[variantState.opt1Index] || product.options1[0];
-    const opt2Choice = variantState.opt2 || product.options2[0];
-
-    const cartId = `${product.id}-${opt1Choice.name}-${opt2Choice}-${customText || ""}`;
-
-    setCart((prevCart) => {
-      const existing = prevCart.find((item) => item.cartId === cartId);
-      if (existing) {
-        return prevCart.map((item) =>
-          item.cartId === cartId ? { ...item, quantity: item.quantity + 1 } : item
-        );
-      }
-      return [
-        ...prevCart,
-        {
-          cartId,
-          product,
-          selectedOpt1: opt1Choice,
-          selectedOpt2: opt2Choice,
-          customText,
-          quantity: 1,
-        },
-      ];
-    });
-    setCheckoutStep("cart");
-    setIsCartOpen(true);
-  };
-
-  const addCustomBundleToCart = () => {
-    playSound("success");
-    const bundleProduct: Product = {
-      id: `custom_bundle_${Date.now()}`,
-      name: "🔥 Özel Tasarım 3'lü Garaj Kombo Seti",
-      category: "garage",
-      rating: 5.0,
-      reviewCount: 1,
-      description: `Seçilenler: ${bundleShampoo === "carnauba" ? "Carnauba Şampuan (1L)" : "Seramik Cila (750ml)"} + ${bundleWheel === "iron" ? "Demir Tozu (500ml)" : "Lastik Jeli (500ml)"} + ${bundleTowel === "twisted" ? "1200 GSM Twisted Havlu" : "Lazer Bez Paketi"}`,
-      image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=600&auto=format&fit=crop&q=80",
-      options1Label: "Paket",
-      options1: [{ name: "Kombo Set", price: 799, originalPrice: 999, discountBadge: "%20 Tasarruf" }],
-      options2Label: "Paket Türü",
-      options2: ["Kişiselleştirilmiş Set"]
-    };
-
-    addToCart(bundleProduct);
-  };
-
-  const updateQuantity = (cartId: string, change: number) => {
-    playSound("click");
-    setCart((prevCart) =>
-      prevCart
-        .map((item) => {
-          if (item.cartId === cartId) {
-            const newQty = item.quantity + change;
-            return newQty > 0 ? { ...item, quantity: newQty } : null;
-          }
-          return item;
-        })
-        .filter(Boolean) as CartItem[]
-    );
-  };
-
-  const removeFromCart = (cartId: string) => {
-    playSound("click");
-    setCart((prevCart) => prevCart.filter((item) => item.cartId !== cartId));
-  };
-
-  const totalAmount = cart.reduce((acc, item) => acc + item.selectedOpt1.price * item.quantity, 0);
-  const totalItemCount = cart.reduce((acc, item) => acc + item.quantity, 0);
-
-  const filteredProducts = PRODUCTS.filter((p) => {
-    if (p.category !== activeTab) return false;
-    if (activeTab === "3d" && activeSubTab3D !== "all") {
-      return p.subCategory === activeSubTab3D;
-    }
-    if (activeTab === "garage" && activeSubTabGarage !== "all") {
-      return p.subCategory === activeSubTabGarage;
-    }
-    return true;
-  });
-
-  const is3D = activeTab === "3d";
-  const themeClasses = {
-    badge: is3D 
-      ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/30" 
-      : "bg-amber-500/10 text-amber-400 border-amber-500/30",
-    button: is3D 
-      ? "bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-slate-950 shadow-md shadow-cyan-500/20" 
-      : "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-md shadow-amber-500/20",
-    price: is3D ? "text-cyan-400" : "text-amber-400",
-    cardBorder: is3D 
-      ? "hover:border-cyan-500/40 hover:shadow-lg hover:shadow-cyan-500/5 hover:bg-[#0f1420]/95" 
-      : "hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/5 hover:bg-[#141210]/95",
-    selectedVariant: is3D 
-      ? "border-cyan-400 bg-cyan-500/20 text-cyan-100" 
-      : "border-amber-400 bg-amber-500/20 text-amber-100",
-    ambientGlow: is3D
-      ? "from-cyan-500/20 via-blue-600/10 to-transparent"
-      : "from-amber-500/20 via-orange-600/10 to-transparent",
-    doorSlat: is3D ? "border-cyan-500/15" : "border-amber-500/15"
-  };
-
-  const subCategories3D: { key: SubCategory3D; label: string }[] = [
-    { key: "all", label: "Tüm 3D Ürünleri" },
-    { key: "decor", label: "Dekorasyon & Masaüstü" },
-    { key: "fun", label: "Eğlence & Kişiye Özel" },
-    { key: "wall", label: "Duvar & Askı" },
-    { key: "auto", label: "Araç İçi Aksesuar" },
-  ];
-
-  const subCategoriesGarage: { key: SubCategoryGarage; label: string }[] = [
-    { key: "all", label: "Tüm Ürünler" },
-    { key: "bundles", label: "🏆 Fırsat Paketleri & Setler" },
-    { key: "wheel_tire", label: "Jant & Lastik Bakımı" },
-    { key: "wash_foam", label: "Cila & Şampuanlar" },
-    { key: "towels", label: "Bez & Havlular (3 Al 2 Öde)" },
-  ];
-
-  const handleFinalOrderSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    playSound("success");
-
-    if (paymentMethod === "card") {
-      const SHOPIER_URL = "https://www.shopier.com/";
-      window.open(SHOPIER_URL, "_blank");
-      setCheckoutStep("success");
-    } else {
-      setCheckoutStep("success");
-    }
-  };
-
-  const copyIbanToClipboard = () => {
-    navigator.clipboard.writeText("TR000000000000000000000000");
-    setCopiedIban(true);
-    playSound("click");
-    setTimeout(() => setCopiedIban(false), 3000);
-  };
-
+export default function Page() {
   return (
-    <div className="relative min-h-screen bg-[#07090e] text-slate-100 antialiased selection:bg-slate-700 selection:text-white overflow-x-hidden pb-16 md:pb-0">
-      
-      {/* ========================================================================= */}
-      {/* YENİ VE DAHA KARİZMATİK YAN AMBİYANS FOTOĞRAF PANELLERİ */}
-      {/* ========================================================================= */}
-      
-      {/* SOL KANAT: DETAYLI YÜZEY & YANSIMA */}
-      <div className="pointer-events-none fixed top-0 bottom-0 left-0 w-[30%] z-0 overflow-hidden hidden xl:block opacity-20 transition-opacity duration-1000">
-        <img
-          src={
-            is3D
-              ? "https://images.unsplash.com/photo-1631556097152-c39479cbfe9f?w=900&auto=format&fit=crop&q=80" // 3D Ekstrüzyon & Nozzle Isı Yansıması
-              : "https://images.unsplash.com/photo-1550355291-bbee04a92027?w=900&auto=format&fit=crop&q=80" // Karanlık Stüdyoda Kaporta Işık Çizgisi
-          }
-          alt="Studio Sol Ambiyans"
-          className="h-full w-full object-cover filter grayscale contrast-150 transition-all duration-700 scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#07090e]/80 to-[#07090e]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#07090e] via-transparent to-[#07090e]" />
+    <div className="min-h-screen bg-[#080808] text-[#e0e0e0] font-sans antialiased selection:bg-white selection:text-black">
+      {/* Üst Bilgi Barı */}
+      <div className="w-full bg-[#111] border-b border-neutral-800 text-center py-2 text-xs tracking-widest text-neutral-400 uppercase font-mono">
+        Adana İçi Aynı Gün Teslimat // 750 TL Üzeri Ücretsiz Kargo
       </div>
 
-      {/* SAĞ KANAT: HASSAS MEKANİK & PERFORMANS DOKUSU */}
-      <div className="pointer-events-none fixed top-0 bottom-0 right-0 w-[30%] z-0 overflow-hidden hidden xl:block opacity-20 transition-opacity duration-1000">
-        <img
-          src={
-            is3D
-              ? "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=900&auto=format&fit=crop&q=80" // Fütüristik Polimer & Geometrik Katman
-              : "https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=900&auto=format&fit=crop&q=80" // Karbon Fiber & Performans Fren Kaliperi
-          }
-          alt="Studio Sağ Ambiyans"
-          className="h-full w-full object-cover filter grayscale contrast-150 transition-all duration-700 scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-l from-transparent via-[#07090e]/80 to-[#07090e]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#07090e] via-transparent to-[#07090e]" />
-      </div>
-
-      {/* GARAJ SARMAL KAPISI */}
-      <div 
-        className={`pointer-events-none fixed inset-0 z-50 flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.32,0,0.67,0)] ${
-          isGarageDoorActive ? "translate-y-0" : "-translate-y-full"
-        }`}
-      >
-        <div className="relative flex-1 w-full bg-[#0a0d14] flex flex-col justify-between shadow-2xl border-b border-slate-700/80 overflow-hidden">
-          {[...Array(9)].map((_, i) => (
-            <div 
-              key={i} 
-              className={`w-full flex-1 border-b border-t border-black/70 bg-gradient-to-b from-[#151b27] via-[#0d121c] to-[#07090e] flex items-center justify-between px-8 ${themeClasses.doorSlat}`}
-            >
-              <div className="flex items-center gap-4 opacity-25">
-                <div className="h-1.5 w-1.5 rounded-full bg-slate-400" />
-                <div className="h-1.5 w-12 rounded-full bg-slate-700" />
-              </div>
-              <div className="flex items-center gap-4 opacity-25">
-                <div className="h-1.5 w-12 rounded-full bg-slate-700" />
-                <div className="h-1.5 w-1.5 rounded-full bg-slate-400" />
-              </div>
-            </div>
-          ))}
-
-          {/* MERKEZİ DEV PARLAK LOGO */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none select-none">
-            <div className={`absolute h-48 w-96 rounded-full blur-3xl opacity-30 transition-colors duration-500 ${
-              is3D ? "bg-cyan-500" : "bg-amber-500"
-            }`} />
-
-            <div className="relative flex items-center tracking-tighter text-4xl sm:text-6xl md:text-7xl font-black drop-shadow-[0_0_25px_rgba(0,0,0,0.9)]">
-              <span className="text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]">
-                ETERNA
-              </span>
-              <span className={`ml-2 transition-colors duration-500 ${
-                is3D 
-                  ? "text-cyan-400 drop-shadow-[0_0_35px_#22d3ee]" 
-                  : "text-amber-400 drop-shadow-[0_0_35px_#f59e0b]"
-              }`}>
-                LAB
-              </span>
-            </div>
-
-            <div className="relative mt-2 flex items-center gap-2">
-              <div className={`h-1 w-6 rounded-full ${is3D ? "bg-cyan-400" : "bg-amber-400"}`} />
-              <span className="text-[10px] sm:text-xs font-mono font-black tracking-[0.3em] uppercase text-slate-300 drop-shadow-[0_0_10px_rgba(0,0,0,0.8)]">
-                {is3D ? "PRECISION 3D MATRIX" : "PRO DETAILING GARAGE"}
-              </span>
-              <div className={`h-1 w-6 rounded-full ${is3D ? "bg-cyan-400" : "bg-amber-400"}`} />
-            </div>
+      {/* Header */}
+      <header className="sticky top-0 z-50 backdrop-blur-md bg-[#080808]/90 border-b border-neutral-800/80">
+        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Logo />
           </div>
-          
-          <div className="relative z-10 w-full bg-[#050608] py-2.5 px-8 flex items-center justify-between border-t-2 border-slate-700">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono font-black uppercase tracking-widest text-slate-400">
-                ETERNA SHUTTER //
-              </span>
-              <span className={`text-[10px] font-mono font-bold ${is3D ? "text-cyan-400" : "text-amber-400"}`}>
-                {is3D ? "3D_LAB_ONLINE" : "GARAGE_PRO_ONLINE"}
-              </span>
-            </div>
-            <div className={`h-1.5 w-24 rounded-full ${is3D ? "bg-cyan-400 shadow-[0_0_15px_#22d3ee]" : "bg-amber-400 shadow-[0_0_15px_#f59e0b]"}`} />
-          </div>
-        </div>
-      </div>
-
-      {/* ÜST DUYURU BARI */}
-      <div className={`relative z-20 transition-all duration-500 px-4 py-2 text-center text-xs font-black tracking-wide text-slate-950 uppercase shadow-md flex items-center justify-center gap-2 ${
-        is3D 
-          ? "bg-gradient-to-r from-cyan-400 via-sky-300 to-cyan-400" 
-          : "bg-gradient-to-r from-amber-500 via-orange-400 to-amber-500"
-      }`}>
-        <Sparkles className="h-3.5 w-3.5" />
-        <span>
-          {is3D 
-            ? "Mühendislik Standartlarında 3D Baskı • Canlı Kişiselleştirilebilir Ürünler" 
-            : "1.500 ₺ Üzeri Ücretsiz Kargo • 3 Al 2 Öde & Kombo Garaj İndirimleri!"}
-        </span>
-      </div>
-
-      {/* AMBİYANS IŞIĞI */}
-      <div 
-        className={`pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] ${themeClasses.ambientGlow} transition-all duration-700 ease-out`} 
-      />
-
-      {/* NAVBAR */}
-      <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-[#07090e]/90 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3 cursor-pointer group">
-            
-            {/* LOGO */}
-            <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-[#08090d] border border-slate-800 p-1.5 shadow-inner transition-all duration-300 group-hover:scale-105 group-hover:border-slate-700">
-              <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-full w-full">
-                <path d="M10 9H31L26 14H7L10 9Z" fill="#f1f5f9" />
-                <path d="M12 16H28L23 22H9L12 16Z" fill="#f59e0b" />
-                <path d="M15 24H24L19 31H12L15 24Z" fill="#b45309" />
-              </svg>
-            </div>
-
-            <div className="flex flex-col">
-              <div className="flex items-center text-lg font-black tracking-tight text-white leading-none">
-                <span>ETERNA</span>
-                <span className={`ml-1 font-mono transition-colors duration-500 ${is3D ? "text-cyan-400" : "text-amber-400"}`}>
-                  LAB
-                </span>
-              </div>
-              <span className="text-[9px] font-semibold tracking-[0.25em] text-slate-400 uppercase mt-1">
-                {is3D ? "Precision 3D Engineering" : "Pro Detailing & Garage"}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setSoundEnabled(!soundEnabled)}
-              title={soundEnabled ? "Sesi kapat" : "Sesi aç"}
-              className="rounded-xl border border-slate-800 bg-slate-900/80 p-2.5 text-slate-400 hover:text-white transition cursor-pointer"
-            >
-              {soundEnabled ? <Volume2 className="h-4 w-4 text-emerald-400" /> : <VolumeX className="h-4 w-4 text-slate-500" />}
-            </button>
-
-            <button
-              onClick={() => { setCheckoutStep("cart"); setIsCartOpen(true); }}
-              className="relative flex items-center gap-2 rounded-xl border border-slate-700/80 bg-slate-800/80 px-4 py-2.5 text-sm font-bold text-slate-200 shadow-md transition-all duration-300 hover:scale-105"
-            >
-              <ShoppingBag className="h-4 w-4" />
-              <span>Sepetim</span>
-              {totalItemCount > 0 && (
-                <span className={`ml-1 rounded-full px-2 py-0.5 text-xs font-black text-slate-950 transition-all duration-300 ${is3D ? "bg-cyan-400" : "bg-amber-400"}`}>
-                  {totalItemCount}
-                </span>
-              )}
+          <nav className="hidden md:flex items-center space-x-8 text-xs font-mono tracking-wider text-neutral-400">
+            <a href="#products" className="hover:text-white transition-colors">
+              // ÜRÜNLER
+            </a>
+            <a href="#features" className="hover:text-white transition-colors">
+              // KALİTE STANDARDI
+            </a>
+            <a href="#about" className="hover:text-white transition-colors">
+              // LABORATUVAR
+            </a>
+          </nav>
+          <div>
+            <button className="px-5 py-2.5 bg-neutral-900 border border-neutral-700 hover:border-white text-white text-xs font-mono tracking-wider transition-all duration-200">
+              SEPET (0)
             </button>
           </div>
         </div>
       </header>
 
-      {/* GÖVDE */}
-      <div className={`relative z-10 transition-all duration-300 ease-out transform-gpu ${
-        isGarageDoorActive 
-          ? "opacity-40 translate-y-4 scale-[0.99] filter blur-[1px]" 
-          : "opacity-100 translate-y-0 scale-100 filter blur-0"
-      }`}>
-        
-        {/* HERO */}
-        <section className="relative mx-auto max-w-6xl px-6 pt-10 pb-4 text-center">
-          <div className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-extrabold backdrop-blur-md transition-all duration-500 ${
-            is3D 
-              ? "border-cyan-400/30 bg-cyan-500/10 text-cyan-300" 
-              : "border-amber-400/30 bg-amber-500/10 text-amber-300"
-          }`}>
-            {is3D ? (
-              <>
-                <Zap className="h-4 w-4 text-cyan-400" />
-                <span>3D TASARIM & LAB: CANLI ÖZELLEŞTİRİLEBİLİR MODÜLLER</span>
-              </>
-            ) : (
-              <>
-                <Flame className="h-4 w-4 text-orange-400 fill-orange-400" />
-                <span>GARAGE DETAILING: SÜPER AVANTAJLI SETLER VE 3 AL 2 ÖDE FIRSATLARI</span>
-              </>
-            )}
+      {/* Hero Section */}
+      <section className="relative pt-24 pb-20 px-6 border-b border-neutral-900 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(#1f1f1f_1px,transparent_1px)] [background-size:24px_24px] opacity-25 pointer-events-none" />
+        <div className="max-w-5xl mx-auto text-center relative z-10">
+          <div className="inline-block px-3 py-1 mb-6 bg-neutral-900 border border-neutral-700 text-neutral-300 text-[11px] font-mono tracking-widest uppercase">
+            ENDÜSTRİYEL SINIF OTO DETAY KİMYASALLARI
           </div>
-
-          <h2 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-5xl lg:text-6xl min-h-[70px] flex items-center justify-center transition-all duration-300">
-            {is3D ? (
-              <span>
-                Hassas <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent">3D Tasarım</span> & Kişiselleştirme
-              </span>
-            ) : (
-              <span>
-                Profesyonel <span className="bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 bg-clip-text text-transparent">Auto Detailing</span> Çözümleri
-              </span>
-            )}
-          </h2>
-
-          {/* TAB SEÇİCİ */}
-          <div className="mx-auto mt-6 max-w-md">
-            <div className="grid grid-cols-2 rounded-2xl border border-slate-800 bg-[#0e131f] p-1.5 shadow-xl">
-              <button
-                onClick={() => handleTabChange("garage")}
-                className={`flex items-center justify-center gap-2.5 rounded-xl py-3 text-sm font-black transition-all duration-300 cursor-pointer ${
-                  !is3D 
-                    ? "bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-md scale-[1.02]" 
-                    : "text-slate-400 hover:text-slate-200"
-                }`}
-              >
-                <Droplets className="h-4 w-4" />
-                <span>Auto Detailing</span>
-              </button>
-
-              <button
-                onClick={() => handleTabChange("3d")}
-                className={`flex items-center justify-center gap-2.5 rounded-xl py-3 text-sm font-black transition-all duration-300 cursor-pointer ${
-                  is3D 
-                    ? "bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 shadow-md scale-[1.02]" 
-                    : "text-slate-400 hover:text-slate-200"
-                }`}
-              >
-                <Layers className="h-4 w-4" />
-                <span>3D Tasarım & Lab</span>
-              </button>
-            </div>
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tighter text-white uppercase leading-[1.05]">
+            Maksimum Parlaklık. <br />
+            <span className="text-neutral-400">Sıfır Yüzey Kusuru.</span>
+          </h1>
+          <p className="mt-6 text-neutral-400 text-sm md:text-base max-w-2xl mx-auto font-light leading-relaxed">
+            EternaLab; mat siyah 500 ml HDPE gövde mimarisi, kimyasal dayanımlı tetikleme sistemleri ve 
+            sızdırmaz emniyet folyolu ambalajıyla garajınıza profesyonel detailing standardını getirir.
+          </p>
+          <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4">
+            <a
+              href="#products"
+              className="px-8 py-3.5 bg-white text-black font-bold text-xs uppercase tracking-widest hover:bg-neutral-200 transition-all font-mono text-center"
+            >
+              SERİYİ İNCELE
+            </a>
+            <a
+              href="#features"
+              className="px-8 py-3.5 bg-neutral-900 border border-neutral-800 text-white font-bold text-xs uppercase tracking-widest hover:border-neutral-500 transition-all font-mono text-center"
+            >
+              AMBALAJ ÖZELLİKLERİ
+            </a>
           </div>
+        </div>
+      </section>
 
-          {/* ALT KATEGORİLER */}
-          <div className="mx-auto mt-6 flex max-w-5xl flex-wrap items-center justify-center gap-2">
-            {is3D
-              ? subCategories3D.map((sub) => (
-                  <button
-                    key={sub.key}
-                    onClick={() => { playSound("click"); setActiveSubTab3D(sub.key); }}
-                    className={`rounded-xl border px-4 py-2 text-xs font-bold transition-all duration-200 active:scale-95 cursor-pointer ${
-                      activeSubTab3D === sub.key
-                        ? "border-cyan-400 bg-cyan-500/20 text-cyan-200 shadow-sm"
-                        : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
-                    }`}
-                  >
-                    {sub.label}
-                  </button>
-                ))
-              : subCategoriesGarage.map((sub) => (
-                  <button
-                    key={sub.key}
-                    onClick={() => { playSound("click"); setActiveSubTabGarage(sub.key); }}
-                    className={`rounded-xl border px-4 py-2 text-xs font-bold transition-all duration-200 active:scale-95 cursor-pointer ${
-                      activeSubTabGarage === sub.key
-                        ? "border-amber-400 bg-amber-500/20 text-amber-200 shadow-sm"
-                        : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
-                    }`}
-                  >
-                    {sub.label}
-                  </button>
-                ))}
+      {/* Ürün Listesi */}
+      <section id="products" className="py-24 px-6 max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 border-b border-neutral-800 pb-6">
+          <div>
+            <span className="text-xs font-mono text-neutral-400 tracking-widest uppercase">
+              // KATALOG V1.0
+            </span>
+            <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white mt-1">
+              ÖNE ÇIKAN DETAY GRUBU
+            </h2>
           </div>
-        </section>
+          <p className="text-neutral-400 text-xs font-mono mt-2 md:mt-0">
+            500 ML HDPE // 28/410 ÖLÇÜ STANDARDI
+          </p>
+        </div>
 
-        {/* BEFORE / AFTER SLIDER */}
-        {!is3D && (
-          <section className="mx-auto max-w-6xl px-6 py-8">
-            <div className="overflow-hidden rounded-3xl border border-slate-800/90 bg-[#0d121c]/90 p-6 shadow-xl backdrop-blur-md">
-              <div className="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                <div>
-                  <span className="text-xs font-black uppercase text-amber-400 tracking-wider">🔬 GÖZLE GÖRÜLÜR ETKİ</span>
-                  <h3 className="text-xl font-bold text-white">pH Nötr Demir Tozu & Jant Temizleme Performansı</h3>
-                </div>
-                <p className="text-xs text-slate-400">Çizgiyi sağa-sola kaydırarak öncesi ve sonrasını karşılaştırın.</p>
-              </div>
-
-              <div 
-                className="relative aspect-[21/9] w-full select-none overflow-hidden rounded-2xl cursor-ew-resize bg-slate-950"
-                onMouseMove={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
-                  setSliderPosition((x / rect.width) * 100);
-                }}
-                onTouchMove={(e) => {
-                  const rect = e.currentTarget.getBoundingClientRect();
-                  const touch = e.touches[0];
-                  const x = Math.max(0, Math.min(touch.clientX - rect.left, rect.width));
-                  setSliderPosition((x / rect.width) * 100);
-                }}
-              >
-                <img
-                  src="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=1200&auto=format&fit=crop&q=80"
-                  alt="Sonrası"
-                  className="absolute inset-0 h-full w-full object-cover"
-                />
-                <span className="absolute top-4 right-4 rounded-lg bg-emerald-500/80 px-3 py-1 text-xs font-black text-slate-950 backdrop-blur">
-                  ✨ UYGULAMA SONRASI (PARLAK)
-                </span>
-
-                <div
-                  className="absolute inset-0 overflow-hidden"
-                  style={{ width: `${sliderPosition}%` }}
-                >
-                  <img
-                    src="https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=1200&auto=format&fit=crop&q=80"
-                    alt="Öncesi"
-                    className="absolute inset-0 h-full w-full object-cover max-w-none"
-                    style={{ width: "100%", height: "100%" }}
-                  />
-                  <span className="absolute top-4 left-4 rounded-lg bg-red-500/80 px-3 py-1 text-xs font-black text-white backdrop-blur">
-                    🛑 UYGULAMA ÖNCESİ (BALATA TOZU)
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {products.map((item) => (
+            <div
+              key={item.id}
+              className="group bg-[#0d0d0d] border border-neutral-800/80 hover:border-neutral-500 transition-all duration-300 flex flex-col justify-between"
+            >
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <span className="text-[10px] font-mono uppercase bg-neutral-900 text-neutral-300 px-2.5 py-1 border border-neutral-800">
+                    {item.tag}
+                  </span>
+                  <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-wider">
+                    {item.badge}
                   </span>
                 </div>
 
-                <div
-                  className="absolute top-0 bottom-0 w-1 bg-amber-400 shadow-md"
-                  style={{ left: `${sliderPosition}%` }}
-                >
-                  <div className="absolute top-1/2 -left-4 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-amber-400 text-slate-950 shadow-md font-bold text-xs">
-                    ↔
+                {/* Ürün Görsel Alanı (Mat Siyah Konsept) */}
+                <div className="w-full h-64 bg-[#141414] border border-neutral-900 flex flex-col items-center justify-center p-4 relative group-hover:bg-[#171717] transition-colors">
+                  <div className="w-16 h-40 bg-neutral-950 border border-neutral-700 rounded-sm shadow-2xl flex flex-col items-center justify-between p-2">
+                    <div className="w-6 h-3 bg-neutral-800 rounded-xs" />
+                    <div className="text-[7px] font-mono tracking-widest text-center text-neutral-400">
+                      ETERNALAB
+                    </div>
+                    <div className="w-full h-1 bg-neutral-800" />
                   </div>
+                  <span className="text-[10px] font-mono text-neutral-500 mt-4 tracking-widest">
+                    MAT SİYAH ŞİŞE
+                  </span>
                 </div>
-              </div>
-            </div>
-          </section>
-        )}
 
-        {/* BUNDLE BUILDER */}
-        {!is3D && (
-          <section className="mx-auto max-w-6xl px-6 py-4">
-            <div className="rounded-3xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 via-[#0d121c]/90 to-[#0d121c]/90 p-6 shadow-xl backdrop-blur-md">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
-                <div className="flex items-center gap-3">
-                  <Sliders className="h-6 w-6 text-amber-400" />
-                  <div>
-                    <h3 className="text-lg font-black text-white">🛠️ Kendi Garaj Kombo Paketini Oluştur</h3>
-                    <p className="text-xs text-slate-400">3 temel ürünü seç, anında %20 indirimli özel fiyatla sepete at.</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="text-right">
-                    <span className="text-xs text-slate-500 line-through">999 ₺</span>
-                    <span className="block font-mono text-2xl font-black text-amber-400">799 ₺</span>
-                  </div>
-                  <button
-                    onClick={addCustomBundleToCart}
-                    className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-3 text-xs font-black text-slate-950 shadow-md hover:scale-105 transition cursor-pointer"
-                  >
-                    <Plus className="h-4 w-4" />
-                    Kombo Paketi Sepete Ekle
+                <h3 className="mt-6 text-sm font-bold tracking-wider text-white uppercase font-mono">
+                  {item.name}
+                </h3>
+                <p className="text-xs text-neutral-400 mt-1 font-light">
+                  {item.subtitle}
+                </p>
+
+                <ul className="mt-6 space-y-2 border-t border-neutral-900 pt-4">
+                  {item.specs.map((spec, i) => (
+                    <li
+                      key={i}
+                      className="text-[11px] font-mono text-neutral-400 flex items-center space-x-2"
+                    >
+                      <span className="w-1 h-1 bg-white block" />
+                      <span>{spec}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="p-6 pt-0">
+                <div className="flex items-center justify-between pt-4 border-t border-neutral-800/80">
+                  <span className="text-lg font-mono font-extrabold text-white tracking-tight">
+                    {item.price}
+                  </span>
+                  <button className="px-4 py-2 bg-white text-black hover:bg-neutral-200 text-xs font-mono font-bold tracking-wider uppercase transition-all">
+                    SEPETE EKLE
                   </button>
                 </div>
               </div>
-
-              <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4">
-                  <span className="text-[11px] font-bold text-amber-400">ADIM 1: Yıkama & Cila</span>
-                  <div className="mt-2 space-y-2">
-                    <label 
-                      onClick={() => { playSound("click"); setBundleShampoo("carnauba"); }}
-                      className={`flex items-center justify-between rounded-xl border p-3 text-xs cursor-pointer transition ${bundleShampoo === "carnauba" ? "border-amber-400 bg-amber-500/20 text-white" : "border-slate-800 text-slate-400"}`}
-                    >
-                      <span>Carnauba Şampuan (1L)</span>
-                      <CheckCircle className={`h-4 w-4 ${bundleShampoo === "carnauba" ? "text-amber-400" : "opacity-0"}`} />
-                    </label>
-                    <label 
-                      onClick={() => { playSound("click"); setBundleShampoo("ceramic"); }}
-                      className={`flex items-center justify-between rounded-xl border p-3 text-xs cursor-pointer transition ${bundleShampoo === "ceramic" ? "border-amber-400 bg-amber-500/20 text-white" : "border-slate-800 text-slate-400"}`}
-                    >
-                      <span>SiO2 Seramik Hızlı Cila (750ml)</span>
-                      <CheckCircle className={`h-4 w-4 ${bundleShampoo === "ceramic" ? "text-amber-400" : "opacity-0"}`} />
-                    </label>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-                  <span className="text-[11px] font-bold text-amber-400">ADIM 2: Jant & Lastik</span>
-                  <div className="mt-2 space-y-2">
-                    <label 
-                      onClick={() => { playSound("click"); setBundleWheel("iron"); }}
-                      className={`flex items-center justify-between rounded-xl border p-3 text-xs cursor-pointer transition ${bundleWheel === "iron" ? "border-amber-400 bg-amber-500/20 text-white" : "border-slate-800 text-slate-400"}`}
-                    >
-                      <span>pH Nötr Demir Tozu (500ml)</span>
-                      <CheckCircle className={`h-4 w-4 ${bundleWheel === "iron" ? "text-amber-400" : "opacity-0"}`} />
-                    </label>
-                    <label 
-                      onClick={() => { playSound("click"); setBundleWheel("tire"); }}
-                      className={`flex items-center justify-between rounded-xl border p-3 text-xs cursor-pointer transition ${bundleWheel === "tire" ? "border-amber-400 bg-amber-500/20 text-white" : "border-slate-800 text-slate-400"}`}
-                    >
-                      <span>Simli Lastik Jeli (500ml)</span>
-                      <CheckCircle className={`h-4 w-4 ${bundleWheel === "tire" ? "text-amber-400" : "opacity-0"}`} />
-                    </label>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-                  <span className="text-[11px] font-bold text-amber-400">ADIM 3: Kurulama & Bez</span>
-                  <div className="mt-2 space-y-2">
-                    <label 
-                      onClick={() => { playSound("click"); setBundleTowel("twisted"); }}
-                      className={`flex items-center justify-between rounded-xl border p-3 text-xs cursor-pointer transition ${bundleTowel === "twisted" ? "border-amber-400 bg-amber-500/20 text-white" : "border-slate-800 text-slate-400"}`}
-                    >
-                      <span>1200 GSM Twisted Havlu</span>
-                      <CheckCircle className={`h-4 w-4 ${bundleTowel === "twisted" ? "text-amber-400" : "opacity-0"}`} />
-                    </label>
-                    <label 
-                      onClick={() => { playSound("click"); setBundleTowel("microfiber"); }}
-                      className={`flex items-center justify-between rounded-xl border p-3 text-xs cursor-pointer transition ${bundleTowel === "microfiber" ? "border-amber-400 bg-amber-500/20 text-white" : "border-slate-800 text-slate-400"}`}
-                    >
-                      <span>Lazer Kesim Cila Bezi (3'lü)</span>
-                      <CheckCircle className={`h-4 w-4 ${bundleTowel === "microfiber" ? "text-amber-400" : "opacity-0"}`} />
-                    </label>
-                  </div>
-                </div>
-              </div>
             </div>
-          </section>
-        )}
+          ))}
+        </div>
+      </section>
 
-        {/* 3D CUSTOMIZER */}
-        {is3D && (
-          <section className="mx-auto max-w-6xl px-6 py-6">
-            <div className="rounded-3xl border border-cyan-500/30 bg-gradient-to-br from-cyan-500/10 via-[#0d121c]/90 to-[#0d121c]/90 p-6 shadow-xl backdrop-blur-md">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex-1">
-                  <span className="text-xs font-black uppercase text-cyan-400 tracking-wider">✨ ANLIK 3D ÖNİZLEME</span>
-                  <h3 className="text-xl font-bold text-white">Kişiye Özel Anahtarlık / Plakalık Tasarla</h3>
-                  <p className="mt-1 text-xs text-slate-400">Metin kutusuna isminizi veya araç plakanızı yazın, anlık önizleyin.</p>
-                  
-                  <div className="mt-4 flex gap-3">
-                    <input
-                      type="text"
-                      value={customPlateText}
-                      maxLength={14}
-                      onChange={(e) => setCustomPlateText(e.target.value.toUpperCase())}
-                      placeholder="Örn: 34 RMZ 34"
-                      className="rounded-xl border border-cyan-500/40 bg-slate-900/90 px-4 py-2.5 font-mono text-sm font-bold text-cyan-300 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-cyan-400"
-                    />
-                    <button
-                      onClick={() => {
-                        const customProd = PRODUCTS.find((p) => p.id === "p3_custom");
-                        if (customProd) addToCart(customProd, customPlateText);
-                      }}
-                      className="rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 px-5 py-2.5 text-xs font-black text-slate-950 shadow-md hover:scale-105 transition cursor-pointer"
-                    >
-                      Özel Baskıyı Sepete Ekle (190 ₺)
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-center rounded-2xl border border-cyan-500/40 bg-slate-950 p-6 shadow-md min-w-[280px]">
-                  <div className="flex items-center gap-3 rounded-lg border-2 border-slate-700 bg-[#0a0d14] px-5 py-3 shadow-inner">
-                    <div className="flex flex-col items-center justify-center rounded bg-blue-600 px-1.5 py-0.5 text-[10px] font-black text-white">
-                      <span>TR</span>
-                    </div>
-                    <span className="font-mono text-xl font-black tracking-widest text-cyan-400">
-                      {customPlateText || "PLAKANIZ"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* ÜRÜN VİTRİNİ */}
-        <main className="relative mx-auto max-w-6xl px-6 pb-16">
-          <div
-            key={`${activeTab}-${is3D ? activeSubTab3D : activeSubTabGarage}`}
-            className="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3"
-          >
-            {filteredProducts.map((product, index) => {
-              const variantState = selectedVariants[product.id] || { opt1Index: 0, opt2: product.options2[0] };
-              const currentOpt1 = product.options1[variantState.opt1Index] || product.options1[0];
-              const currentOpt2 = variantState.opt2 || product.options2[0];
-
-              return (
-                <div
-                  key={product.id}
-                  style={{
-                    animationDelay: `${index * 40}ms`,
-                    animationFillMode: "both"
-                  }}
-                  className={`group flex flex-col justify-between rounded-2xl border border-slate-800/80 bg-[#0d121c]/90 p-5 shadow-lg backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 animate-in fade-in slide-in-from-bottom-4 duration-300 ease-out ${themeClasses.cardBorder}`}
-                >
-                  <div>
-                    <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-slate-800">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                      />
-                      <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-                        {product.badge && (
-                          <span className={`rounded-md border px-2 py-0.5 text-[11px] font-black tracking-wide backdrop-blur-md ${themeClasses.badge}`}>
-                            {product.badge}
-                          </span>
-                        )}
-                        {product.dealBadge && (
-                          <span className="rounded-md border border-red-500/40 bg-red-500/25 px-2 py-0.5 text-[11px] font-black text-red-400 backdrop-blur-md">
-                            {product.dealBadge}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="mt-3.5">
-                      <div className="flex items-center gap-1.5 text-xs text-amber-400">
-                        <div className="flex items-center">
-                          {[...Array(5)].map((_, i) => (
-                            <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                          ))}
-                        </div>
-                        <span className="font-bold text-slate-200">{product.rating}</span>
-                        <span className="text-[11px] text-slate-500">({product.reviewCount} değerlendirme)</span>
-                      </div>
-
-                      <h3 className="mt-1.5 font-bold text-base text-white group-hover:text-slate-100 transition-colors">
-                        {product.name}
-                      </h3>
-                      <p className="mt-1.5 text-xs leading-relaxed text-slate-400">
-                        {product.description}
-                      </p>
-
-                      {product.techSpecs && (
-                        <div className="mt-3 flex flex-col gap-1 rounded-xl border border-slate-800 bg-slate-900/60 p-2.5 text-[11px]">
-                          <div className="flex items-center gap-1.5 text-cyan-400">
-                            <Cpu className="h-3.5 w-3.5" />
-                            <span className="text-slate-300 font-semibold">{product.techSpecs.material}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5 text-cyan-400">
-                            <Box className="h-3.5 w-3.5" />
-                            <span className="text-slate-300">{product.techSpecs.layerHeight}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5 text-cyan-400">
-                            <Clock className="h-3.5 w-3.5" />
-                            <span className="text-slate-300">{product.techSpecs.leadTime}</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="mt-4 flex items-baseline gap-2 border-y border-slate-800/80 py-2.5">
-                      <span className={`font-mono text-2xl font-black transition-colors duration-300 ${themeClasses.price}`}>
-                        {currentOpt1.price} ₺
-                      </span>
-                      {currentOpt1.originalPrice && (
-                        <span className="font-mono text-sm text-slate-500 line-through">
-                          {currentOpt1.originalPrice} ₺
-                        </span>
-                      )}
-                      {currentOpt1.discountBadge && (
-                        <span className="ml-auto rounded-md bg-emerald-500/20 px-2 py-0.5 text-xs font-black text-emerald-400">
-                          {currentOpt1.discountBadge}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="mt-4">
-                      <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
-                        {product.options1Label}: <span className="text-slate-200 font-semibold">{currentOpt1.name}</span>
-                      </span>
-                      <div className="mt-2 flex flex-col gap-1.5">
-                        {product.options1.map((opt, idx) => (
-                          <button
-                            key={opt.name}
-                            onClick={() => handleVariantChange(product.id, "opt1Index", idx)}
-                            className={`flex items-center justify-between rounded-xl border p-2.5 text-xs transition-all duration-200 cursor-pointer ${
-                              variantState.opt1Index === idx
-                                ? themeClasses.selectedVariant
-                                : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
-                            }`}
-                          >
-                            <div className="text-left">
-                              <span className="font-semibold text-slate-200">{opt.name}</span>
-                              {opt.giftText && (
-                                <span className="block text-[10px] text-amber-400 font-medium">{opt.giftText}</span>
-                              )}
-                            </div>
-                            <div className="text-right font-mono">
-                              <span className="font-bold text-white text-sm">{opt.price} ₺</span>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="mt-3.5">
-                      <span className="text-[11px] font-bold tracking-wider text-slate-400 uppercase">
-                        {product.options2Label}: <span className="text-slate-200">{currentOpt2}</span>
-                      </span>
-                      <div className="mt-1.5 flex flex-wrap gap-1.5">
-                        {product.options2.map((opt) => (
-                          <button
-                            key={opt}
-                            onClick={() => handleVariantChange(product.id, "opt2", opt)}
-                            className={`rounded-lg border px-2.5 py-1 text-xs transition-all duration-200 cursor-pointer ${
-                              currentOpt2 === opt
-                                ? themeClasses.selectedVariant
-                                : "border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700 hover:text-slate-200"
-                            }`}
-                          >
-                            {opt}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => addToCart(product)}
-                    className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black transition-all duration-200 active:scale-95 cursor-pointer ${themeClasses.button}`}
-                  >
-                    <Plus className="h-4 w-4" />
-                    Sepete Ekle ({currentOpt1.price} ₺)
-                  </button>
-                </div>
-              );
-            })}
+      {/* Kalite Standartları Grid */}
+      <section id="features" className="py-20 border-t border-neutral-900 bg-[#0a0a0a]">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="p-6 border border-neutral-800 bg-[#0d0d0d]">
+            <div className="text-xs font-mono text-neutral-400 mb-2">01 // MATERYAL</div>
+            <h4 className="text-base font-bold text-white uppercase tracking-wide">
+              500 ML HDPE Şişe
+            </h4>
+            <p className="text-xs text-neutral-400 mt-3 font-light leading-relaxed">
+              Agresif asidik ve alkali detailing kimyasallarına karşı büzüşmeyen, sızdırmayan yüksek yoğunluklu polietilen gövde.
+            </p>
           </div>
-        </main>
 
-        {/* REHBER */}
-        <section className="mx-auto max-w-6xl px-6 pb-20">
-          <div className="rounded-3xl border border-slate-800/80 bg-[#0c1018]/90 p-8 backdrop-blur-md">
-            <div className="flex items-center gap-2 text-amber-400 mb-4">
-              <HelpCircle className="h-5 w-5" />
-              <h3 className="font-bold text-base text-white">EternaLab Garaj & Üretim Rehberi</h3>
-            </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3 text-xs leading-relaxed text-slate-400">
-              <div className="rounded-2xl border border-slate-800/80 bg-slate-900/50 p-4">
-                <h4 className="font-bold text-slate-200 mb-1">☀️ Güneş Altında Uygulama Yapmayın</h4>
-                <p>Demir tozu ve şampuanları direkt güneş altında veya sıcak kaportada kurumaya bırakmayın. Serin gölgede uygulayıp durulayın.</p>
-              </div>
-              <div className="rounded-2xl border border-slate-800/80 bg-slate-900/50 p-4">
-                <h4 className="font-bold text-slate-200 mb-1">🧼 Twisted Havlu Bakımı</h4>
-                <p>1200 GSM havlunuzu yumuşatıcı kullanmadan, 30 derecede yıkayın. Yumuşatıcı mikrofiber kanalları tıkayarak su emilimini düşürür.</p>
-              </div>
-              <div className="rounded-2xl border border-slate-800/80 bg-slate-900/50 p-4">
-                <h4 className="font-bold text-slate-200 mb-1">🚗 Araç İçi Yüksek Sıcaklık Dayanımı</h4>
-                <p>3D araç içi aparatlarımızda standart PLA yerine kabin içi 75°C sıcaklığa dayanıklı güçlendirilmiş PETG hammadde kullanılır.</p>
-              </div>
-            </div>
+          <div className="p-6 border border-neutral-800 bg-[#0d0d0d]">
+            <div className="text-xs font-mono text-neutral-400 mb-2">02 // SIZDIRMAZLIK</div>
+            <h4 className="text-base font-bold text-white uppercase tracking-wide">
+              İndüksiyon Emniyet Folyosu
+            </h4>
+            <p className="text-xs text-neutral-400 mt-3 font-light leading-relaxed">
+              Kargo esnasında taşma ve hava temasını kesen, ürünün orijinalliğini ilk açılışa kadar garanti eden mühür.
+            </p>
           </div>
-        </section>
 
-      </div>
-
-      {/* SOSYAL KANIT BİLDİRİMİ */}
-      {currentNotification && (
-        <div className="fixed bottom-20 left-4 z-40 max-w-xs animate-in slide-in-from-bottom-5 duration-500 ease-out md:bottom-6">
-          <div className="flex items-center gap-3 rounded-2xl border border-slate-800 bg-[#0d121c]/95 p-3.5 shadow-2xl backdrop-blur-xl">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400">
-              <ShoppingBag className="h-4 w-4" />
-            </div>
-            <div className="flex flex-col text-left">
-              <span className="text-[11px] font-bold text-slate-300">
-                {currentNotification.city} şehrinden sipariş verildi
-              </span>
-              <span className="text-[10px] text-amber-400 line-clamp-1">
-                {currentNotification.product}
-              </span>
-              <span className="text-[9px] text-slate-500">{currentNotification.time}</span>
-            </div>
+          <div className="p-6 border border-neutral-800 bg-[#0d0d0d]">
+            <div className="text-xs font-mono text-neutral-400 mb-2">03 // DOKUMA</div>
+            <h4 className="text-base font-bold text-white uppercase tracking-wide">
+              Twisted Loop & Edgeless
+            </h4>
+            <p className="text-xs text-neutral-400 mt-3 font-light leading-relaxed">
+              Lazer kesim kenarsız cila bezleri ve yüksek su hapseden burgu lifli mikrofiber kurulama havluları.
+            </p>
           </div>
         </div>
-      )}
+      </section>
 
-      {/* MOBİL YAPIŞKAN SEPET BARI */}
-      {totalItemCount > 0 && !isCartOpen && (
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-800 bg-[#07090e]/95 p-3 backdrop-blur-xl md:hidden animate-in slide-in-from-bottom duration-300">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <span className="text-[11px] text-slate-400">{totalItemCount} Ürün Seçildi</span>
-              <div className={`font-mono text-base font-black ${is3D ? "text-cyan-400" : "text-amber-400"}`}>
-                {totalAmount} ₺
-              </div>
-            </div>
-            <button
-              onClick={() => { setCheckoutStep("cart"); setIsCartOpen(true); }}
-              className={`flex flex-1 items-center justify-center gap-2 rounded-xl py-3 text-xs font-black text-slate-950 shadow-md ${themeClasses.button}`}
-            >
-              <ShoppingBag className="h-4 w-4" />
-              <span>Siparişi Tamamla ({totalAmount} ₺)</span>
-            </button>
+      {/* Footer */}
+      <footer className="border-t border-neutral-800 py-12 px-6 bg-[#060606]">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex flex-col items-center md:items-start">
+            <Logo />
+            <p className="text-[11px] font-mono text-neutral-400 mt-3">
+              KİMYA // DETAY TEKNOLOJİLERİ // ETERNALAB
+            </p>
+          </div>
+          <div className="text-center md:text-right text-[11px] font-mono text-neutral-400">
+            © 2026 ETERNALAB. TÜM HAKLARI SAKLIDIR.
           </div>
         </div>
-      )}
-
-      {/* SEPET & ÖDEME ÇEKMECESİ */}
-      {isCartOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          <div
-            className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm transition-opacity duration-300"
-            onClick={() => setIsCartOpen(false)}
-          />
-
-          <div className="relative z-10 flex h-full w-full max-w-md flex-col justify-between border-l border-slate-800 bg-[#07090e] p-6 shadow-2xl animate-in slide-in-from-right duration-300 ease-out overflow-y-auto">
-            
-            {/* 1. ADIM: SEPET LİSTESİ */}
-            {checkoutStep === "cart" && (
-              <div className="flex flex-col justify-between h-full">
-                <div>
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-                    <div className="flex items-center gap-2.5">
-                      <ShoppingBag className={`h-5 w-5 transition-colors duration-300 ${is3D ? "text-cyan-400" : "text-amber-400"}`} />
-                      <h3 className="text-lg font-bold text-white">Sepetim ({totalItemCount} Ürün)</h3>
-                    </div>
-                    <button
-                      onClick={() => setIsCartOpen(false)}
-                      className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition cursor-pointer"
-                    >
-                      <X className="h-5 w-5" />
-                    </button>
-                  </div>
-
-                  <div className="mt-4 rounded-xl border border-slate-800 bg-slate-900/60 p-3">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-400">Ücretsiz Kargo Hedefi:</span>
-                      <span className="font-bold text-amber-400">1.500 ₺</span>
-                    </div>
-                    <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-800">
-                      <div 
-                        className="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500 ease-out" 
-                        style={{ width: `${Math.min(100, (totalAmount / 1500) * 100)}%` }}
-                      />
-                    </div>
-                    <p className="mt-1.5 text-[11px] text-slate-400">
-                      {totalAmount >= 1500 ? (
-                        <span className="font-bold text-emerald-400">🎉 Tebrikler, kargonuz ÜCRETSİZ!</span>
-                      ) : (
-                        <span>Ücretsiz kargo için sepetinize <strong>{1500 - totalAmount} ₺</strong> daha ekleyin.</span>
-                      )}
-                    </p>
-                  </div>
-
-                  <div className="mt-4 max-h-[50vh] space-y-3 overflow-y-auto pr-1">
-                    {cart.length === 0 ? (
-                      <div className="py-16 text-center text-slate-500">
-                        <ShoppingBag className="mx-auto h-12 w-12 opacity-30" />
-                        <p className="mt-3 text-sm">Sepetinizde ürün bulunmuyor.</p>
-                      </div>
-                    ) : (
-                      cart.map((item) => (
-                        <div
-                          key={item.cartId}
-                          className="flex items-center justify-between rounded-xl border border-slate-800/80 bg-slate-900/80 p-3.5 shadow-sm"
-                        >
-                          <div className="flex-1 pr-3">
-                            <h4 className="text-sm font-semibold text-white">{item.product.name}</h4>
-                            <div className="mt-1 flex flex-col gap-0.5 text-[11px] text-slate-400">
-                              <span className="text-amber-400 font-medium">{item.selectedOpt1.name}</span>
-                              <span className="text-slate-400">{item.selectedOpt2}</span>
-                              {item.customText && (
-                                <span className="text-cyan-400 font-bold">Özel Plaka/İsim: {item.customText}</span>
-                              )}
-                            </div>
-                            <p className={`mt-1.5 font-mono text-xs font-bold ${is3D ? "text-cyan-400" : "text-amber-400"}`}>
-                              {item.selectedOpt1.price} ₺ x {item.quantity} = {item.selectedOpt1.price * item.quantity} ₺
-                            </p>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <div className="flex items-center rounded-lg border border-slate-700 bg-slate-800/90">
-                              <button
-                                onClick={() => updateQuantity(item.cartId, -1)}
-                                className="p-1 text-slate-400 hover:text-white cursor-pointer"
-                              >
-                                <Minus className="h-3.5 w-3.5" />
-                              </button>
-                              <span className="px-2 font-mono text-xs font-bold text-white">{item.quantity}</span>
-                              <button
-                                onClick={() => updateQuantity(item.cartId, 1)}
-                                className="p-1 text-slate-400 hover:text-white cursor-pointer"
-                              >
-                                <Plus className="h-3.5 w-3.5" />
-                              </button>
-                            </div>
-                            <button
-                              onClick={() => removeFromCart(item.cartId)}
-                              className="rounded-lg p-1.5 text-red-400 hover:bg-red-950/40 cursor-pointer"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-
-                {cart.length > 0 && (
-                  <div className="border-t border-slate-800 pt-4">
-                    <div className="flex items-center justify-between font-mono text-base font-bold text-white">
-                      <span>Toplam Tutar:</span>
-                      <span className={`text-2xl transition-colors duration-300 ${is3D ? "text-cyan-400" : "text-amber-400"}`}>{totalAmount} ₺</span>
-                    </div>
-                    <button
-                      onClick={() => { playSound("click"); setCheckoutStep("form"); }}
-                      className={`mt-4 flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black transition-all duration-200 active:scale-95 cursor-pointer ${themeClasses.button}`}
-                    >
-                      <span>Siparişi Tamamla & Ödemeye Geç</span>
-                      <ChevronRight className="h-4 w-4" />
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* 2. ADIM: TESLİMAT & ÖDEME TERCİHİ FORMU */}
-            {checkoutStep === "form" && (
-              <div className="flex flex-col justify-between h-full">
-                <div>
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={() => setCheckoutStep("cart")}
-                        className="text-xs text-slate-400 hover:text-white underline cursor-pointer"
-                      >
-                        ← Sepete Dön
-                      </button>
-                      <h3 className="text-base font-bold text-white">Teslimat & Ödeme</h3>
-                    </div>
-                    <button
-                      onClick={() => setIsCartOpen(false)}
-                      className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-white transition cursor-pointer"
-                    >
-                      <X className="h-5 w-5" />
-                    </button>
-                  </div>
-
-                  {/* Ödeme Yöntemi Seçici */}
-                  <div className="mt-4">
-                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Ödeme Yöntemi Seçin:</span>
-                    <div className="mt-2 grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => { playSound("click"); setPaymentMethod("card"); }}
-                        className={`flex flex-col items-center justify-center rounded-xl border p-3 text-xs transition cursor-pointer ${
-                          paymentMethod === "card"
-                            ? "border-emerald-400 bg-emerald-500/20 text-white font-bold"
-                            : "border-slate-800 bg-slate-900/60 text-slate-400"
-                        }`}
-                      >
-                        <CreditCard className="h-5 w-5 mb-1 text-emerald-400" />
-                        <span>Kredi Kartı / Banka Kartı</span>
-                        <span className="text-[9px] text-slate-400 font-normal">Güvenli 3D Pay</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => { playSound("click"); setPaymentMethod("transfer"); }}
-                        className={`flex flex-col items-center justify-center rounded-xl border p-3 text-xs transition cursor-pointer ${
-                          paymentMethod === "transfer"
-                            ? "border-amber-400 bg-amber-500/20 text-white font-bold"
-                            : "border-slate-800 bg-slate-900/60 text-slate-400"
-                        }`}
-                      >
-                        <Building2 className="h-5 w-5 mb-1 text-amber-400" />
-                        <span>Havale / FAST</span>
-                        <span className="text-[9px] text-slate-400 font-normal">Anında İndirimli</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Teslimat Bilgi Girişi */}
-                  <form id="checkout-form" onSubmit={handleFinalOrderSubmit} className="mt-4 space-y-3">
-                    <div>
-                      <label className="text-[11px] font-semibold text-slate-400">Ad Soyad *</label>
-                      <input
-                        type="text"
-                        required
-                        value={formData.fullName}
-                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                        placeholder="Örn: Ramiz Karaeski"
-                        className="mt-1 w-full rounded-xl border border-slate-800 bg-slate-900/90 p-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-slate-400"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-[11px] font-semibold text-slate-400">Telefon Numarası *</label>
-                      <input
-                        type="tel"
-                        required
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        placeholder="05XX XXX XX XX"
-                        className="mt-1 w-full rounded-xl border border-slate-800 bg-slate-900/90 p-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-slate-400"
-                      />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-2">
-                      <div>
-                        <label className="text-[11px] font-semibold text-slate-400">İl *</label>
-                        <input
-                          type="text"
-                          required
-                          value={formData.city}
-                          onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                          placeholder="Örn: İstanbul"
-                          className="mt-1 w-full rounded-xl border border-slate-800 bg-slate-900/90 p-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-slate-400"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-[11px] font-semibold text-slate-400">İlçe *</label>
-                        <input
-                          type="text"
-                          required
-                          value={formData.district}
-                          onChange={(e) => setFormData({ ...formData, district: e.target.value })}
-                          placeholder="Örn: Kadıköy"
-                          className="mt-1 w-full rounded-xl border border-slate-800 bg-slate-900/90 p-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-slate-400"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="text-[11px] font-semibold text-slate-400">Açık Adres (Mahalle, Cadde, No) *</label>
-                      <textarea
-                        required
-                        rows={2}
-                        value={formData.address}
-                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                        placeholder="Kargo teslimatı için mahalle, sokak, bina ve kapı no yazınız..."
-                        className="mt-1 w-full rounded-xl border border-slate-800 bg-slate-900/90 p-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-slate-400"
-                      />
-                    </div>
-                  </form>
-                </div>
-
-                <div className="border-t border-slate-800 pt-4 mt-4">
-                  <div className="flex items-center justify-between font-mono text-sm font-bold text-white mb-3">
-                    <span>Ödenecek Tutar:</span>
-                    <span className="text-xl text-amber-400">{totalAmount} ₺</span>
-                  </div>
-                  
-                  <button
-                    type="submit"
-                    form="checkout-form"
-                    className={`flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black transition-all duration-200 active:scale-95 cursor-pointer ${
-                      paymentMethod === "card"
-                        ? "bg-gradient-to-r from-emerald-400 to-teal-500 text-slate-950 shadow-md shadow-emerald-500/20"
-                        : themeClasses.button
-                    }`}
-                  >
-                    {paymentMethod === "card" ? (
-                      <>
-                        <CreditCard className="h-4 w-4" />
-                        <span>Kart ile Güvenli Ödemeye Geç ({totalAmount} ₺)</span>
-                      </>
-                    ) : (
-                      <>
-                        <Building2 className="h-4 w-4" />
-                        <span>Siparişi Onayla & IBAN Bilgisi Al</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* 3. ADIM: SİPARİŞ TAMAMLANDI / IBAN GÖSTERİMİ */}
-            {checkoutStep === "success" && (
-              <div className="flex flex-col justify-between h-full py-4 text-center">
-                <div>
-                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
-                    <CheckCircle className="h-8 w-8" />
-                  </div>
-                  <h3 className="mt-4 text-xl font-bold text-white">Siparişiniz Alındı!</h3>
-                  <p className="mt-1 text-xs text-slate-400">
-                    Sipariş Numaranız: <span className="font-mono font-bold text-amber-400">#ETL-{Math.floor(100000 + Math.random() * 900000)}</span>
-                  </p>
-
-                  {paymentMethod === "transfer" ? (
-                    <div className="mt-6 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-left">
-                      <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider block mb-2">
-                        🏦 Havale / FAST Bilgileri:
-                      </span>
-                      <div className="space-y-1.5 text-xs text-slate-300">
-                        <p><strong>Alıcı:</strong> EternaLab San. Tic.</p>
-                        <p><strong>Banka:</strong> Ziraat Bankası / Garanti BBVA</p>
-                        <div className="mt-2 flex items-center justify-between rounded-xl bg-slate-950/80 p-2.5 border border-slate-800">
-                          <span className="font-mono text-xs text-amber-300">TR00 0000 0000 0000 0000 0000 00</span>
-                          <button
-                            onClick={copyIbanToClipboard}
-                            className="flex items-center gap-1 text-[11px] bg-slate-800 hover:bg-slate-700 text-white px-2 py-1 rounded-lg transition cursor-pointer"
-                          >
-                            {copiedIban ? <Check className="h-3 w-3 text-emerald-400" /> : <Copy className="h-3 w-3" />}
-                            <span>{copiedIban ? "Kopyalandı" : "Kopyala"}</span>
-                          </button>
-                        </div>
-                        <p className="text-[10px] text-slate-400 mt-2">
-                          * Açıklama kısmına <strong>{formData.fullName || "Adınızı"}</strong> yazmanız yeterlidir.
-                        </p>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-xs text-slate-300">
-                      Ödeme ekranı açıldı. Ödemeniz onaylandığında kargonuz hazırlanıp SMS ile takip numarası iletilecektir.
-                    </div>
-                  )}
-                </div>
-
-                <button
-                  onClick={() => {
-                    setCart([]);
-                    setIsCartOpen(false);
-                    setCheckoutStep("cart");
-                  }}
-                  className="mt-6 w-full rounded-xl bg-slate-800 hover:bg-slate-700 py-3 text-xs font-bold text-white transition cursor-pointer"
-                >
-                  Alışverişe Devam Et
-                </button>
-              </div>
-            )}
-
-          </div>
-        </div>
-      )}
-
-      {/* FOOTER */}
-      <footer className="relative z-10 border-t border-slate-800/80 bg-[#06080c] py-12">
-        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-6 px-6 md:grid-cols-3">
-          <div className="flex items-center gap-3">
-            <Gift className={`h-6 w-6 transition-colors duration-300 ${is3D ? "text-cyan-400" : "text-amber-400"}`} />
-            <div>
-              <h4 className="text-sm font-bold text-white">3 Al 2 Öde & Kombo Paketler</h4>
-              <p className="text-xs text-slate-400">Bezlerde ve setlerde süper tasarruf fırsatları.</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Truck className={`h-6 w-6 transition-colors duration-300 ${is3D ? "text-cyan-400" : "text-amber-400"}`} />
-            <div>
-              <h4 className="text-sm font-bold text-white">Hızlı & Güvenli Gönderim</h4>
-              <p className="text-xs text-slate-400">1.500 ₺ ve üzeri tüm siparişlerde ücretsiz kargo.</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <ShieldCheck className={`h-6 w-6 transition-colors duration-300 ${is3D ? "text-cyan-400" : "text-amber-400"}`} />
-            <div>
-              <h4 className="text-sm font-bold text-white">Boya & Vernik Güvenliği</h4>
-              <p className="text-xs text-slate-400">pH dengeli, seramik kaplamayı bozmayan formüller.</p>
-            </div>
-          </div>
-        </div>
-        <p className="mt-8 text-center text-xs text-slate-600">
-          © {new Date().getFullYear()} EternaLab. Tüm hakları saklıdır.
-        </p>
       </footer>
     </div>
   );
