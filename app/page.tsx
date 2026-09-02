@@ -28,11 +28,15 @@ import {
   CreditCard,
   Building2,
   Copy,
-  Check
+  Check,
+  Activity,
+  Gauge,
+  Thermometer,
+  Wind
 } from "lucide-react";
 
 // =========================================================================
-// YENİ ETERNALAB LOGO BİLEŞENİ
+// ETERNALAB LOGO BİLEŞENİ
 // =========================================================================
 const EternaLogo = ({ is3D = false }: { is3D?: boolean }) => {
   const accentColor = is3D ? "#22d3ee" : "#f59e0b";
@@ -43,30 +47,25 @@ const EternaLogo = ({ is3D = false }: { is3D?: boolean }) => {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Üst Sibernetik Çerçeve */}
       <circle cx="28" cy="46" r="3" fill="#ffffff" />
       <polyline points="31,46 130,46 170,18 430,18" stroke="#ffffff" strokeWidth="2.5" />
       <rect x="610" y="16" width="7" height="7" fill={accentColor} opacity="0.3" />
       <rect x="622" y="16" width="7" height="7" fill={accentColor} opacity="0.6" />
       <rect x="634" y="16" width="7" height="7" fill={accentColor} />
 
-      {/* Geometrik E Amblemi */}
       <g fill="#ffffff">
         <polygon points="105,48 152,48 132,68 85,68" />
         <polygon points="100,75 147,75 130,92 112,92 98,78" />
         <polygon points="85,82 108,105 132,105 152,125 105,125 70,90" />
       </g>
 
-      {/* Tipografi: EternaLab */}
       <text x="175" y="106" fill="#ffffff" fontFamily="sans-serif" fontSize="64" fontWeight="800" letterSpacing="-1.5">
         Eterna<tspan fill={accentColor} fontWeight="900">Lab</tspan>
       </text>
 
-      {/* Tescil İmi */}
       <circle cx="585" cy="62" r="10" stroke="#ffffff" strokeWidth="2" />
       <text x="581" y="67" fill="#ffffff" fontFamily="sans-serif" fontSize="13" fontWeight="bold">R</text>
 
-      {/* Alt Çerçeve Hatları */}
       <polyline points="28,70 28,142 300,142 340,122 550,122" stroke="#ffffff" strokeWidth="2.5" />
       <line x1="333" y1="142" x2="400" y2="142" stroke="#ffffff" strokeWidth="2.5" />
       <polygon points="505,142 522,125 544,125 527,142" fill={accentColor} />
@@ -114,9 +113,7 @@ interface Product {
 }
 
 const PRODUCTS: Product[] = [
-  // =========================================================================
-  // --- 1. AUTO DETAILING ---
-  // =========================================================================
+  // 1. AUTO DETAILING
   {
     id: "d_master_bundle",
     name: "A'dan Z'ye Komple Master Detailing Bakım Paketi (12 Parça)",
@@ -240,9 +237,7 @@ const PRODUCTS: Product[] = [
     options2: ["Kova & Sünger Yıkama", "Foam Lance (Köpük Tabancası) Uyumlu"],
   },
 
-  // ==========================================
-  // --- 2. 3D TASARIM & LAB BÖLÜMÜ ---
-  // ==========================================
+  // 2. 3D TASARIM & LAB
   {
     id: "p3_custom",
     name: "Kişiye Özel Plaka & İsimli Metalik Anahtarlık",
@@ -387,6 +382,18 @@ export default function Home() {
 
   const [currentNotification, setCurrentNotification] = useState<{ city: string; product: string; time: string } | null>(null);
 
+  // CANLI 3D BASKI ÇİFTLİĞİ TELEMETRİ STATE'LERİ
+  const [telemetry, setTelemetry] = useState({
+    nozzleTemp: 242,
+    bedTemp: 70,
+    speed: 320,
+    progress: 74,
+    currentJob: "PETG // Özel Plaka Anahtarlık (#ETL-812)",
+    activePrinters: 4,
+    totalPrinters: 4,
+    layerStatus: "248 / 335"
+  });
+
   const [selectedVariants, setSelectedVariants] = useState<Record<string, { opt1Index: number; opt2: string }>>({
     d_master_bundle: { opt1Index: 0, opt2: "Bubble Gum (Sakız)" },
     d_iron_cleaner: { opt1Index: 2, opt2: "Tetikli Ağır Hizmet Başlık" },
@@ -412,6 +419,19 @@ export default function Home() {
       localStorage.setItem("eternal_cart", JSON.stringify(cart));
     } catch (e) {}
   }, [cart]);
+
+  // Telemetri Canlı Dalgalanma Simülasyonu
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTelemetry((prev) => ({
+        ...prev,
+        nozzleTemp: 240 + Math.floor(Math.random() * 5),
+        speed: 310 + Math.floor(Math.random() * 25),
+        progress: prev.progress >= 98 ? 12 : prev.progress + 1,
+      }));
+    }, 2500);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     let index = 0;
@@ -906,6 +926,114 @@ export default function Home() {
                 ))}
           </div>
         </section>
+
+        {/* ========================================================================= */}
+        {/* CANLI BASKI ÇİFTLİĞİ TELEMETRİ MONİTÖRÜ (PRINT FARM HUD) */}
+        {/* ========================================================================= */}
+        {is3D && (
+          <section className="mx-auto max-w-6xl px-6 pt-4 pb-2">
+            <div className="relative overflow-hidden rounded-3xl border border-cyan-500/40 bg-[#080d16]/95 p-5 shadow-2xl backdrop-blur-xl">
+              <div className="absolute top-0 right-0 h-40 w-40 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+              
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className="relative flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-500" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-sm font-black tracking-wider text-white uppercase font-mono">
+                        ETERNALAB // ATÖLYE ÇİFTLİK TELEMETRİSİ
+                      </h3>
+                      <span className="rounded bg-cyan-500/20 px-1.5 py-0.5 text-[9px] font-mono font-bold text-cyan-300 border border-cyan-500/30">
+                        ONLINE MATRIX
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 font-mono">
+                      Yüksek hassasiyetli endüstriyel 3D yazıcı kümesi anlık üretim parametreleri.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 font-mono text-xs">
+                  <span className="text-slate-400">Aktif Nozzle Kümesi:</span>
+                  <span className="font-bold text-cyan-400 bg-cyan-950/60 px-2.5 py-1 rounded-lg border border-cyan-800/60">
+                    {telemetry.activePrinters} / {telemetry.totalPrinters} ÜRETİMDE
+                  </span>
+                </div>
+              </div>
+
+              {/* Parametre Grid */}
+              <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="rounded-xl border border-slate-800 bg-[#0c121e]/80 p-3 flex flex-col justify-between">
+                  <div className="flex items-center justify-between text-slate-400 text-xs">
+                    <span className="text-[11px] font-mono">NOZZLE SICAKLIĞI</span>
+                    <Thermometer className="h-4 w-4 text-cyan-400" />
+                  </div>
+                  <div className="mt-2 font-mono text-xl font-black text-white flex items-baseline gap-1">
+                    <span>{telemetry.nozzleTemp}</span>
+                    <span className="text-xs text-cyan-400">°C</span>
+                  </div>
+                  <span className="text-[10px] text-slate-500 font-mono mt-1">PETG Isı Toleransı: ±1.2°C</span>
+                </div>
+
+                <div className="rounded-xl border border-slate-800 bg-[#0c121e]/80 p-3 flex flex-col justify-between">
+                  <div className="flex items-center justify-between text-slate-400 text-xs">
+                    <span className="text-[11px] font-mono">YATAK TABLASI</span>
+                    <Flame className="h-4 w-4 text-orange-400" />
+                  </div>
+                  <div className="mt-2 font-mono text-xl font-black text-white flex items-baseline gap-1">
+                    <span>{telemetry.bedTemp}</span>
+                    <span className="text-xs text-orange-400">°C</span>
+                  </div>
+                  <span className="text-[10px] text-slate-500 font-mono mt-1">PEI Yüzey Vakum Aktif</span>
+                </div>
+
+                <div className="rounded-xl border border-slate-800 bg-[#0c121e]/80 p-3 flex flex-col justify-between">
+                  <div className="flex items-center justify-between text-slate-400 text-xs">
+                    <span className="text-[11px] font-mono">EKSTRÜZYON HIZI</span>
+                    <Gauge className="h-4 w-4 text-emerald-400" />
+                  </div>
+                  <div className="mt-2 font-mono text-xl font-black text-white flex items-baseline gap-1">
+                    <span>{telemetry.speed}</span>
+                    <span className="text-xs text-emerald-400">mm/s</span>
+                  </div>
+                  <span className="text-[10px] text-slate-500 font-mono mt-1">CoreXY İvmelenme</span>
+                </div>
+
+                <div className="rounded-xl border border-slate-800 bg-[#0c121e]/80 p-3 flex flex-col justify-between">
+                  <div className="flex items-center justify-between text-slate-400 text-xs">
+                    <span className="text-[11px] font-mono">KATMAN İLERLEMESİ</span>
+                    <Activity className="h-4 w-4 text-cyan-400" />
+                  </div>
+                  <div className="mt-2 font-mono text-xl font-black text-white flex items-baseline gap-1">
+                    <span>{telemetry.layerStatus}</span>
+                  </div>
+                  <span className="text-[10px] text-slate-500 font-mono mt-1">Katman: 0.16mm Hassas</span>
+                </div>
+              </div>
+
+              {/* Anlık Üretim Çubuğu */}
+              <div className="mt-4 rounded-xl border border-slate-800/80 bg-slate-950/60 p-3">
+                <div className="flex items-center justify-between text-xs font-mono mb-2">
+                  <div className="flex items-center gap-2">
+                    <Wind className="h-3.5 w-3.5 text-cyan-400 animate-spin" />
+                    <span className="text-slate-300 font-bold">ŞU AN ÜRETİLEN:</span>
+                    <span className="text-cyan-300">{telemetry.currentJob}</span>
+                  </div>
+                  <span className="font-black text-cyan-400">%{telemetry.progress}</span>
+                </div>
+                <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-cyan-500 via-blue-500 to-sky-400 transition-all duration-700 ease-out" 
+                    style={{ width: `${telemetry.progress}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* BEFORE / AFTER SLIDER */}
         {!is3D && (
@@ -1474,7 +1602,6 @@ export default function Home() {
                     </button>
                   </div>
 
-                  {/* Ödeme Yöntemi Seçici */}
                   <div className="mt-4">
                     <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Ödeme Yöntemi Seçin:</span>
                     <div className="mt-2 grid grid-cols-2 gap-2">
@@ -1508,7 +1635,6 @@ export default function Home() {
                     </div>
                   </div>
 
-                  {/* Teslimat Bilgi Girişi */}
                   <form id="checkout-form" onSubmit={handleFinalOrderSubmit} className="mt-4 space-y-3">
                     <div>
                       <label className="text-[11px] font-semibold text-slate-400">Ad Soyad *</label>
