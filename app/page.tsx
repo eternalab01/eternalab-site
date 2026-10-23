@@ -117,7 +117,7 @@ const PRODUCTS: Product[] = [
   // 1. AUTO DETAILING
   {
     id: "d_master_bundle",
-    name: "A'dan Z'ye Komple Master Detailing Bakım Paketi (12 Parça)",
+    name: "Araç Bakım Seti",
     category: "garage",
     subCategory: "bundles",
     rating: 5.0,
@@ -136,7 +136,7 @@ const PRODUCTS: Product[] = [
   },
   {
     id: "d_iron_cleaner",
-    name: "pH Nötr Moraran Demir Tozu & Jant Temizleyici",
+    name: "Moraran Demir Tozu Jant Temizleyicisi",
     category: "garage",
     subCategory: "wheel_tire",
     rating: 4.9,
@@ -157,7 +157,7 @@ const PRODUCTS: Product[] = [
   },
   {
     id: "d_tire_gel",
-    name: "Ultra Parlak & Su İtici Simli Lastik Parlatıcı Jel",
+    name: "Lastik Parlatıcı",
     category: "garage",
     subCategory: "wheel_tire",
     rating: 4.8,
@@ -178,7 +178,7 @@ const PRODUCTS: Product[] = [
   },
   {
     id: "d_twisted_towel",
-    name: "Twisted Pile Ultra Emici Oto Kurulama Havlusu (1200 GSM)",
+    name: "Oto Kurulama Havlusu",
     category: "garage",
     subCategory: "towels",
     rating: 5.0,
@@ -199,7 +199,7 @@ const PRODUCTS: Product[] = [
   },
   {
     id: "d_ceramic_wax",
-    name: "SiO2 Seramik Katkılı Hızlı & Pratik Cila Spreyi (750 ml)",
+    name: "Seramik Hızlı Cila",
     category: "garage",
     subCategory: "wash_foam",
     rating: 4.8,
@@ -220,7 +220,7 @@ const PRODUCTS: Product[] = [
   },
   {
     id: "d_carnauba_shampoo",
-    name: "%90 Carnauba Cilalı & Konsantre Neon Oto Şampuanı",
+    name: "Oto Şampuanı",
     category: "garage",
     subCategory: "wash_foam",
     rating: 4.9,
@@ -344,10 +344,10 @@ interface CartItem {
 }
 
 const FAKE_NOTIFICATIONS = [
-  { city: "İstanbul", product: "A'dan Z'ye Master Bakım Paketi", time: "2 dk önce" },
+  { city: "İstanbul", product: "Araç Bakım Seti", time: "2 dk önce" },
   { city: "Ankara", product: "Kişiye Özel Plaka Anahtarlık", time: "5 dk önce" },
-  { city: "İzmir", product: "1200 GSM Twisted Havlu (3 Al 2 Öde)", time: "8 dk önce" },
-  { city: "Bursa", product: "pH Nötr Demir Tozu & Jant Temizleyici", time: "11 dk önce" },
+  { city: "İzmir", product: "Oto Kurulama Havlusu (3 Al 2 Öde)", time: "8 dk önce" },
+  { city: "Bursa", product: "Moraran Demir Tozu Jant Temizleyicisi", time: "11 dk önce" },
   { city: "Antalya", product: "Araç İçi Bardaklık & Telefon Tutucu", time: "14 dk önce" }
 ];
 
@@ -587,7 +587,7 @@ export default function Home() {
       category: "garage",
       rating: 5.0,
       reviewCount: 1,
-      description: `Seçilenler: ${bundleShampoo === "carnauba" ? "Carnauba Şampuan (1L)" : "Seramik Cila (750ml)"} + ${bundleWheel === "iron" ? "Demir Tozu (500ml)" : "Lastik Jeli (500ml)"} + ${bundleTowel === "twisted" ? "1200 GSM Twisted Havlu" : "Lazer Bez Paketi"}`,
+      description: `Seçilenler: ${bundleShampoo === "carnauba" ? "Oto Şampuanı (1L)" : "Seramik Hızlı Cila (750ml)"} + ${bundleWheel === "iron" ? "Moraran Demir Tozu Jant Temizleyicisi (500ml)" : "Lastik Parlatıcı (500ml)"} + ${bundleTowel === "twisted" ? "Oto Kurulama Havlusu" : "Lazer Bez Paketi"}`,
       image: "https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=600&auto=format&fit=crop&q=80",
       options1Label: "Paket",
       options1: [{ name: "Kombo Set", price: 799, originalPrice: 999, discountBadge: "%20 Tasarruf" }],
@@ -1218,14 +1218,14 @@ export default function Home() {
                       onClick={() => { playSound("click"); setBundleShampoo("carnauba"); }}
                       className={`flex items-center justify-between rounded-xl border p-3 text-xs cursor-pointer transition ${bundleShampoo === "carnauba" ? "border-amber-400 bg-amber-500/20 text-white" : "border-slate-800 text-slate-400"}`}
                     >
-                      <span>Carnauba Şampuan (1L)</span>
+                      <span>Oto Şampuanı (1L)</span>
                       <CheckCircle className={`h-4 w-4 ${bundleShampoo === "carnauba" ? "text-amber-400" : "opacity-0"}`} />
                     </label>
                     <label 
                       onClick={() => { playSound("click"); setBundleShampoo("ceramic"); }}
                       className={`flex items-center justify-between rounded-xl border p-3 text-xs cursor-pointer transition ${bundleShampoo === "ceramic" ? "border-amber-400 bg-amber-500/20 text-white" : "border-slate-800 text-slate-400"}`}
                     >
-                      <span>SiO2 Seramik Hızlı Cila (750ml)</span>
+                      <span>Seramik Hızlı Cila (750ml)</span>
                       <CheckCircle className={`h-4 w-4 ${bundleShampoo === "ceramic" ? "text-amber-400" : "opacity-0"}`} />
                     </label>
                   </div>
@@ -1238,14 +1238,14 @@ export default function Home() {
                       onClick={() => { playSound("click"); setBundleWheel("iron"); }}
                       className={`flex items-center justify-between rounded-xl border p-3 text-xs cursor-pointer transition ${bundleWheel === "iron" ? "border-amber-400 bg-amber-500/20 text-white" : "border-slate-800 text-slate-400"}`}
                     >
-                      <span>pH Nötr Demir Tozu (500ml)</span>
+                      <span>Moraran Demir Tozu Jant Temizleyicisi (500ml)</span>
                       <CheckCircle className={`h-4 w-4 ${bundleWheel === "iron" ? "text-amber-400" : "opacity-0"}`} />
                     </label>
                     <label 
                       onClick={() => { playSound("click"); setBundleWheel("tire"); }}
                       className={`flex items-center justify-between rounded-xl border p-3 text-xs cursor-pointer transition ${bundleWheel === "tire" ? "border-amber-400 bg-amber-500/20 text-white" : "border-slate-800 text-slate-400"}`}
                     >
-                      <span>Simli Lastik Jeli (500ml)</span>
+                      <span>Lastik Parlatıcı (500ml)</span>
                       <CheckCircle className={`h-4 w-4 ${bundleWheel === "tire" ? "text-amber-400" : "opacity-0"}`} />
                     </label>
                   </div>
@@ -1258,7 +1258,7 @@ export default function Home() {
                       onClick={() => { playSound("click"); setBundleTowel("twisted"); }}
                       className={`flex items-center justify-between rounded-xl border p-3 text-xs cursor-pointer transition ${bundleTowel === "twisted" ? "border-amber-400 bg-amber-500/20 text-white" : "border-slate-800 text-slate-400"}`}
                     >
-                      <span>1200 GSM Twisted Havlu</span>
+                      <span>Oto Kurulama Havlusu</span>
                       <CheckCircle className={`h-4 w-4 ${bundleTowel === "twisted" ? "text-amber-400" : "opacity-0"}`} />
                     </label>
                     <label 
